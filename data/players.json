@@ -1,0 +1,180 @@
+{
+  "note": "Key players for top teams at FIFA World Cup 2026. For full 26-man squads, use web search.",
+  "last_updated": "2026-06-22",
+  "teams": {
+    "Argentina": {
+      "group": "J",
+      "coach": "Lionel Scaloni",
+      "captain": "Lionel Messi",
+      "key_players": [
+        { "name": "Lionel Messi", "pos": "RW", "age": 38, "club": "Inter Miami", "note": "All-time WC top scorer (18 goals). Scored twice vs Austria June 22." },
+        { "name": "Emiliano Martínez", "pos": "GK", "age": 33, "club": "Aston Villa" },
+        { "name": "Lisandro Martínez", "pos": "CB", "age": 28, "club": "Manchester United" },
+        { "name": "Cristian Romero", "pos": "CB", "age": 28, "club": "Tottenham" },
+        { "name": "Nahuel Molina", "pos": "RB", "age": 28, "club": "Atlético Madrid" },
+        { "name": "Nicolás Tagliafico", "pos": "LB", "age": 33, "club": "Lyon" },
+        { "name": "Enzo Fernández", "pos": "CM", "age": 25, "club": "Chelsea" },
+        { "name": "Rodrigo De Paul", "pos": "CM", "age": 32, "club": "Atlético Madrid" },
+        { "name": "Alexis Mac Allister", "pos": "CM", "age": 27, "club": "Liverpool" },
+        { "name": "Julián Álvarez", "pos": "ST", "age": 26, "club": "Manchester City" },
+        { "name": "Thiago Almada", "pos": "LW", "age": 25, "club": "Atlanta United" }
+      ]
+    },
+    "France": {
+      "group": "I",
+      "coach": "Didier Deschamps",
+      "captain": "Kylian Mbappé",
+      "key_players": [
+        { "name": "Kylian Mbappé", "pos": "FW", "age": 27, "club": "Real Madrid", "note": "15 all-time WC goals, tied 3rd. Scored vs Iraq June 22." },
+        { "name": "Mike Maignan", "pos": "GK", "age": 31, "club": "AC Milan" },
+        { "name": "Jules Koundé", "pos": "CB/RB", "age": 27, "club": "Barcelona" },
+        { "name": "Dayot Upamecano", "pos": "CB", "age": 27, "club": "Bayern Munich" },
+        { "name": "William Saliba", "pos": "CB", "age": 25, "club": "Arsenal" },
+        { "name": "Theo Hernández", "pos": "LB", "age": 28, "club": "AC Milan" },
+        { "name": "Aurélien Tchouaméni", "pos": "CM", "age": 26, "club": "Real Madrid" },
+        { "name": "Eduardo Camavinga", "pos": "CM", "age": 23, "club": "Real Madrid" },
+        { "name": "N'Golo Kanté", "pos": "CM", "age": 35, "club": "Al Ittihad" },
+        { "name": "Ousmane Dembélé", "pos": "RW", "age": 29, "club": "PSG" },
+        { "name": "Randal Kolo Muani", "pos": "ST", "age": 27, "club": "PSG" }
+      ]
+    },
+    "Brazil": {
+      "group": "C",
+      "coach": "Carlo Ancelotti",
+      "captain": "Marquinhos",
+      "key_players": [
+        { "name": "Vinicius Jr.", "pos": "LW", "age": 25, "club": "Real Madrid", "note": "Ballon d'Or winner, key attacker" },
+        { "name": "Alisson Becker", "pos": "GK", "age": 33, "club": "Liverpool" },
+        { "name": "Marquinhos", "pos": "CB", "age": 32, "club": "PSG" },
+        { "name": "Éder Militão", "pos": "CB", "age": 28, "club": "Real Madrid" },
+        { "name": "Danilo", "pos": "LB", "age": 35, "club": "Juventus" },
+        { "name": "Wesley França", "pos": "RB", "age": 23, "club": "Flamengo" },
+        { "name": "Casemiro", "pos": "CDM", "age": 34, "club": "Manchester United" },
+        { "name": "Bruno Guimarães", "pos": "CM", "age": 28, "club": "Newcastle United" },
+        { "name": "Rodrygo", "pos": "RW", "age": 25, "club": "Real Madrid" },
+        { "name": "Neymar", "pos": "FW", "age": 34, "club": "Al Hilal" },
+        { "name": "Endrick", "pos": "ST", "age": 20, "club": "Real Madrid", "note": "Young sensation" }
+      ]
+    },
+    "Germany": {
+      "group": "E",
+      "coach": "Julian Nagelsmann",
+      "captain": "Joshua Kimmich",
+      "key_players": [
+        { "name": "Manuel Neuer", "pos": "GK", "age": 40, "club": "Bayern Munich", "note": "Veteran, 6th WC appearance" },
+        { "name": "Antonio Rüdiger", "pos": "CB", "age": 33, "club": "Real Madrid" },
+        { "name": "Jonathan Tah", "pos": "CB", "age": 30, "club": "Bayer Leverkusen" },
+        { "name": "Joshua Kimmich", "pos": "CM", "age": 31, "club": "Bayern Munich" },
+        { "name": "Jamal Musiala", "pos": "AM", "age": 23, "club": "Bayern Munich", "note": "Young star, creative playmaker" },
+        { "name": "Florian Wirtz", "pos": "AM", "age": 23, "club": "Bayer Leverkusen", "note": "Young star" },
+        { "name": "Kai Havertz", "pos": "FW", "age": 27, "club": "Arsenal" },
+        { "name": "Leroy Sané", "pos": "W", "age": 30, "club": "Bayern Munich" },
+        { "name": "Niclas Füllkrug", "pos": "ST", "age": 33, "club": "Borussia Dortmund" }
+      ]
+    },
+    "Spain": {
+      "group": "H",
+      "coach": "Luis de la Fuente",
+      "captain": "Álvaro Morata",
+      "key_players": [
+        { "name": "Lamine Yamal", "pos": "RW", "age": 18, "club": "Barcelona", "note": "Youngest star, sensational teenager" },
+        { "name": "Pedri", "pos": "CM", "age": 23, "club": "Barcelona" },
+        { "name": "Gavi", "pos": "CM", "age": 21, "club": "Barcelona" },
+        { "name": "Unai Simón", "pos": "GK", "age": 29, "club": "Athletic Bilbao" },
+        { "name": "Dani Carvajal", "pos": "RB", "age": 34, "club": "Real Madrid" },
+        { "name": "Aymeric Laporte", "pos": "CB", "age": 32, "club": "Al Nassr" },
+        { "name": "Dani Olmo", "pos": "AM", "age": 28, "club": "RB Leipzig" },
+        { "name": "Álvaro Morata", "pos": "ST", "age": 33, "club": "AC Milan" }
+      ]
+    },
+    "England": {
+      "group": "L",
+      "coach": "Thomas Tuchel",
+      "captain": "Harry Kane",
+      "key_players": [
+        { "name": "Harry Kane", "pos": "ST", "age": 33, "club": "Bayern Munich", "note": "10 WC goals all-time" },
+        { "name": "Jude Bellingham", "pos": "CM/AM", "age": 22, "club": "Real Madrid" },
+        { "name": "Phil Foden", "pos": "FW", "age": 26, "club": "Manchester City" },
+        { "name": "Bukayo Saka", "pos": "RW", "age": 24, "club": "Arsenal" },
+        { "name": "Declan Rice", "pos": "CDM", "age": 27, "club": "Arsenal" },
+        { "name": "John Stones", "pos": "CB", "age": 32, "club": "Manchester City" },
+        { "name": "Cole Palmer", "pos": "AM", "age": 23, "club": "Chelsea" },
+        { "name": "Kobbie Mainoo", "pos": "CM", "age": 21, "club": "Manchester United" }
+      ]
+    },
+    "Portugal": {
+      "group": "K",
+      "coach": "Roberto Martinez",
+      "captain": "Cristiano Ronaldo",
+      "key_players": [
+        { "name": "Cristiano Ronaldo", "pos": "FW", "age": 41, "club": "Al Nassr", "note": "6th WC appearance — record-tying milestone" },
+        { "name": "Bruno Fernandes", "pos": "AM", "age": 30, "club": "Manchester United" },
+        { "name": "Bernardo Silva", "pos": "CM", "age": 31, "club": "Manchester City" },
+        { "name": "Rúben Dias", "pos": "CB", "age": 29, "club": "Manchester City" },
+        { "name": "Rafael Leão", "pos": "LW", "age": 26, "club": "AC Milan" },
+        { "name": "João Cancelo", "pos": "RB", "age": 32, "club": "Manchester City" },
+        { "name": "João Félix", "pos": "FW", "age": 27, "club": "Chelsea" }
+      ]
+    },
+    "Netherlands": {
+      "group": "F",
+      "coach": "Ronald Koeman",
+      "captain": "Virgil van Dijk",
+      "key_players": [
+        { "name": "Virgil van Dijk", "pos": "CB", "age": 35, "club": "Liverpool" },
+        { "name": "Cody Gakpo", "pos": "LW", "age": 26, "club": "Liverpool" },
+        { "name": "Frenkie de Jong", "pos": "CM", "age": 29, "club": "Barcelona" },
+        { "name": "Xavi Simons", "pos": "AM", "age": 23, "club": "PSG" },
+        { "name": "Matthijs de Ligt", "pos": "CB", "age": 26, "club": "Manchester United" },
+        { "name": "Memphis Depay", "pos": "FW", "age": 31, "club": "Corinthians" }
+      ]
+    },
+    "Morocco": {
+      "group": "C",
+      "coach": "Mohamed Ouahbi",
+      "captain": "Achraf Hakimi",
+      "key_players": [
+        { "name": "Achraf Hakimi", "pos": "RB", "age": 28, "club": "PSG" },
+        { "name": "Yassine Bounou", "pos": "GK", "age": 34, "club": "Al Hilal" },
+        { "name": "Sofyan Amrabat", "pos": "CDM", "age": 30, "club": "Manchester United" },
+        { "name": "Hakim Ziyech", "pos": "RW", "age": 33, "club": "Galatasaray" },
+        { "name": "Ez Abde", "pos": "LW", "age": 24, "club": "Osasuna" }
+      ]
+    },
+    "Egypt": {
+      "group": "G",
+      "coach": "Hossam Hassan",
+      "captain": "Mohamed Salah",
+      "key_players": [
+        { "name": "Mohamed Salah", "pos": "FW", "age": 34, "club": "Liverpool", "note": "Captain and star player" },
+        { "name": "Mostafa Mohamed", "pos": "ST", "age": 28, "club": "Galatasaray" },
+        { "name": "Mahmoud Trezeguet", "pos": "AM", "age": 32, "club": "Instanbul Başakşehir" },
+        { "name": "Mohamed Elneny", "pos": "CM", "age": 34, "club": "Arsenal" },
+        { "name": "Ahmed Hegazi", "pos": "CB", "age": 34, "club": "Al Ittihad" }
+      ]
+    },
+    "Colombia": {
+      "group": "K",
+      "coach": "Néstor Lorenzo",
+      "captain": "James Rodríguez",
+      "key_players": [
+        { "name": "Luis Díaz", "pos": "LW", "age": 28, "club": "Bayern Munich" },
+        { "name": "James Rodríguez", "pos": "AM", "age": 34, "club": "Rayo Vallecano", "note": "All-time WC top scorer for Colombia" },
+        { "name": "Davinson Sánchez", "pos": "CB", "age": 30, "club": "Galatasaray" },
+        { "name": "Rafael Santos Borré", "pos": "ST", "age": 30, "club": "River Plate" }
+      ]
+    },
+    "Mexico": {
+      "group": "A",
+      "coach": "Javier Aguirre",
+      "captain": "Edson Álvarez",
+      "key_players": [
+        { "name": "Guillermo Ochoa", "pos": "GK", "age": 41, "club": "AEL Limassol", "note": "6th WC — record-tying appearance" },
+        { "name": "César Montes", "pos": "CB", "age": 29, "club": "Lokomotiv Moscow" },
+        { "name": "Edson Álvarez", "pos": "CM", "age": 28, "club": "Fenerbahçe" },
+        { "name": "Santiago Giménez", "pos": "ST", "age": 25, "club": "AC Milan" }
+      ]
+    }
+  },
+  "note_on_other_teams": "For full squads of Canada, South Korea, Japan, Uruguay, Australia, Norway, Belgium, Sweden, etc., use web search with team name + '2026 World Cup squad'."
+}

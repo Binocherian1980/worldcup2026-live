@@ -1,0 +1,158 @@
+{
+  "last_updated": "2026-06-22",
+  "wc2026_new_records": [
+    {
+      "record": "All-time WC top scorer",
+      "detail": "Lionel Messi reached 18 World Cup goals, surpassing Miroslav Klose's record of 16",
+      "match": "Argentina 2-0 Austria, June 22 2026",
+      "goals": "Messi 38' and 90+5'"
+    },
+    {
+      "record": "First player to score at six World Cups",
+      "detail": "Lionel Messi became the first player to score at six different World Cups",
+      "note": "Cristiano Ronaldo and Guillermo Ochoa also made 6th WC appearances but Messi scored"
+    },
+    {
+      "record": "Oldest player to score a World Cup brace",
+      "detail": "Messi (age 38) scored twice in a single WC match, breaking age record for a brace"
+    },
+    {
+      "record": "Daily attendance record",
+      "detail": "281,223 fans on June 16, 2026 — four matches played — surpassed 1994 record"
+    },
+    {
+      "record": "Largest World Cup ever",
+      "detail": "48 teams, 104 matches, 1,248 players, $727 million prize pool — all records"
+    },
+    {
+      "record": "First three-nation host",
+      "detail": "USA, Canada, Mexico — first time three nations simultaneously hosted; three separate opening ceremonies"
+    },
+    {
+      "record": "Highest goals-per-game rate since 1958",
+      "detail": "3.125 goals/game after first round of group matches (75 goals in 24 matches)"
+    },
+    {
+      "record": "Most red cards in an opening match",
+      "detail": "Mexico vs South Africa opening match had 3 red cards — most in any WC opener"
+    },
+    {
+      "record": "Oldest WC manager ever",
+      "detail": "Dick Advocaat (Curacao) — 78 years, 260 days at tournament start"
+    },
+    {
+      "record": "Smallest nation to score at WC",
+      "detail": "Curacao (population ~150,000) scored — smallest nation ever to score at a men's World Cup"
+    },
+    {
+      "record": "First WC points for Canada and Qatar",
+      "detail": "Both earned draws in their opening matches — first-ever WC points for each"
+    },
+    {
+      "record": "Scotland ends 36-year winless streak",
+      "detail": "Scotland beat Haiti — first WC win since 1990"
+    }
+  ],
+  "all_time_records": {
+    "most_titles": {
+      "team": "Brazil",
+      "titles": 5,
+      "years": [1958, 1962, 1970, 1994, 2002]
+    },
+    "most_finals_appearances": {
+      "team": "Germany/West Germany",
+      "finals": 8
+    },
+    "most_matches_played": {
+      "team": "Brazil",
+      "matches": 114
+    },
+    "most_wins": {
+      "team": "Brazil",
+      "wins": 76
+    },
+    "top_scorers_all_time": [
+      { "rank": 1, "player": "Lionel Messi", "country": "Argentina", "goals": 18, "matches": 28, "active": true, "note": "Record broken June 22, 2026" },
+      { "rank": 2, "player": "Miroslav Klose", "country": "Germany", "goals": 16, "matches": 24, "active": false },
+      { "rank": 3, "player": "Ronaldo Nazário", "country": "Brazil", "goals": 15, "matches": 19, "active": false },
+      { "rank": 3, "player": "Kylian Mbappé", "country": "France", "goals": 15, "matches": 16, "active": true, "note": "Still active, tied 3rd all-time" },
+      { "rank": 5, "player": "Gerd Müller", "country": "West Germany", "goals": 14, "matches": 13, "active": false },
+      { "rank": 6, "player": "Just Fontaine", "country": "France", "goals": 13, "matches": 6, "active": false, "note": "All 13 in one tournament (1958)" },
+      { "rank": 7, "player": "Pelé", "country": "Brazil", "goals": 12, "matches": 14, "active": false },
+      { "rank": 8, "player": "Jürgen Klinsmann", "country": "Germany", "goals": 11, "matches": 17, "active": false },
+      { "rank": 8, "player": "Sándor Kocsis", "country": "Hungary", "goals": 11, "matches": 5, "active": false },
+      { "rank": 10, "player": "Gabriel Batistuta", "country": "Argentina", "goals": 10, "matches": 12, "active": false },
+      { "rank": 10, "player": "Thomas Müller", "country": "Germany", "goals": 10, "matches": 19, "active": false },
+      { "rank": 10, "player": "Harry Kane", "country": "England", "goals": 10, "matches": 10, "active": true }
+    ],
+    "most_goals_single_tournament": {
+      "player": "Just Fontaine",
+      "country": "France",
+      "goals": 13,
+      "tournament": "1958 World Cup",
+      "note": "Still the record — unlikely to be broken"
+    },
+    "fastest_goal": {
+      "player": "Hakan Şükür",
+      "country": "Turkey",
+      "seconds": 11,
+      "match": "Turkey vs South Korea, 2002"
+    },
+    "biggest_win": {
+      "match": "Hungary 10-1 El Salvador",
+      "year": 1982
+    },
+    "most_goals_in_one_match": {
+      "match": "Austria 7-5 Switzerland",
+      "goals": 12,
+      "year": 1954
+    },
+    "youngest_scorer": {
+      "player": "Pelé",
+      "country": "Brazil",
+      "age": "17 years, 239 days",
+      "year": 1958
+    },
+    "oldest_scorer": {
+      "player": "Roger Milla",
+      "country": "Cameroon",
+      "age": "42 years, 39 days",
+      "year": 1994
+    }
+  },
+  "world_cup_winners": [
+    { "year": 1930, "winner": "Uruguay", "final_score": "Uruguay 4-2 Argentina", "host": "Uruguay" },
+    { "year": 1934, "winner": "Italy", "host": "Italy" },
+    { "year": 1938, "winner": "Italy", "host": "France" },
+    { "year": 1950, "winner": "Uruguay", "host": "Brazil" },
+    { "year": 1954, "winner": "West Germany", "host": "Switzerland" },
+    { "year": 1958, "winner": "Brazil", "host": "Sweden" },
+    { "year": 1962, "winner": "Brazil", "host": "Chile" },
+    { "year": 1966, "winner": "England", "host": "England" },
+    { "year": 1970, "winner": "Brazil", "host": "Mexico" },
+    { "year": 1974, "winner": "West Germany", "host": "West Germany" },
+    { "year": 1978, "winner": "Argentina", "host": "Argentina" },
+    { "year": 1982, "winner": "Italy", "host": "Spain" },
+    { "year": 1986, "winner": "Argentina", "host": "Mexico" },
+    { "year": 1990, "winner": "West Germany", "host": "Italy" },
+    { "year": 1994, "winner": "Brazil", "host": "United States" },
+    { "year": 1998, "winner": "France", "host": "France" },
+    { "year": 2002, "winner": "Brazil", "host": "Japan/South Korea" },
+    { "year": 2006, "winner": "Italy", "host": "Germany" },
+    { "year": 2010, "winner": "Spain", "host": "South Africa" },
+    { "year": 2014, "winner": "Germany", "host": "Brazil" },
+    { "year": 2018, "winner": "France", "host": "Russia" },
+    { "year": 2022, "winner": "Argentina", "host": "Qatar" },
+    { "year": 2026, "winner": "TBD", "host": "USA/Canada/Mexico", "final_date": "2026-07-19" }
+  ],
+  "titles_count": {
+    "Brazil": 5,
+    "Germany": 4,
+    "Italy": 4,
+    "Argentina": 3,
+    "France": 2,
+    "Uruguay": 2,
+    "England": 1,
+    "Spain": 1
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "note": "All 48 head coaches at FIFA World Cup 2026. Foreign coaches indicated with nationality.",
+  "last_updated": "2026-06-22",
+  "coaches": {
+    "Group A": [
+      { "team": "Mexico", "coach": "Javier Aguirre", "nationality": "Mexican", "foreign": false },
+      { "team": "South Korea", "coach": "Hong Myung-bo", "nationality": "South Korean", "foreign": false },
+      { "team": "Czechia", "coach": "Miroslav Koubek", "nationality": "Czech", "foreign": false },
+      { "team": "South Africa", "coach": "Hugo Broos", "nationality": "Belgian", "foreign": true }
+    ],
+    "Group B": [
+      { "team": "Canada", "coach": "Jesse Marsch", "nationality": "American", "foreign": true },
+      { "team": "Switzerland", "coach": "Murat Yakin", "nationality": "Swiss", "foreign": false },
+      { "team": "Bosnia & Herzegovina", "coach": "Sergej Barbarez", "nationality": "Bosnian", "foreign": false },
+      { "team": "Qatar", "coach": "Julen Lopetegui", "nationality": "Spanish", "foreign": true }
+    ],
+    "Group C": [
+      { "team": "Brazil", "coach": "Carlo Ancelotti", "nationality": "Italian", "foreign": true, "note": "Former Real Madrid, Everton, AC Milan, Chelsea manager" },
+      { "team": "Morocco", "coach": "Mohamed Ouahbi", "nationality": "Moroccan", "foreign": false },
+      { "team": "Scotland", "coach": "Steve Clarke", "nationality": "Scottish", "foreign": false },
+      { "team": "Haiti", "coach": "Sébastien Migné", "nationality": "French", "foreign": true }
+    ],
+    "Group D": [
+      { "team": "United States", "coach": "Mauricio Pochettino", "nationality": "Argentine", "foreign": true, "note": "Former Spurs, PSG, Chelsea manager" },
+      { "team": "Australia", "coach": "Tony Popovic", "nationality": "Australian", "foreign": false },
+      { "team": "Paraguay", "coach": "Gustavo Alfaro", "nationality": "Argentine", "foreign": true },
+      { "team": "Turkey", "coach": "Vincenzo Montella", "nationality": "Italian", "foreign": true }
+    ],
+    "Group E": [
+      { "team": "Germany", "coach": "Julian Nagelsmann", "nationality": "German", "foreign": false, "note": "Former Bayern Munich, RB Leipzig manager" },
+      { "team": "Ivory Coast", "coach": "Emerse Faé", "nationality": "Ivorian", "foreign": false },
+      { "team": "Ecuador", "coach": "Sebastián Beccacece", "nationality": "Argentine", "foreign": true },
+      { "team": "Curacao", "coach": "Dick Advocaat", "nationality": "Dutch", "foreign": true, "note": "Oldest manager at a World Cup ever — 78 years old, record-breaker" }
+    ],
+    "Group F": [
+      { "team": "Netherlands", "coach": "Ronald Koeman", "nationality": "Dutch", "foreign": false },
+      { "team": "Japan", "coach": "Hajime Moriyasu", "nationality": "Japanese", "foreign": false },
+      { "team": "Sweden", "coach": "Graham Potter", "nationality": "English", "foreign": true },
+      { "team": "Tunisia", "coach": "Sabri Lamouchi", "nationality": "French", "foreign": true }
+    ],
+    "Group G": [
+      { "team": "Egypt", "coach": "Hossam Hassan", "nationality": "Egyptian", "foreign": false },
+      { "team": "Iran", "coach": "Amir Ghalenoei", "nationality": "Iranian", "foreign": false },
+      { "team": "Belgium", "coach": "Rudi Garcia", "nationality": "French", "foreign": true },
+      { "team": "New Zealand", "coach": "Darren Bazeley", "nationality": "English", "foreign": true }
+    ],
+    "Group H": [
+      { "team": "Spain", "coach": "Luis de la Fuente", "nationality": "Spanish", "foreign": false, "note": "Led Spain to UEFA EURO 2024 title" },
+      { "team": "Uruguay", "coach": "Marcelo Bielsa", "nationality": "Argentine", "foreign": true, "note": "Famous tactician, 'El Loco'" },
+      { "team": "Cape Verde", "coach": "Bubista", "nationality": "Cape Verdean", "foreign": false },
+      { "team": "Saudi Arabia", "coach": "Georgios Donis", "nationality": "Greek", "foreign": true }
+    ],
+    "Group I": [
+      { "team": "France", "coach": "Didier Deschamps", "nationality": "French", "foreign": false, "note": "Won WC 1998 as player and 2018 as manager" },
+      { "team": "Norway", "coach": "Ståle Solbakken", "nationality": "Norwegian", "foreign": false },
+      { "team": "Senegal", "coach": "Pape Thiaw", "nationality": "Senegalese", "foreign": false },
+      { "team": "Iraq", "coach": "Graham Arnold", "nationality": "Australian", "foreign": true }
+    ],
+    "Group J": [
+      { "team": "Argentina", "coach": "Lionel Scaloni", "nationality": "Argentine", "foreign": false, "note": "Won WC 2022, Copa America 2021 & 2024 with Argentina" },
+      { "team": "Austria", "coach": "Ralf Rangnick", "nationality": "German", "foreign": true, "note": "Pioneer of gegenpressing tactics" },
+      { "team": "Jordan", "coach": "Jamal Sellami", "nationality": "Moroccan", "foreign": true },
+      { "team": "Algeria", "coach": "Vladimir Petković", "nationality": "Swiss-Bosnian", "foreign": true }
+    ],
+    "Group K": [
+      { "team": "Portugal", "coach": "Roberto Martinez", "nationality": "Spanish", "foreign": true, "note": "Former Belgium manager" },
+      { "team": "Colombia", "coach": "Néstor Lorenzo", "nationality": "Argentine", "foreign": true },
+      { "team": "DR Congo", "coach": "Sébastien Desabre", "nationality": "French", "foreign": true },
+      { "team": "Uzbekistan", "coach": "Fabio Cannavaro", "nationality": "Italian", "foreign": true, "note": "Former World Cup winner 2006 as player" }
+    ],
+    "Group L": [
+      { "team": "England", "coach": "Thomas Tuchel", "nationality": "German", "foreign": true, "note": "Won Champions League with Chelsea 2021" },
+      { "team": "Ghana", "coach": "Carlos Queiroz", "nationality": "Portuguese", "foreign": true },
+      { "team": "Panama", "coach": "Thomas Christiansen", "nationality": "Spanish-Danish", "foreign": true },
+      { "team": "Croatia", "coach": "Zlatko Dalić", "nationality": "Croatian", "foreign": false, "note": "Led Croatia to WC final 2018, 3rd place 2022" }
+    ]
+  },
+  "coaching_stats": {
+    "most_coaches_by_nation": "Argentina (6 coaches)",
+    "second_most": "France (5 coaches)",
+    "foreign_coaches_total": 31,
+    "native_coaches_total": 17,
+    "oldest_coach_record": "Dick Advocaat (Curacao) — 78 years, 260 days — oldest coach in WC history"
+  }
+}

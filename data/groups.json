@@ -1,0 +1,157 @@
+{
+  "tournament": {
+    "name": "FIFA World Cup 2026",
+    "hosts": ["United States", "Canada", "Mexico"],
+    "dates": { "start": "2026-06-11", "final": "2026-07-19" },
+    "total_teams": 48,
+    "total_groups": 12,
+    "total_matches": 104,
+    "prize_pool_usd": 727000000
+  },
+  "format": {
+    "group_stage": "12 groups of 4 teams, each team plays 3 matches",
+    "advancement": "Top 2 from each group (24 teams) + 8 best third-place teams = 32 teams advance",
+    "knockout_rounds": ["Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Final"],
+    "points": { "win": 3, "draw": 1, "loss": 0 }
+  },
+  "tiebreaker_rules": [
+    "Points in head-to-head matches between tied teams",
+    "Goal difference in head-to-head matches",
+    "Goals scored in head-to-head matches",
+    "Overall goal difference",
+    "Overall goals scored",
+    "Fair play score (fewer cards)",
+    "FIFA World Ranking"
+  ],
+  "third_place_ranking": [
+    "Points",
+    "Goal difference",
+    "Goals scored",
+    "Fair play record",
+    "FIFA World Ranking"
+  ],
+  "groups": {
+    "A": {
+      "teams": ["Mexico", "South Korea", "Czechia", "South Africa"],
+      "standings": [
+        { "team": "Mexico", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 3, "ga": 0, "gd": 3, "points": 6 },
+        { "team": "South Korea", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3 },
+        { "team": "Czechia", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 2, "ga": 3, "gd": -1, "points": 1 },
+        { "team": "South Africa", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 1 }
+      ]
+    },
+    "B": {
+      "teams": ["Canada", "Switzerland", "Bosnia & Herzegovina", "Qatar"],
+      "standings": [
+        { "team": "Canada", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 7, "ga": 1, "gd": 6, "points": 4 },
+        { "team": "Switzerland", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 5, "ga": 2, "gd": 3, "points": 4 },
+        { "team": "Bosnia & Herzegovina", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 2, "ga": 5, "gd": -3, "points": 1 },
+        { "team": "Qatar", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 7, "gd": -6, "points": 1 }
+      ]
+    },
+    "C": {
+      "teams": ["Brazil", "Morocco", "Scotland", "Haiti"],
+      "standings": [
+        { "team": "Brazil", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 1, "gd": 3, "points": 4 },
+        { "team": "Morocco", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 2, "ga": 1, "gd": 1, "points": 4 },
+        { "team": "Scotland", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 1, "ga": 1, "gd": 0, "points": 3 },
+        { "team": "Haiti", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 0, "ga": 4, "gd": -4, "points": 0 }
+      ]
+    },
+    "D": {
+      "teams": ["United States", "Australia", "Paraguay", "Turkey"],
+      "standings": [
+        { "team": "United States", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 6, "ga": 1, "gd": 5, "points": 6 },
+        { "team": "Australia", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3 },
+        { "team": "Paraguay", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 4, "gd": -2, "points": 3 },
+        { "team": "Turkey", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 0, "ga": 3, "gd": -3, "points": 0 }
+      ]
+    },
+    "E": {
+      "teams": ["Germany", "Ivory Coast", "Ecuador", "Curacao"],
+      "standings": [
+        { "team": "Germany", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 9, "ga": 2, "gd": 7, "points": 6 },
+        { "team": "Ivory Coast", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3 },
+        { "team": "Ecuador", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 0, "ga": 1, "gd": -1, "points": 1 },
+        { "team": "Curacao", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 7, "gd": -6, "points": 1 }
+      ]
+    },
+    "F": {
+      "teams": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+      "standings": [
+        { "team": "Netherlands", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 7, "ga": 3, "gd": 4, "points": 4 },
+        { "team": "Japan", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 6, "ga": 2, "gd": 4, "points": 4 },
+        { "team": "Sweden", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 6, "ga": 6, "gd": 0, "points": 3 },
+        { "team": "Tunisia", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 1, "ga": 9, "gd": -8, "points": 0 }
+      ]
+    },
+    "G": {
+      "teams": ["Egypt", "Iran", "Belgium", "New Zealand"],
+      "standings": [
+        { "team": "Egypt", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 2, "gd": 2, "points": 4 },
+        { "team": "Iran", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 2, "ga": 2, "gd": 0, "points": 2 },
+        { "team": "Belgium", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 2 },
+        { "team": "New Zealand", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 3, "ga": 5, "gd": -2, "points": 1 }
+      ]
+    },
+    "H": {
+      "teams": ["Spain", "Uruguay", "Cape Verde", "Saudi Arabia"],
+      "standings": [
+        { "team": "Spain", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 0, "gd": 4, "points": 4 },
+        { "team": "Uruguay", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 3, "ga": 3, "gd": 0, "points": 2 },
+        { "team": "Cape Verde", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 2, "ga": 2, "gd": 0, "points": 2 },
+        { "team": "Saudi Arabia", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 5, "gd": -4, "points": 1 }
+      ]
+    },
+    "I": {
+      "teams": ["France", "Norway", "Senegal", "Iraq"],
+      "standings": [
+        { "team": "France", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 3, "ga": 1, "gd": 2, "points": 3 },
+        { "team": "Norway", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 4, "ga": 1, "gd": 3, "points": 3 },
+        { "team": "Senegal", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0 },
+        { "team": "Iraq", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 4, "gd": -3, "points": 0 }
+      ],
+      "note": "France vs Iraq in progress (1-0 HT, 2nd half delayed by thunderstorm, June 22)"
+    },
+    "J": {
+      "teams": ["Argentina", "Austria", "Jordan", "Algeria"],
+      "standings": [
+        { "team": "Argentina", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 2, "ga": 0, "gd": 2, "points": 3 },
+        { "team": "Austria", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 2, "gd": -2, "points": 0 },
+        { "team": "Jordan", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0 },
+        { "team": "Algeria", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 3, "gd": -3, "points": 0 }
+      ],
+      "note": "Jordan vs Algeria tonight (11PM ET)"
+    },
+    "K": {
+      "teams": ["Colombia", "Portugal", "DR Congo", "Uzbekistan"],
+      "standings": [
+        { "team": "Colombia", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 3, "ga": 1, "gd": 2, "points": 3 },
+        { "team": "Portugal", "played": 1, "won": 0, "drawn": 1, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1 },
+        { "team": "DR Congo", "played": 1, "won": 0, "drawn": 1, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1 },
+        { "team": "Uzbekistan", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0 }
+      ]
+    },
+    "L": {
+      "teams": ["England", "Ghana", "Panama", "Croatia"],
+      "standings": [
+        { "team": "England", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 4, "ga": 2, "gd": 2, "points": 3 },
+        { "team": "Ghana", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 1, "ga": 0, "gd": 1, "points": 3 },
+        { "team": "Panama", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 1, "gd": -1, "points": 0 },
+        { "team": "Croatia", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 2, "ga": 4, "gd": -2, "points": 0 }
+      ]
+    }
+  },
+  "likely_qualified": {
+    "note": "Teams with 6 points after 2 matches are virtually guaranteed to advance",
+    "teams": ["Mexico (Group A)", "United States (Group D)", "Germany (Group E)"],
+    "strong_position": ["Canada (Group B)", "Switzerland (Group B)", "Brazil (Group C)", "Morocco (Group C)", "Netherlands (Group F)", "Japan (Group F)", "Egypt (Group G)", "Spain (Group H)"]
+  },
+  "today_matches_june22": [
+    { "group": "J", "match": "Argentina vs Austria", "result": "Argentina 2-0 Austria", "scorers": ["Messi 38'", "Messi 90+5'"], "status": "FINAL" },
+    { "group": "I", "match": "France vs Iraq", "time_et": "5:00 PM", "venue": "Lincoln Financial Field, Philadelphia", "status": "IN PROGRESS (1-0 HT, storm delay)", "scorer": "Mbappé" },
+    { "group": "I", "match": "Norway vs Senegal", "time_et": "8:00 PM", "venue": "MetLife Stadium, East Rutherford NJ", "status": "UPCOMING" },
+    { "group": "J", "match": "Jordan vs Algeria", "time_et": "11:00 PM", "venue": "Levi's Stadium, Santa Clara CA", "status": "UPCOMING" }
+  ],
+  "last_updated": "2026-06-22T17:08:00-05:00"
+}

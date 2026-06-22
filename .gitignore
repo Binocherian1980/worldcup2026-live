@@ -1,0 +1,6 @@
+# .gitignore for FIFA World Cup 2026 Dashboard
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.log

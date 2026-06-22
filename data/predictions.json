@@ -1,0 +1,104 @@
+{
+  "note": "Predictions based on current form, FIFA ranking, squad quality, and head-to-head. ALWAYS verify with live standings before using.",
+  "methodology": {
+    "factors": [
+      "Current tournament points (weight: 30%)",
+      "Goals scored/conceded ratio (weight: 20%)",
+      "FIFA World Ranking pre-tournament (weight: 20%)",
+      "Squad quality / star players available (weight: 20%)",
+      "Head-to-head record (weight: 10%)"
+    ],
+    "confidence": "Predictions are probabilistic. Upsets are always possible. Check for yellow card accumulations (2 = 1 match ban) and injuries before each match."
+  },
+  "group_qualification_outlook": {
+    "virtually_qualified": [
+      { "team": "Mexico", "group": "A", "points": 6, "certainty": "99%" },
+      { "team": "United States", "group": "D", "points": 6, "certainty": "99%" },
+      { "team": "Germany", "group": "E", "points": 6, "certainty": "99%" }
+    ],
+    "strong_position": [
+      { "team": "Canada", "group": "B", "points": 4, "certainty": "85%" },
+      { "team": "Switzerland", "group": "B", "points": 4, "certainty": "80%" },
+      { "team": "Brazil", "group": "C", "points": 4, "certainty": "85%" },
+      { "team": "Morocco", "group": "C", "points": 4, "certainty": "80%" },
+      { "team": "Netherlands", "group": "F", "points": 4, "certainty": "85%" },
+      { "team": "Japan", "group": "F", "points": 4, "certainty": "82%" },
+      { "team": "Egypt", "group": "G", "points": 4, "certainty": "78%" },
+      { "team": "Spain", "group": "H", "points": 4, "certainty": "88%" }
+    ],
+    "contested": [
+      "Group C: Morocco vs Scotland (both could finish 2nd)",
+      "Group G: Iran vs Belgium (2 draws each, still level)",
+      "Group H: Uruguay vs Cape Verde (both 2pts, playing 3rd match)",
+      "Group I: France vs Norway (both 3pts after 1 game)",
+      "Group J: Argentina, Austria, Jordan, Algeria (all in play after matchday 1-2)",
+      "Group K: Colombia (3pts), Portugal (1pt) — wide open",
+      "Group L: England vs Ghana (both 3pts after 1 game)"
+    ]
+  },
+  "match_predictions": {
+    "today_june22": [
+      {
+        "match": "France vs Iraq",
+        "group": "I",
+        "status": "IN PROGRESS — France 1-0 HT (Mbappé)",
+        "prediction": "France win 3-0",
+        "win_probability": { "France": "88%", "Draw": "8%", "Iraq": "4%" }
+      },
+      {
+        "match": "Norway vs Senegal",
+        "group": "I",
+        "time_et": "8:00 PM",
+        "prediction": "Norway win 2-1",
+        "key_player": "Erling Haaland",
+        "win_probability": { "Norway": "55%", "Draw": "25%", "Senegal": "20%" }
+      },
+      {
+        "match": "Jordan vs Algeria",
+        "group": "J",
+        "time_et": "11:00 PM",
+        "prediction": "Algeria win 2-0",
+        "win_probability": { "Algeria": "45%", "Draw": "30%", "Jordan": "25%" },
+        "note": "Both teams on 0 pts, must-win for both"
+      }
+    ],
+    "upcoming_group_stage_matchday3": {
+      "note": "Final group stage matches June 25-27. All simultaneous within each group.",
+      "predictions": [
+        { "group": "A", "matches": ["Mexico vs Czechia", "South Korea vs South Africa"], "predicted_qualifiers": ["Mexico (1st)", "South Korea (2nd)"] },
+        { "group": "B", "matches": ["Canada vs Qatar", "Switzerland vs Bosnia"], "predicted_qualifiers": ["Canada (1st)", "Switzerland (2nd)"] },
+        { "group": "C", "matches": ["Brazil vs Scotland", "Morocco vs Haiti"], "predicted_qualifiers": ["Brazil (1st)", "Morocco (2nd)"] },
+        { "group": "D", "matches": ["USA vs Turkey", "Australia vs Paraguay"], "predicted_qualifiers": ["USA (1st)", "Australia (2nd)"] },
+        { "group": "E", "matches": ["Germany vs Ecuador", "Ivory Coast vs Curacao"], "predicted_qualifiers": ["Germany (1st)", "Ivory Coast (2nd)"] },
+        { "group": "F", "matches": ["Netherlands vs Tunisia", "Japan vs Sweden"], "predicted_qualifiers": ["Netherlands (1st)", "Japan (2nd)"] },
+        { "group": "G", "matches": ["Egypt vs Belgium", "Iran vs New Zealand"], "predicted_qualifiers": ["Egypt (1st)", "Belgium or Iran (2nd — very tight)"] },
+        { "group": "H", "matches": ["Spain vs Uruguay", "Cape Verde vs Saudi Arabia"], "predicted_qualifiers": ["Spain (1st)", "Uruguay (2nd)"] },
+        { "group": "I", "matches": ["France vs Norway", "Senegal vs Iraq"], "predicted_qualifiers": ["France (1st)", "Norway (2nd)"] },
+        { "group": "J", "matches": ["Argentina vs Jordan", "Algeria vs Austria"], "predicted_qualifiers": ["Argentina (1st)", "Austria or Algeria (2nd)"] },
+        { "group": "K", "matches": ["Portugal vs Uzbekistan", "Colombia vs DR Congo"], "predicted_qualifiers": ["Colombia (1st)", "Portugal (2nd)"] },
+        { "group": "L", "matches": ["England vs Panama", "Ghana vs Croatia"], "predicted_qualifiers": ["England (1st)", "Ghana or Croatia (2nd)"] }
+      ]
+    }
+  },
+  "goal_predictions_key_matches": [
+    { "match": "Argentina vs Jordan (Matchday 3)", "prediction": "Argentina 3-0 Jordan", "scorer": "Messi likely to add to record tally" },
+    { "match": "Brazil vs Scotland (Matchday 3)", "prediction": "Brazil 2-0 Scotland", "scorer": "Vinicius Jr., Endrick" },
+    { "match": "France vs Norway (Matchday 3)", "prediction": "France 2-1 Norway", "scorer": "Mbappé, Haaland" },
+    { "match": "Germany vs Ecuador (Matchday 3)", "prediction": "Germany 2-0 Ecuador", "scorer": "Musiala, Havertz" },
+    { "match": "Spain vs Uruguay (Matchday 3)", "prediction": "Spain 1-0 Uruguay", "scorer": "Yamal" },
+    { "match": "Netherlands vs Tunisia (Matchday 3)", "prediction": "Netherlands 3-0 Tunisia" }
+  ],
+  "tournament_winner_prediction": {
+    "favorites": [
+      { "team": "France", "probability": "18%", "reason": "Mbappé in form, 15 WC goals, deep squad" },
+      { "team": "Argentina", "probability": "16%", "reason": "Defending champions, Messi record-breaking, Álvarez deadly" },
+      { "team": "Germany", "probability": "14%", "reason": "6 pts, 9 goals in 2 games, young stars Musiala+Wirtz" },
+      { "team": "Spain", "probability": "12%", "reason": "Euro 2024 winners, Yamal phenomenon, clean sheet so far" },
+      { "team": "Brazil", "probability": "11%", "reason": "Ancelotti effect, Vinicius+Endrick, 4 pts" },
+      { "team": "England", "probability": "8%", "reason": "Bellingham+Kane combo, strong squad" },
+      { "team": "Netherlands", "probability": "7%", "reason": "In form, 7 goals in 2 games" },
+      { "team": "Others", "probability": "14%" }
+    ]
+  },
+  "last_updated": "2026-06-22T17:30:00-05:00"
+}

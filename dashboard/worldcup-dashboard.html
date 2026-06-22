@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FIFA World Cup 2026 Dashboard</title>
+<script>
+(() => {
+  const p = new URLSearchParams(window.location.search).get("scoutTheme");
+  const t = p || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg:#f7f4ef;--cp-bg-elevated:#fcfbf8;--cp-surface:#ffffff;
+  --cp-surface-soft:#f5f5f5;--cp-border:#dedede;--cp-border-strong:#919191;
+  --cp-text:#242424;--cp-text-muted:#5c5c5c;--cp-text-soft:#6f6f6f;
+  --cp-accent:#b11f4b;--cp-accent-hover:#9a1a41;--cp-accent-soft:rgba(177,31,75,.08);
+  --cp-accent-fg:#ffffff;--cp-success:#16a34a;--cp-danger:#dc2626;
+  --cp-warning:#f59e0b;--cp-link:#0078d4;
+  --cp-shadow:0 18px 48px rgba(0,0,0,.12);
+  --cp-panel:rgba(255,255,255,.86);--cp-sheen:rgba(255,255,255,.55);
+  --cp-highlight:rgba(177,31,75,.12);
+}
+html[data-theme="dark"] {
+  color-scheme:dark;
+  --cp-bg:#3d3b3a;--cp-bg-elevated:#343231;--cp-surface:#292929;
+  --cp-surface-soft:#2e2e2e;--cp-border:#474747;--cp-border-strong:#5f5f5f;
+  --cp-text:#dedede;--cp-text-muted:#919191;--cp-text-soft:#b0b0b0;
+  --cp-accent:#fd8ea1;--cp-accent-hover:#fb7b91;--cp-accent-soft:rgba(253,142,161,.14);
+  --cp-accent-fg:#1a1a1a;--cp-success:#4ade80;--cp-danger:#f87171;
+  --cp-warning:#fbbf24;--cp-link:#4da6ff;
+  --cp-shadow:0 18px 48px rgba(0,0,0,.32);
+  --cp-panel:rgba(41,41,41,.72);--cp-sheen:rgba(255,255,255,.04);
+  --cp-highlight:rgba(253,142,161,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--cp-bg);color:var(--cp-text);min-height:100vh;font-size:14px}
+a{color:var(--cp-link)}
+
+/* ── Header ── */
+.header{background:var(--cp-accent);color:var(--cp-accent-fg);padding:1rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.header-meta{font-size:.75rem;opacity:.85}
+.theme-btn{background:rgba(255,255,255,.2);border:none;color:inherit;
+  padding:.35rem .7rem;border-radius:6px;cursor:pointer;font-size:.8rem}
+.theme-btn:hover{background:rgba(255,255,255,.35)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:0;background:var(--cp-surface);border-bottom:1px solid var(--cp-border);
+  overflow-x:auto;padding:0 1rem}
+.tab-btn{border:none;background:none;color:var(--cp-text-muted);cursor:pointer;
+  padding:.75rem 1rem;font-size:.82rem;font-weight:500;white-space:nowrap;
+  border-bottom:2px solid transparent;transition:all .15s}
+.tab-btn:hover{color:var(--cp-text);background:var(--cp-accent-soft)}
+.tab-btn.active{color:var(--cp-accent);border-bottom-color:var(--cp-accent);font-weight:600}
+
+/* ── Content ── */
+.content{padding:1.25rem;max-width:1200px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+
+/* ── Cards ── */
+.card{background:var(--cp-surface);border:1px solid var(--cp-border);
+  border-radius:10px;padding:1rem;margin-bottom:1rem;
+  box-shadow:0 0 2px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.12)}
+.card-title{font-size:.82rem;font-weight:700;color:var(--cp-text-muted);
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:.75rem}
+
+/* ── Grid ── */
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
+
+/* ── Standings table ── */
+.standings-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.standings-table th{text-align:left;padding:.35rem .4rem;color:var(--cp-text-muted);
+  font-weight:600;border-bottom:1px solid var(--cp-border);font-size:.72rem;
+  text-transform:uppercase}
+.standings-table td{padding:.35rem .4rem;border-bottom:1px solid var(--cp-border)}
+.standings-table tr:last-child td{border-bottom:none}
+.standings-table tr.qualified{background:rgba(22,163,74,.08)}
+.standings-table tr.likely{background:rgba(245,158,11,.06)}
+.pts{font-weight:700;color:var(--cp-accent)}
+.team-cell{display:flex;align-items:center;gap:.4rem}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:.1rem .45rem;border-radius:4px;
+  font-size:.68rem;font-weight:600;white-space:nowrap}
+.badge-green{background:rgba(22,163,74,.15);color:var(--cp-success)}
+.badge-yellow{background:rgba(245,158,11,.15);color:var(--cp-warning)}
+.badge-red{background:rgba(220,38,38,.15);color:var(--cp-danger)}
+.badge-gray{background:var(--cp-surface-soft);color:var(--cp-text-muted)}
+.badge-accent{background:var(--cp-accent-soft);color:var(--cp-accent)}
+
+/* ── Match cards ── */
+.match-card{background:var(--cp-surface);border:1px solid var(--cp-border);
+  border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;
+  display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
+  box-shadow:0 0 2px rgba(0,0,0,.08)}
+.match-teams{flex:1;display:flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:600}
+.match-score{font-size:1.2rem;font-weight:800;color:var(--cp-accent);min-width:3rem;text-align:center}
+.match-meta{font-size:.73rem;color:var(--cp-text-muted)}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--cp-danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Prediction bars ── */
+.pred-bar{display:flex;align-items:center;gap:.5rem;margin:.3rem 0;font-size:.78rem}
+.pred-fill{height:8px;border-radius:4px;background:var(--cp-accent);transition:width .4s}
+.pred-label{min-width:90px;font-weight:500}
+.pred-pct{min-width:40px;text-align:right;font-weight:700;color:var(--cp-accent)}
+
+/* ── Player cards ── */
+.team-section{margin-bottom:1.5rem}
+.team-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.team-header h3{font-size:.95rem;font-weight:700}
+.player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem}
+.player-card{background:var(--cp-surface-soft);border:1px solid var(--cp-border);
+  border-radius:8px;padding:.6rem .75rem;font-size:.78rem}
+.player-name{font-weight:700;margin-bottom:.2rem}
+.player-meta{color:var(--cp-text-muted)}
+.player-note{color:var(--cp-accent);font-size:.72rem;margin-top:.2rem}
+
+/* ── Coaches table ── */
+.coaches-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.coaches-table th{text-align:left;padding:.4rem .6rem;color:var(--cp-text-muted);
+  font-weight:600;border-bottom:2px solid var(--cp-border);font-size:.72rem;
+  text-transform:uppercase;background:var(--cp-surface-soft)}
+.coaches-table td{padding:.4rem .6rem;border-bottom:1px solid var(--cp-border)}
+.coaches-table tr:hover td{background:var(--cp-highlight)}
+.foreign{color:var(--cp-warning)}
+
+/* ── Records ── */
+.record-item{display:flex;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--cp-border)}
+.record-item:last-child{border-bottom:none}
+.record-icon{font-size:1.2rem;flex-shrink:0}
+.record-body h4{font-size:.82rem;font-weight:700}
+.record-body p{font-size:.75rem;color:var(--cp-text-muted);margin-top:.1rem}
+
+/* ── Search ── */
+.search-box{width:100%;padding:.55rem .75rem;border:1px solid var(--cp-border);
+  border-radius:8px;font-size:.85rem;background:var(--cp-surface);
+  color:var(--cp-text);margin-bottom:1rem;outline:none}
+.search-box:focus{border-color:var(--cp-accent)}
+
+/* ── Section headers ── */
+.section-title{font-size:1rem;font-weight:700;margin:1.25rem 0 .75rem;
+  display:flex;align-items:center;gap:.5rem}
+.section-title .dot{width:8px;height:8px;border-radius:50%;background:var(--cp-accent);flex-shrink:0}
+
+/* ── Scorers list ── */
+.scorer-list{margin-top:.5rem}
+.scorer-item{display:flex;align-items:center;gap:.5rem;padding:.2rem 0;font-size:.78rem}
+.scorer-rank{width:20px;text-align:center;font-weight:700;color:var(--cp-accent)}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  .groups-grid{grid-template-columns:1fr}
+  .match-teams{font-size:.8rem}
+  .tab-btn{padding:.6rem .7rem;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <h1>⚽ FIFA World Cup 2026</h1>
+  <div class="header-meta">
+    🇺🇸 🇨🇦 🇲🇽 &nbsp;|&nbsp; 48 teams · 104 matches · June 11 – July 19
+    <br/>Last updated: <span id="updatedAt"></span>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">🌙 Toggle Theme</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="showTab('standings')">📊 Standings</button>
+  <button class="tab-btn" onclick="showTab('matches')">⚽ Matches</button>
+  <button class="tab-btn" onclick="showTab('predictions')">🔮 Predictions</button>
+  <button class="tab-btn" onclick="showTab('players')">👤 Players</button>
+  <button class="tab-btn" onclick="showTab('coaches')">🧢 Coaches</button>
+  <button class="tab-btn" onclick="showTab('records')">🏆 Records</button>
+</nav>
+
+<div class="content">
+
+<!-- ═══ STANDINGS ═══════════════════════════════════════════════════ -->
+<div id="tab-standings" class="panel active">
+  <div id="groups-grid" class="groups-grid"></div>
+</div>
+
+<!-- ═══ MATCHES ══════════════════════════════════════════════════════ -->
+<div id="tab-matches" class="panel">
+  <div id="matches-container"></div>
+</div>
+
+<!-- ═══ PREDICTIONS ══════════════════════════════════════════════════ -->
+<div id="tab-predictions" class="panel">
+  <div id="predictions-container"></div>
+</div>
+
+<!-- ═══ PLAYERS ═══════════════════════════════════════════════════════ -->
+<div id="tab-players" class="panel">
+  <input class="search-box" type="text" placeholder="🔍  Search player name, club, or team…" oninput="filterPlayers(this.value)" id="player-search"/>
+  <div id="players-container"></div>
+</div>
+
+<!-- ═══ COACHES ════════════════════════════════════════════════════════ -->
+<div id="tab-coaches" class="panel">
+  <input class="search-box" type="text" placeholder="🔍  Search coach or team…" oninput="filterCoaches(this.value)" id="coach-search"/>
+  <div id="coaches-container"></div>
+</div>
+
+<!-- ═══ RECORDS ════════════════════════════════════════════════════════ -->
+<div id="tab-records" class="panel">
+  <div id="records-container"></div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+
+const WC_GROUPS      = {"tournament": {"name": "FIFA World Cup 2026", "hosts": ["United States", "Canada", "Mexico"], "dates": {"start": "2026-06-11", "final": "2026-07-19"}, "total_teams": 48, "total_groups": 12, "total_matches": 104, "prize_pool_usd": 727000000}, "format": {"group_stage": "12 groups of 4 teams, each team plays 3 matches", "advancement": "Top 2 from each group (24 teams) + 8 best third-place teams = 32 teams advance", "knockout_rounds": ["Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Final"], "points": {"win": 3, "draw": 1, "loss": 0}}, "tiebreaker_rules": ["Points in head-to-head matches between tied teams", "Goal difference in head-to-head matches", "Goals scored in head-to-head matches", "Overall goal difference", "Overall goals scored", "Fair play score (fewer cards)", "FIFA World Ranking"], "third_place_ranking": ["Points", "Goal difference", "Goals scored", "Fair play record", "FIFA World Ranking"], "groups": {"A": {"teams": ["Mexico", "South Korea", "Czechia", "South Africa"], "standings": [{"team": "Mexico", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 3, "ga": 0, "gd": 3, "points": 6}, {"team": "South Korea", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3}, {"team": "Czechia", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 2, "ga": 3, "gd": -1, "points": 1}, {"team": "South Africa", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 1}]}, "B": {"teams": ["Canada", "Switzerland", "Bosnia & Herzegovina", "Qatar"], "standings": [{"team": "Canada", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 7, "ga": 1, "gd": 6, "points": 4}, {"team": "Switzerland", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 5, "ga": 2, "gd": 3, "points": 4}, {"team": "Bosnia & Herzegovina", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 2, "ga": 5, "gd": -3, "points": 1}, {"team": "Qatar", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 7, "gd": -6, "points": 1}]}, "C": {"teams": ["Brazil", "Morocco", "Scotland", "Haiti"], "standings": [{"team": "Brazil", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 1, "gd": 3, "points": 4}, {"team": "Morocco", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 2, "ga": 1, "gd": 1, "points": 4}, {"team": "Scotland", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 1, "ga": 1, "gd": 0, "points": 3}, {"team": "Haiti", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 0, "ga": 4, "gd": -4, "points": 0}]}, "D": {"teams": ["United States", "Australia", "Paraguay", "Turkey"], "standings": [{"team": "United States", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 6, "ga": 1, "gd": 5, "points": 6}, {"team": "Australia", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3}, {"team": "Paraguay", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 4, "gd": -2, "points": 3}, {"team": "Turkey", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 0, "ga": 3, "gd": -3, "points": 0}]}, "E": {"teams": ["Germany", "Ivory Coast", "Ecuador", "Curacao"], "standings": [{"team": "Germany", "played": 2, "won": 2, "drawn": 0, "lost": 0, "gf": 9, "ga": 2, "gd": 7, "points": 6}, {"team": "Ivory Coast", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 2, "ga": 2, "gd": 0, "points": 3}, {"team": "Ecuador", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 0, "ga": 1, "gd": -1, "points": 1}, {"team": "Curacao", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 7, "gd": -6, "points": 1}]}, "F": {"teams": ["Netherlands", "Japan", "Sweden", "Tunisia"], "standings": [{"team": "Netherlands", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 7, "ga": 3, "gd": 4, "points": 4}, {"team": "Japan", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 6, "ga": 2, "gd": 4, "points": 4}, {"team": "Sweden", "played": 2, "won": 1, "drawn": 0, "lost": 1, "gf": 6, "ga": 6, "gd": 0, "points": 3}, {"team": "Tunisia", "played": 2, "won": 0, "drawn": 0, "lost": 2, "gf": 1, "ga": 9, "gd": -8, "points": 0}]}, "G": {"teams": ["Egypt", "Iran", "Belgium", "New Zealand"], "standings": [{"team": "Egypt", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 2, "gd": 2, "points": 4}, {"team": "Iran", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 2, "ga": 2, "gd": 0, "points": 2}, {"team": "Belgium", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 2}, {"team": "New Zealand", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 3, "ga": 5, "gd": -2, "points": 1}]}, "H": {"teams": ["Spain", "Uruguay", "Cape Verde", "Saudi Arabia"], "standings": [{"team": "Spain", "played": 2, "won": 1, "drawn": 1, "lost": 0, "gf": 4, "ga": 0, "gd": 4, "points": 4}, {"team": "Uruguay", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 3, "ga": 3, "gd": 0, "points": 2}, {"team": "Cape Verde", "played": 2, "won": 0, "drawn": 2, "lost": 0, "gf": 2, "ga": 2, "gd": 0, "points": 2}, {"team": "Saudi Arabia", "played": 2, "won": 0, "drawn": 1, "lost": 1, "gf": 1, "ga": 5, "gd": -4, "points": 1}]}, "I": {"teams": ["France", "Norway", "Senegal", "Iraq"], "standings": [{"team": "France", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 3, "ga": 1, "gd": 2, "points": 3}, {"team": "Norway", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 4, "ga": 1, "gd": 3, "points": 3}, {"team": "Senegal", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0}, {"team": "Iraq", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 4, "gd": -3, "points": 0}], "note": "France vs Iraq in progress (1-0 HT, 2nd half delayed by thunderstorm, June 22)"}, "J": {"teams": ["Argentina", "Austria", "Jordan", "Algeria"], "standings": [{"team": "Argentina", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 2, "ga": 0, "gd": 2, "points": 3}, {"team": "Austria", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 2, "gd": -2, "points": 0}, {"team": "Jordan", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0}, {"team": "Algeria", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 3, "gd": -3, "points": 0}], "note": "Jordan vs Algeria tonight (11PM ET)"}, "K": {"teams": ["Colombia", "Portugal", "DR Congo", "Uzbekistan"], "standings": [{"team": "Colombia", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 3, "ga": 1, "gd": 2, "points": 3}, {"team": "Portugal", "played": 1, "won": 0, "drawn": 1, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1}, {"team": "DR Congo", "played": 1, "won": 0, "drawn": 1, "lost": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1}, {"team": "Uzbekistan", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 1, "ga": 3, "gd": -2, "points": 0}]}, "L": {"teams": ["England", "Ghana", "Panama", "Croatia"], "standings": [{"team": "England", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 4, "ga": 2, "gd": 2, "points": 3}, {"team": "Ghana", "played": 1, "won": 1, "drawn": 0, "lost": 0, "gf": 1, "ga": 0, "gd": 1, "points": 3}, {"team": "Panama", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 0, "ga": 1, "gd": -1, "points": 0}, {"team": "Croatia", "played": 1, "won": 0, "drawn": 0, "lost": 1, "gf": 2, "ga": 4, "gd": -2, "points": 0}]}}, "likely_qualified": {"note": "Teams with 6 points after 2 matches are virtually guaranteed to advance", "teams": ["Mexico (Group A)", "United States (Group D)", "Germany (Group E)"], "strong_position": ["Canada (Group B)", "Switzerland (Group B)", "Brazil (Group C)", "Morocco (Group C)", "Netherlands (Group F)", "Japan (Group F)", "Egypt (Group G)", "Spain (Group H)"]}, "today_matches_june22": [{"group": "J", "match": "Argentina vs Austria", "result": "Argentina 2-0 Austria", "scorers": ["Messi 38'", "Messi 90+5'"], "status": "FINAL"}, {"group": "I", "match": "France vs Iraq", "time_et": "5:00 PM", "venue": "Lincoln Financial Field, Philadelphia", "status": "IN PROGRESS (1-0 HT, storm delay)", "scorer": "Mbappé"}, {"group": "I", "match": "Norway vs Senegal", "time_et": "8:00 PM", "venue": "MetLife Stadium, East Rutherford NJ", "status": "UPCOMING"}, {"group": "J", "match": "Jordan vs Algeria", "time_et": "11:00 PM", "venue": "Levi's Stadium, Santa Clara CA", "status": "UPCOMING"}], "last_updated": "2026-06-22T17:08:00-05:00"};
+const WC_COACHES     = {"note": "All 48 head coaches at FIFA World Cup 2026. Foreign coaches indicated with nationality.", "last_updated": "2026-06-22", "coaches": {"Group A": [{"team": "Mexico", "coach": "Javier Aguirre", "nationality": "Mexican", "foreign": false}, {"team": "South Korea", "coach": "Hong Myung-bo", "nationality": "South Korean", "foreign": false}, {"team": "Czechia", "coach": "Miroslav Koubek", "nationality": "Czech", "foreign": false}, {"team": "South Africa", "coach": "Hugo Broos", "nationality": "Belgian", "foreign": true}], "Group B": [{"team": "Canada", "coach": "Jesse Marsch", "nationality": "American", "foreign": true}, {"team": "Switzerland", "coach": "Murat Yakin", "nationality": "Swiss", "foreign": false}, {"team": "Bosnia & Herzegovina", "coach": "Sergej Barbarez", "nationality": "Bosnian", "foreign": false}, {"team": "Qatar", "coach": "Julen Lopetegui", "nationality": "Spanish", "foreign": true}], "Group C": [{"team": "Brazil", "coach": "Carlo Ancelotti", "nationality": "Italian", "foreign": true, "note": "Former Real Madrid, Everton, AC Milan, Chelsea manager"}, {"team": "Morocco", "coach": "Mohamed Ouahbi", "nationality": "Moroccan", "foreign": false}, {"team": "Scotland", "coach": "Steve Clarke", "nationality": "Scottish", "foreign": false}, {"team": "Haiti", "coach": "Sébastien Migné", "nationality": "French", "foreign": true}], "Group D": [{"team": "United States", "coach": "Mauricio Pochettino", "nationality": "Argentine", "foreign": true, "note": "Former Spurs, PSG, Chelsea manager"}, {"team": "Australia", "coach": "Tony Popovic", "nationality": "Australian", "foreign": false}, {"team": "Paraguay", "coach": "Gustavo Alfaro", "nationality": "Argentine", "foreign": true}, {"team": "Turkey", "coach": "Vincenzo Montella", "nationality": "Italian", "foreign": true}], "Group E": [{"team": "Germany", "coach": "Julian Nagelsmann", "nationality": "German", "foreign": false, "note": "Former Bayern Munich, RB Leipzig manager"}, {"team": "Ivory Coast", "coach": "Emerse Faé", "nationality": "Ivorian", "foreign": false}, {"team": "Ecuador", "coach": "Sebastián Beccacece", "nationality": "Argentine", "foreign": true}, {"team": "Curacao", "coach": "Dick Advocaat", "nationality": "Dutch", "foreign": true, "note": "Oldest manager at a World Cup ever — 78 years old, record-breaker"}], "Group F": [{"team": "Netherlands", "coach": "Ronald Koeman", "nationality": "Dutch", "foreign": false}, {"team": "Japan", "coach": "Hajime Moriyasu", "nationality": "Japanese", "foreign": false}, {"team": "Sweden", "coach": "Graham Potter", "nationality": "English", "foreign": true}, {"team": "Tunisia", "coach": "Sabri Lamouchi", "nationality": "French", "foreign": true}], "Group G": [{"team": "Egypt", "coach": "Hossam Hassan", "nationality": "Egyptian", "foreign": false}, {"team": "Iran", "coach": "Amir Ghalenoei", "nationality": "Iranian", "foreign": false}, {"team": "Belgium", "coach": "Rudi Garcia", "nationality": "French", "foreign": true}, {"team": "New Zealand", "coach": "Darren Bazeley", "nationality": "English", "foreign": true}], "Group H": [{"team": "Spain", "coach": "Luis de la Fuente", "nationality": "Spanish", "foreign": false, "note": "Led Spain to UEFA EURO 2024 title"}, {"team": "Uruguay", "coach": "Marcelo Bielsa", "nationality": "Argentine", "foreign": true, "note": "Famous tactician, 'El Loco'"}, {"team": "Cape Verde", "coach": "Bubista", "nationality": "Cape Verdean", "foreign": false}, {"team": "Saudi Arabia", "coach": "Georgios Donis", "nationality": "Greek", "foreign": true}], "Group I": [{"team": "France", "coach": "Didier Deschamps", "nationality": "French", "foreign": false, "note": "Won WC 1998 as player and 2018 as manager"}, {"team": "Norway", "coach": "Ståle Solbakken", "nationality": "Norwegian", "foreign": false}, {"team": "Senegal", "coach": "Pape Thiaw", "nationality": "Senegalese", "foreign": false}, {"team": "Iraq", "coach": "Graham Arnold", "nationality": "Australian", "foreign": true}], "Group J": [{"team": "Argentina", "coach": "Lionel Scaloni", "nationality": "Argentine", "foreign": false, "note": "Won WC 2022, Copa America 2021 & 2024 with Argentina"}, {"team": "Austria", "coach": "Ralf Rangnick", "nationality": "German", "foreign": true, "note": "Pioneer of gegenpressing tactics"}, {"team": "Jordan", "coach": "Jamal Sellami", "nationality": "Moroccan", "foreign": true}, {"team": "Algeria", "coach": "Vladimir Petković", "nationality": "Swiss-Bosnian", "foreign": true}], "Group K": [{"team": "Portugal", "coach": "Roberto Martinez", "nationality": "Spanish", "foreign": true, "note": "Former Belgium manager"}, {"team": "Colombia", "coach": "Néstor Lorenzo", "nationality": "Argentine", "foreign": true}, {"team": "DR Congo", "coach": "Sébastien Desabre", "nationality": "French", "foreign": true}, {"team": "Uzbekistan", "coach": "Fabio Cannavaro", "nationality": "Italian", "foreign": true, "note": "Former World Cup winner 2006 as player"}], "Group L": [{"team": "England", "coach": "Thomas Tuchel", "nationality": "German", "foreign": true, "note": "Won Champions League with Chelsea 2021"}, {"team": "Ghana", "coach": "Carlos Queiroz", "nationality": "Portuguese", "foreign": true}, {"team": "Panama", "coach": "Thomas Christiansen", "nationality": "Spanish-Danish", "foreign": true}, {"team": "Croatia", "coach": "Zlatko Dalić", "nationality": "Croatian", "foreign": false, "note": "Led Croatia to WC final 2018, 3rd place 2022"}]}, "coaching_stats": {"most_coaches_by_nation": "Argentina (6 coaches)", "second_most": "France (5 coaches)", "foreign_coaches_total": 31, "native_coaches_total": 17, "oldest_coach_record": "Dick Advocaat (Curacao) — 78 years, 260 days — oldest coach in WC history"}};
+const WC_PLAYERS     = {"note": "Key players for top teams at FIFA World Cup 2026. For full 26-man squads, use web search.", "last_updated": "2026-06-22", "teams": {"Argentina": {"group": "J", "coach": "Lionel Scaloni", "captain": "Lionel Messi", "key_players": [{"name": "Lionel Messi", "pos": "RW", "age": 38, "club": "Inter Miami", "note": "All-time WC top scorer (18 goals). Scored twice vs Austria June 22."}, {"name": "Emiliano Martínez", "pos": "GK", "age": 33, "club": "Aston Villa"}, {"name": "Lisandro Martínez", "pos": "CB", "age": 28, "club": "Manchester United"}, {"name": "Cristian Romero", "pos": "CB", "age": 28, "club": "Tottenham"}, {"name": "Nahuel Molina", "pos": "RB", "age": 28, "club": "Atlético Madrid"}, {"name": "Nicolás Tagliafico", "pos": "LB", "age": 33, "club": "Lyon"}, {"name": "Enzo Fernández", "pos": "CM", "age": 25, "club": "Chelsea"}, {"name": "Rodrigo De Paul", "pos": "CM", "age": 32, "club": "Atlético Madrid"}, {"name": "Alexis Mac Allister", "pos": "CM", "age": 27, "club": "Liverpool"}, {"name": "Julián Álvarez", "pos": "ST", "age": 26, "club": "Manchester City"}, {"name": "Thiago Almada", "pos": "LW", "age": 25, "club": "Atlanta United"}]}, "France": {"group": "I", "coach": "Didier Deschamps", "captain": "Kylian Mbappé", "key_players": [{"name": "Kylian Mbappé", "pos": "FW", "age": 27, "club": "Real Madrid", "note": "15 all-time WC goals, tied 3rd. Scored vs Iraq June 22."}, {"name": "Mike Maignan", "pos": "GK", "age": 31, "club": "AC Milan"}, {"name": "Jules Koundé", "pos": "CB/RB", "age": 27, "club": "Barcelona"}, {"name": "Dayot Upamecano", "pos": "CB", "age": 27, "club": "Bayern Munich"}, {"name": "William Saliba", "pos": "CB", "age": 25, "club": "Arsenal"}, {"name": "Theo Hernández", "pos": "LB", "age": 28, "club": "AC Milan"}, {"name": "Aurélien Tchouaméni", "pos": "CM", "age": 26, "club": "Real Madrid"}, {"name": "Eduardo Camavinga", "pos": "CM", "age": 23, "club": "Real Madrid"}, {"name": "N'Golo Kanté", "pos": "CM", "age": 35, "club": "Al Ittihad"}, {"name": "Ousmane Dembélé", "pos": "RW", "age": 29, "club": "PSG"}, {"name": "Randal Kolo Muani", "pos": "ST", "age": 27, "club": "PSG"}]}, "Brazil": {"group": "C", "coach": "Carlo Ancelotti", "captain": "Marquinhos", "key_players": [{"name": "Vinicius Jr.", "pos": "LW", "age": 25, "club": "Real Madrid", "note": "Ballon d'Or winner, key attacker"}, {"name": "Alisson Becker", "pos": "GK", "age": 33, "club": "Liverpool"}, {"name": "Marquinhos", "pos": "CB", "age": 32, "club": "PSG"}, {"name": "Éder Militão", "pos": "CB", "age": 28, "club": "Real Madrid"}, {"name": "Danilo", "pos": "LB", "age": 35, "club": "Juventus"}, {"name": "Wesley França", "pos": "RB", "age": 23, "club": "Flamengo"}, {"name": "Casemiro", "pos": "CDM", "age": 34, "club": "Manchester United"}, {"name": "Bruno Guimarães", "pos": "CM", "age": 28, "club": "Newcastle United"}, {"name": "Rodrygo", "pos": "RW", "age": 25, "club": "Real Madrid"}, {"name": "Neymar", "pos": "FW", "age": 34, "club": "Al Hilal"}, {"name": "Endrick", "pos": "ST", "age": 20, "club": "Real Madrid", "note": "Young sensation"}]}, "Germany": {"group": "E", "coach": "Julian Nagelsmann", "captain": "Joshua Kimmich", "key_players": [{"name": "Manuel Neuer", "pos": "GK", "age": 40, "club": "Bayern Munich", "note": "Veteran, 6th WC appearance"}, {"name": "Antonio Rüdiger", "pos": "CB", "age": 33, "club": "Real Madrid"}, {"name": "Jonathan Tah", "pos": "CB", "age": 30, "club": "Bayer Leverkusen"}, {"name": "Joshua Kimmich", "pos": "CM", "age": 31, "club": "Bayern Munich"}, {"name": "Jamal Musiala", "pos": "AM", "age": 23, "club": "Bayern Munich", "note": "Young star, creative playmaker"}, {"name": "Florian Wirtz", "pos": "AM", "age": 23, "club": "Bayer Leverkusen", "note": "Young star"}, {"name": "Kai Havertz", "pos": "FW", "age": 27, "club": "Arsenal"}, {"name": "Leroy Sané", "pos": "W", "age": 30, "club": "Bayern Munich"}, {"name": "Niclas Füllkrug", "pos": "ST", "age": 33, "club": "Borussia Dortmund"}]}, "Spain": {"group": "H", "coach": "Luis de la Fuente", "captain": "Álvaro Morata", "key_players": [{"name": "Lamine Yamal", "pos": "RW", "age": 18, "club": "Barcelona", "note": "Youngest star, sensational teenager"}, {"name": "Pedri", "pos": "CM", "age": 23, "club": "Barcelona"}, {"name": "Gavi", "pos": "CM", "age": 21, "club": "Barcelona"}, {"name": "Unai Simón", "pos": "GK", "age": 29, "club": "Athletic Bilbao"}, {"name": "Dani Carvajal", "pos": "RB", "age": 34, "club": "Real Madrid"}, {"name": "Aymeric Laporte", "pos": "CB", "age": 32, "club": "Al Nassr"}, {"name": "Dani Olmo", "pos": "AM", "age": 28, "club": "RB Leipzig"}, {"name": "Álvaro Morata", "pos": "ST", "age": 33, "club": "AC Milan"}]}, "England": {"group": "L", "coach": "Thomas Tuchel", "captain": "Harry Kane", "key_players": [{"name": "Harry Kane", "pos": "ST", "age": 33, "club": "Bayern Munich", "note": "10 WC goals all-time"}, {"name": "Jude Bellingham", "pos": "CM/AM", "age": 22, "club": "Real Madrid"}, {"name": "Phil Foden", "pos": "FW", "age": 26, "club": "Manchester City"}, {"name": "Bukayo Saka", "pos": "RW", "age": 24, "club": "Arsenal"}, {"name": "Declan Rice", "pos": "CDM", "age": 27, "club": "Arsenal"}, {"name": "John Stones", "pos": "CB", "age": 32, "club": "Manchester City"}, {"name": "Cole Palmer", "pos": "AM", "age": 23, "club": "Chelsea"}, {"name": "Kobbie Mainoo", "pos": "CM", "age": 21, "club": "Manchester United"}]}, "Portugal": {"group": "K", "coach": "Roberto Martinez", "captain": "Cristiano Ronaldo", "key_players": [{"name": "Cristiano Ronaldo", "pos": "FW", "age": 41, "club": "Al Nassr", "note": "6th WC appearance — record-tying milestone"}, {"name": "Bruno Fernandes", "pos": "AM", "age": 30, "club": "Manchester United"}, {"name": "Bernardo Silva", "pos": "CM", "age": 31, "club": "Manchester City"}, {"name": "Rúben Dias", "pos": "CB", "age": 29, "club": "Manchester City"}, {"name": "Rafael Leão", "pos": "LW", "age": 26, "club": "AC Milan"}, {"name": "João Cancelo", "pos": "RB", "age": 32, "club": "Manchester City"}, {"name": "João Félix", "pos": "FW", "age": 27, "club": "Chelsea"}]}, "Netherlands": {"group": "F", "coach": "Ronald Koeman", "captain": "Virgil van Dijk", "key_players": [{"name": "Virgil van Dijk", "pos": "CB", "age": 35, "club": "Liverpool"}, {"name": "Cody Gakpo", "pos": "LW", "age": 26, "club": "Liverpool"}, {"name": "Frenkie de Jong", "pos": "CM", "age": 29, "club": "Barcelona"}, {"name": "Xavi Simons", "pos": "AM", "age": 23, "club": "PSG"}, {"name": "Matthijs de Ligt", "pos": "CB", "age": 26, "club": "Manchester United"}, {"name": "Memphis Depay", "pos": "FW", "age": 31, "club": "Corinthians"}]}, "Morocco": {"group": "C", "coach": "Mohamed Ouahbi", "captain": "Achraf Hakimi", "key_players": [{"name": "Achraf Hakimi", "pos": "RB", "age": 28, "club": "PSG"}, {"name": "Yassine Bounou", "pos": "GK", "age": 34, "club": "Al Hilal"}, {"name": "Sofyan Amrabat", "pos": "CDM", "age": 30, "club": "Manchester United"}, {"name": "Hakim Ziyech", "pos": "RW", "age": 33, "club": "Galatasaray"}, {"name": "Ez Abde", "pos": "LW", "age": 24, "club": "Osasuna"}]}, "Egypt": {"group": "G", "coach": "Hossam Hassan", "captain": "Mohamed Salah", "key_players": [{"name": "Mohamed Salah", "pos": "FW", "age": 34, "club": "Liverpool", "note": "Captain and star player"}, {"name": "Mostafa Mohamed", "pos": "ST", "age": 28, "club": "Galatasaray"}, {"name": "Mahmoud Trezeguet", "pos": "AM", "age": 32, "club": "Instanbul Başakşehir"}, {"name": "Mohamed Elneny", "pos": "CM", "age": 34, "club": "Arsenal"}, {"name": "Ahmed Hegazi", "pos": "CB", "age": 34, "club": "Al Ittihad"}]}, "Colombia": {"group": "K", "coach": "Néstor Lorenzo", "captain": "James Rodríguez", "key_players": [{"name": "Luis Díaz", "pos": "LW", "age": 28, "club": "Bayern Munich"}, {"name": "James Rodríguez", "pos": "AM", "age": 34, "club": "Rayo Vallecano", "note": "All-time WC top scorer for Colombia"}, {"name": "Davinson Sánchez", "pos": "CB", "age": 30, "club": "Galatasaray"}, {"name": "Rafael Santos Borré", "pos": "ST", "age": 30, "club": "River Plate"}]}, "Mexico": {"group": "A", "coach": "Javier Aguirre", "captain": "Edson Álvarez", "key_players": [{"name": "Guillermo Ochoa", "pos": "GK", "age": 41, "club": "AEL Limassol", "note": "6th WC — record-tying appearance"}, {"name": "César Montes", "pos": "CB", "age": 29, "club": "Lokomotiv Moscow"}, {"name": "Edson Álvarez", "pos": "CM", "age": 28, "club": "Fenerbahçe"}, {"name": "Santiago Giménez", "pos": "ST", "age": 25, "club": "AC Milan"}]}}, "note_on_other_teams": "For full squads of Canada, South Korea, Japan, Uruguay, Australia, Norway, Belgium, Sweden, etc., use web search with team name + '2026 World Cup squad'."};
+const WC_RECORDS     = {"last_updated": "2026-06-22", "wc2026_new_records": [{"record": "All-time WC top scorer", "detail": "Lionel Messi reached 18 World Cup goals, surpassing Miroslav Klose's record of 16", "match": "Argentina 2-0 Austria, June 22 2026", "goals": "Messi 38' and 90+5'"}, {"record": "First player to score at six World Cups", "detail": "Lionel Messi became the first player to score at six different World Cups", "note": "Cristiano Ronaldo and Guillermo Ochoa also made 6th WC appearances but Messi scored"}, {"record": "Oldest player to score a World Cup brace", "detail": "Messi (age 38) scored twice in a single WC match, breaking age record for a brace"}, {"record": "Daily attendance record", "detail": "281,223 fans on June 16, 2026 — four matches played — surpassed 1994 record"}, {"record": "Largest World Cup ever", "detail": "48 teams, 104 matches, 1,248 players, $727 million prize pool — all records"}, {"record": "First three-nation host", "detail": "USA, Canada, Mexico — first time three nations simultaneously hosted; three separate opening ceremonies"}, {"record": "Highest goals-per-game rate since 1958", "detail": "3.125 goals/game after first round of group matches (75 goals in 24 matches)"}, {"record": "Most red cards in an opening match", "detail": "Mexico vs South Africa opening match had 3 red cards — most in any WC opener"}, {"record": "Oldest WC manager ever", "detail": "Dick Advocaat (Curacao) — 78 years, 260 days at tournament start"}, {"record": "Smallest nation to score at WC", "detail": "Curacao (population ~150,000) scored — smallest nation ever to score at a men's World Cup"}, {"record": "First WC points for Canada and Qatar", "detail": "Both earned draws in their opening matches — first-ever WC points for each"}, {"record": "Scotland ends 36-year winless streak", "detail": "Scotland beat Haiti — first WC win since 1990"}], "all_time_records": {"most_titles": {"team": "Brazil", "titles": 5, "years": [1958, 1962, 1970, 1994, 2002]}, "most_finals_appearances": {"team": "Germany/West Germany", "finals": 8}, "most_matches_played": {"team": "Brazil", "matches": 114}, "most_wins": {"team": "Brazil", "wins": 76}, "top_scorers_all_time": [{"rank": 1, "player": "Lionel Messi", "country": "Argentina", "goals": 18, "matches": 28, "active": true, "note": "Record broken June 22, 2026"}, {"rank": 2, "player": "Miroslav Klose", "country": "Germany", "goals": 16, "matches": 24, "active": false}, {"rank": 3, "player": "Ronaldo Nazário", "country": "Brazil", "goals": 15, "matches": 19, "active": false}, {"rank": 3, "player": "Kylian Mbappé", "country": "France", "goals": 15, "matches": 16, "active": true, "note": "Still active, tied 3rd all-time"}, {"rank": 5, "player": "Gerd Müller", "country": "West Germany", "goals": 14, "matches": 13, "active": false}, {"rank": 6, "player": "Just Fontaine", "country": "France", "goals": 13, "matches": 6, "active": false, "note": "All 13 in one tournament (1958)"}, {"rank": 7, "player": "Pelé", "country": "Brazil", "goals": 12, "matches": 14, "active": false}, {"rank": 8, "player": "Jürgen Klinsmann", "country": "Germany", "goals": 11, "matches": 17, "active": false}, {"rank": 8, "player": "Sándor Kocsis", "country": "Hungary", "goals": 11, "matches": 5, "active": false}, {"rank": 10, "player": "Gabriel Batistuta", "country": "Argentina", "goals": 10, "matches": 12, "active": false}, {"rank": 10, "player": "Thomas Müller", "country": "Germany", "goals": 10, "matches": 19, "active": false}, {"rank": 10, "player": "Harry Kane", "country": "England", "goals": 10, "matches": 10, "active": true}], "most_goals_single_tournament": {"player": "Just Fontaine", "country": "France", "goals": 13, "tournament": "1958 World Cup", "note": "Still the record — unlikely to be broken"}, "fastest_goal": {"player": "Hakan Şükür", "country": "Turkey", "seconds": 11, "match": "Turkey vs South Korea, 2002"}, "biggest_win": {"match": "Hungary 10-1 El Salvador", "year": 1982}, "most_goals_in_one_match": {"match": "Austria 7-5 Switzerland", "goals": 12, "year": 1954}, "youngest_scorer": {"player": "Pelé", "country": "Brazil", "age": "17 years, 239 days", "year": 1958}, "oldest_scorer": {"player": "Roger Milla", "country": "Cameroon", "age": "42 years, 39 days", "year": 1994}}, "world_cup_winners": [{"year": 1930, "winner": "Uruguay", "final_score": "Uruguay 4-2 Argentina", "host": "Uruguay"}, {"year": 1934, "winner": "Italy", "host": "Italy"}, {"year": 1938, "winner": "Italy", "host": "France"}, {"year": 1950, "winner": "Uruguay", "host": "Brazil"}, {"year": 1954, "winner": "West Germany", "host": "Switzerland"}, {"year": 1958, "winner": "Brazil", "host": "Sweden"}, {"year": 1962, "winner": "Brazil", "host": "Chile"}, {"year": 1966, "winner": "England", "host": "England"}, {"year": 1970, "winner": "Brazil", "host": "Mexico"}, {"year": 1974, "winner": "West Germany", "host": "West Germany"}, {"year": 1978, "winner": "Argentina", "host": "Argentina"}, {"year": 1982, "winner": "Italy", "host": "Spain"}, {"year": 1986, "winner": "Argentina", "host": "Mexico"}, {"year": 1990, "winner": "West Germany", "host": "Italy"}, {"year": 1994, "winner": "Brazil", "host": "United States"}, {"year": 1998, "winner": "France", "host": "France"}, {"year": 2002, "winner": "Brazil", "host": "Japan/South Korea"}, {"year": 2006, "winner": "Italy", "host": "Germany"}, {"year": 2010, "winner": "Spain", "host": "South Africa"}, {"year": 2014, "winner": "Germany", "host": "Brazil"}, {"year": 2018, "winner": "France", "host": "Russia"}, {"year": 2022, "winner": "Argentina", "host": "Qatar"}, {"year": 2026, "winner": "TBD", "host": "USA/Canada/Mexico", "final_date": "2026-07-19"}], "titles_count": {"Brazil": 5, "Germany": 4, "Italy": 4, "Argentina": 3, "France": 2, "Uruguay": 2, "England": 1, "Spain": 1}};
+const WC_PREDICTIONS = {"note": "Predictions based on current form, FIFA ranking, squad quality, and head-to-head. ALWAYS verify with live standings before using.", "methodology": {"factors": ["Current tournament points (weight: 30%)", "Goals scored/conceded ratio (weight: 20%)", "FIFA World Ranking pre-tournament (weight: 20%)", "Squad quality / star players available (weight: 20%)", "Head-to-head record (weight: 10%)"], "confidence": "Predictions are probabilistic. Upsets are always possible. Check for yellow card accumulations (2 = 1 match ban) and injuries before each match."}, "group_qualification_outlook": {"virtually_qualified": [{"team": "Mexico", "group": "A", "points": 6, "certainty": "99%"}, {"team": "United States", "group": "D", "points": 6, "certainty": "99%"}, {"team": "Germany", "group": "E", "points": 6, "certainty": "99%"}], "strong_position": [{"team": "Canada", "group": "B", "points": 4, "certainty": "85%"}, {"team": "Switzerland", "group": "B", "points": 4, "certainty": "80%"}, {"team": "Brazil", "group": "C", "points": 4, "certainty": "85%"}, {"team": "Morocco", "group": "C", "points": 4, "certainty": "80%"}, {"team": "Netherlands", "group": "F", "points": 4, "certainty": "85%"}, {"team": "Japan", "group": "F", "points": 4, "certainty": "82%"}, {"team": "Egypt", "group": "G", "points": 4, "certainty": "78%"}, {"team": "Spain", "group": "H", "points": 4, "certainty": "88%"}], "contested": ["Group C: Morocco vs Scotland (both could finish 2nd)", "Group G: Iran vs Belgium (2 draws each, still level)", "Group H: Uruguay vs Cape Verde (both 2pts, playing 3rd match)", "Group I: France vs Norway (both 3pts after 1 game)", "Group J: Argentina, Austria, Jordan, Algeria (all in play after matchday 1-2)", "Group K: Colombia (3pts), Portugal (1pt) — wide open", "Group L: England vs Ghana (both 3pts after 1 game)"]}, "match_predictions": {"today_june22": [{"match": "France vs Iraq", "group": "I", "status": "IN PROGRESS — France 1-0 HT (Mbappé)", "prediction": "France win 3-0", "win_probability": {"France": "88%", "Draw": "8%", "Iraq": "4%"}}, {"match": "Norway vs Senegal", "group": "I", "time_et": "8:00 PM", "prediction": "Norway win 2-1", "key_player": "Erling Haaland", "win_probability": {"Norway": "55%", "Draw": "25%", "Senegal": "20%"}}, {"match": "Jordan vs Algeria", "group": "J", "time_et": "11:00 PM", "prediction": "Algeria win 2-0", "win_probability": {"Algeria": "45%", "Draw": "30%", "Jordan": "25%"}, "note": "Both teams on 0 pts, must-win for both"}], "upcoming_group_stage_matchday3": {"note": "Final group stage matches June 25-27. All simultaneous within each group.", "predictions": [{"group": "A", "matches": ["Mexico vs Czechia", "South Korea vs South Africa"], "predicted_qualifiers": ["Mexico (1st)", "South Korea (2nd)"]}, {"group": "B", "matches": ["Canada vs Qatar", "Switzerland vs Bosnia"], "predicted_qualifiers": ["Canada (1st)", "Switzerland (2nd)"]}, {"group": "C", "matches": ["Brazil vs Scotland", "Morocco vs Haiti"], "predicted_qualifiers": ["Brazil (1st)", "Morocco (2nd)"]}, {"group": "D", "matches": ["USA vs Turkey", "Australia vs Paraguay"], "predicted_qualifiers": ["USA (1st)", "Australia (2nd)"]}, {"group": "E", "matches": ["Germany vs Ecuador", "Ivory Coast vs Curacao"], "predicted_qualifiers": ["Germany (1st)", "Ivory Coast (2nd)"]}, {"group": "F", "matches": ["Netherlands vs Tunisia", "Japan vs Sweden"], "predicted_qualifiers": ["Netherlands (1st)", "Japan (2nd)"]}, {"group": "G", "matches": ["Egypt vs Belgium", "Iran vs New Zealand"], "predicted_qualifiers": ["Egypt (1st)", "Belgium or Iran (2nd — very tight)"]}, {"group": "H", "matches": ["Spain vs Uruguay", "Cape Verde vs Saudi Arabia"], "predicted_qualifiers": ["Spain (1st)", "Uruguay (2nd)"]}, {"group": "I", "matches": ["France vs Norway", "Senegal vs Iraq"], "predicted_qualifiers": ["France (1st)", "Norway (2nd)"]}, {"group": "J", "matches": ["Argentina vs Jordan", "Algeria vs Austria"], "predicted_qualifiers": ["Argentina (1st)", "Austria or Algeria (2nd)"]}, {"group": "K", "matches": ["Portugal vs Uzbekistan", "Colombia vs DR Congo"], "predicted_qualifiers": ["Colombia (1st)", "Portugal (2nd)"]}, {"group": "L", "matches": ["England vs Panama", "Ghana vs Croatia"], "predicted_qualifiers": ["England (1st)", "Ghana or Croatia (2nd)"]}]}}, "goal_predictions_key_matches": [{"match": "Argentina vs Jordan (Matchday 3)", "prediction": "Argentina 3-0 Jordan", "scorer": "Messi likely to add to record tally"}, {"match": "Brazil vs Scotland (Matchday 3)", "prediction": "Brazil 2-0 Scotland", "scorer": "Vinicius Jr., Endrick"}, {"match": "France vs Norway (Matchday 3)", "prediction": "France 2-1 Norway", "scorer": "Mbappé, Haaland"}, {"match": "Germany vs Ecuador (Matchday 3)", "prediction": "Germany 2-0 Ecuador", "scorer": "Musiala, Havertz"}, {"match": "Spain vs Uruguay (Matchday 3)", "prediction": "Spain 1-0 Uruguay", "scorer": "Yamal"}, {"match": "Netherlands vs Tunisia (Matchday 3)", "prediction": "Netherlands 3-0 Tunisia"}], "tournament_winner_prediction": {"favorites": [{"team": "France", "probability": "18%", "reason": "Mbappé in form, 15 WC goals, deep squad"}, {"team": "Argentina", "probability": "16%", "reason": "Defending champions, Messi record-breaking, Álvarez deadly"}, {"team": "Germany", "probability": "14%", "reason": "6 pts, 9 goals in 2 games, young stars Musiala+Wirtz"}, {"team": "Spain", "probability": "12%", "reason": "Euro 2024 winners, Yamal phenomenon, clean sheet so far"}, {"team": "Brazil", "probability": "11%", "reason": "Ancelotti effect, Vinicius+Endrick, 4 pts"}, {"team": "England", "probability": "8%", "reason": "Bellingham+Kane combo, strong squad"}, {"team": "Netherlands", "probability": "7%", "reason": "In form, 7 goals in 2 games"}, {"team": "Others", "probability": "14%"}]}, "last_updated": "2026-06-22T17:30:00-05:00"};
+const BUILT_AT       = "2026-06-22 17:39";
+
+
+/* ── Theme ── */
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+}
+
+/* ── Tabs ── */
+function showTab(name) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  event.target.classList.add("active");
+}
+
+/* ── Helpers ── */
+const flag = team => {
+  const flags = {
+    "Mexico":"🇲🇽","South Korea":"🇰🇷","Czechia":"🇨🇿","South Africa":"🇿🇦",
+    "Canada":"🇨🇦","Switzerland":"🇨🇭","Bosnia & Herzegovina":"🇧🇦","Qatar":"🇶🇦",
+    "Brazil":"🇧🇷","Morocco":"🇲🇦","Scotland":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Haiti":"🇭🇹",
+    "United States":"🇺🇸","Australia":"🇦🇺","Paraguay":"🇵🇾","Turkey":"🇹🇷",
+    "Germany":"🇩🇪","Ivory Coast":"🇨🇮","Ecuador":"🇪🇨","Curacao":"🇨🇼",
+    "Netherlands":"🇳🇱","Japan":"🇯🇵","Sweden":"🇸🇪","Tunisia":"🇹🇳",
+    "Belgium":"🇧🇪","Egypt":"🇪🇬","Iran":"🇮🇷","New Zealand":"🇳🇿",
+    "Spain":"🇪🇸","Uruguay":"🇺🇾","Cape Verde":"🇨🇻","Saudi Arabia":"🇸🇦",
+    "France":"🇫🇷","Norway":"🇳🇴","Senegal":"🇸🇳","Iraq":"🇮🇶",
+    "Argentina":"🇦🇷","Austria":"🇦🇹","Jordan":"🇯🇴","Algeria":"🇩🇿",
+    "Colombia":"🇨🇴","Portugal":"🇵🇹","DR Congo":"🇨🇩","Uzbekistan":"🇺🇿",
+    "England":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Ghana":"🇬🇭","Panama":"🇵🇦","Croatia":"🇭🇷",
+  };
+  return flags[team] || "🏳️";
+};
+
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ══════════════════════════════════════════════════════════════════
+   STANDINGS
+══════════════════════════════════════════════════════════════════ */
+function renderStandings() {
+  const container = document.getElementById("groups-grid");
+  const grpData   = WC_GROUPS.groups || {};
+  let html = "";
+  for (const [gkey, gval] of Object.entries(grpData)) {
+    const standings = gval.standings || [];
+    const maxPts    = standings[0]?.points || 0;
+    html += `<div class="card">
+      <div class="card-title">⚽ Group ${esc(gkey)}</div>
+      <table class="standings-table">
+        <thead><tr>
+          <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
+          <th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
+        </tr></thead><tbody>`;
+    standings.forEach((row, i) => {
+      const rowClass = i < 2 ? (row.points >= 6 ? "qualified" : "likely") : "";
+      html += `<tr class="${rowClass}">
+        <td class="team-cell">${flag(row.team)} ${esc(row.team)}</td>
+        <td>${row.played}</td><td>${row.won}</td><td>${row.drawn}</td><td>${row.lost}</td>
+        <td>${row.gf}</td><td>${row.ga}</td>
+        <td>${row.gd > 0 ? "+" : ""}${row.gd}</td>
+        <td class="pts">${row.points}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    if (gval.note) html += `<div style="font-size:.72rem;color:var(--cp-warning);margin-top:.5rem">ℹ️ ${esc(gval.note)}</div>`;
+    html += `</div>`;
+  }
+  container.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MATCHES
+══════════════════════════════════════════════════════════════════ */
+function renderMatches() {
+  const container = document.getElementById("matches-container");
+  // today_matches from groups.json OR today_matches_june22
+  const matches = WC_GROUPS.today_matches || WC_GROUPS.today_matches_june22 || [];
+  let html = `<div class="section-title"><span class="dot"></span> Today's Matches — June 22, 2026</div>`;
+  if (!matches.length) {
+    html += `<div class="card" style="text-align:center;color:var(--cp-text-muted);padding:2rem">No match data. Run update_data.py to fetch live scores.</div>`;
+  } else {
+    matches.forEach(m => {
+      const isLive   = (m.status||"").toUpperCase().includes("LIVE") || (m.status||"").toUpperCase().includes("PROGRESS");
+      const isFinal  = (m.status||"").toUpperCase().includes("FINAL");
+      const upcoming = !isLive && !isFinal;
+      const badgeHtml = isLive
+        ? `<span class="badge badge-red"><span class="live-dot"></span> LIVE</span>`
+        : isFinal
+          ? `<span class="badge badge-green">FINAL</span>`
+          : `<span class="badge badge-gray">UPCOMING</span>`;
+      const score = m.result || m.score || "";
+      const scoreParts = score.split("-");
+      const homeScore = scoreParts[0] || "";
+      const awayScore = scoreParts[1] || "";
+      const home = m.home || m.match?.split(" vs ")?.[0] || "";
+      const away = m.away || m.match?.split(" vs ")?.[1] || "";
+      const scorers = m.scorers || [];
+      html += `<div class="match-card">
+        <div class="match-teams">
+          ${flag(home)} ${esc(home)}
+          ${score ? `<span class="match-score">${esc(homeScore)}–${esc(awayScore)}</span>` : `<span style="padding:0 .5rem;color:var(--cp-text-muted)">vs</span>`}
+          ${esc(away)} ${flag(away)}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem">
+          ${badgeHtml}
+          ${m.time_et ? `<span class="match-meta">🕐 ${m.time_et}</span>` : ""}
+          ${m.venue ? `<span class="match-meta">📍 ${esc(m.venue)}</span>` : ""}
+          ${m.group ? `<span class="badge badge-accent">Group ${m.group}</span>` : ""}
+        </div>
+        ${scorers.length ? `<div style="width:100%;font-size:.75rem;color:var(--cp-text-muted);margin-top:.25rem">⚽ ${scorers.join(" · ")}</div>` : ""}
+        ${m.scorer ? `<div style="width:100%;font-size:.75rem;color:var(--cp-text-muted);margin-top:.25rem">⚽ ${esc(m.scorer)}</div>` : ""}
+      </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PREDICTIONS
+══════════════════════════════════════════════════════════════════ */
+function renderPredictions() {
+  const container = document.getElementById("predictions-container");
+  const p = WC_PREDICTIONS;
+  const outlook = p.group_qualification_outlook || {};
+  let html = "";
+
+  // Tournament winner predictions
+  const winners = p.tournament_winner_prediction?.favorites || [];
+  if (winners.length) {
+    html += `<div class="section-title"><span class="dot"></span> 🏆 Tournament Winner Odds</div>
+    <div class="card">`;
+    winners.forEach(w => {
+      const pct = parseInt(w.probability) || 0;
+      html += `<div class="pred-bar">
+        <span class="pred-label">${flag(w.team)} ${esc(w.team)}</span>
+        <div style="flex:1;background:var(--cp-surface-soft);border-radius:4px;overflow:hidden">
+          <div class="pred-fill" style="width:${Math.min(pct * 5, 100)}%"></div>
+        </div>
+        <span class="pred-pct">${esc(w.probability)}</span>
+      </div>`;
+      if (w.reason) html += `<div style="font-size:.7rem;color:var(--cp-text-muted);margin:.1rem 0 .35rem 90px">${esc(w.reason)}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Virtually qualified
+  const vq = outlook.virtually_qualified || [];
+  if (vq.length) {
+    html += `<div class="section-title"><span class="dot"></span> ✅ Virtually Qualified (6 pts)</div><div class="card" style="display:flex;flex-wrap:wrap;gap:.5rem">`;
+    vq.forEach(t => {
+      html += `<span class="badge badge-green" style="font-size:.82rem;padding:.3rem .7rem">${flag(t.team)} ${esc(t.team)} (Group ${t.group})</span>`;
+    });
+    html += `</div>`;
+  }
+
+  // Strong position
+  const sp = outlook.strong_position || [];
+  if (sp.length) {
+    html += `<div class="section-title"><span class="dot"></span> 🟡 Strong Position (4 pts)</div><div class="card" style="display:flex;flex-wrap:wrap;gap:.5rem">`;
+    sp.forEach(t => {
+      html += `<span class="badge badge-yellow" style="font-size:.82rem;padding:.3rem .7rem">${flag(t.team)} ${esc(t.team)} (Group ${t.group})</span>`;
+    });
+    html += `</div>`;
+  }
+
+  // Match predictions
+  const today = p.match_predictions?.today_june22 || [];
+  if (today.length) {
+    html += `<div class="section-title"><span class="dot"></span> 🔮 Today's Match Predictions</div>`;
+    today.forEach(m => {
+      const probs = m.win_probability || {};
+      const teams = Object.keys(probs);
+      html += `<div class="card"><div style="font-weight:700;margin-bottom:.6rem">${esc(m.match)} <span class="badge badge-accent">Group ${m.group}</span></div>`;
+      if (m.status) html += `<div style="font-size:.75rem;margin-bottom:.5rem;color:var(--cp-text-muted)">📊 Status: ${esc(m.status)}</div>`;
+      if (m.prediction) html += `<div style="font-size:.8rem;margin-bottom:.6rem">🔮 Predicted: <strong>${esc(m.prediction)}</strong></div>`;
+      teams.forEach(t => {
+        const pct = parseInt(probs[t]) || 0;
+        html += `<div class="pred-bar">
+          <span class="pred-label">${esc(t)}</span>
+          <div style="flex:1;background:var(--cp-surface-soft);border-radius:4px;overflow:hidden">
+            <div class="pred-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="pred-pct">${esc(probs[t])}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+  }
+
+  // Goal predictions
+  const goals = p.goal_predictions_key_matches || [];
+  if (goals.length) {
+    html += `<div class="section-title"><span class="dot"></span> ⚽ Upcoming Match Predictions</div><div class="card">`;
+    goals.forEach(g => {
+      html += `<div class="record-item">
+        <span class="record-icon">🔮</span>
+        <div class="record-body">
+          <h4>${esc(g.match)}</h4>
+          <p>Predicted: <strong>${esc(g.prediction)}</strong>${g.scorer ? " · Key scorer: " + esc(g.scorer) : ""}</p>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PLAYERS
+══════════════════════════════════════════════════════════════════ */
+let allPlayers = [];
+function buildPlayerIndex() {
+  allPlayers = [];
+  const teams = WC_PLAYERS.teams || {};
+  for (const [teamName, data] of Object.entries(teams)) {
+    (data.key_players || []).forEach(p => {
+      allPlayers.push({ team: teamName, ...p });
+    });
+  }
+}
+function renderPlayers(filter) {
+  const container = document.getElementById("players-container");
+  const teams = WC_PLAYERS.teams || {};
+  let html = "";
+  for (const [teamName, data] of Object.entries(teams)) {
+    const filtered = (data.key_players || []).filter(p => {
+      if (!filter) return true;
+      const q = filter.toLowerCase();
+      return p.name?.toLowerCase().includes(q)
+          || p.club?.toLowerCase().includes(q)
+          || p.pos?.toLowerCase().includes(q)
+          || teamName.toLowerCase().includes(q);
+    });
+    if (!filtered.length) continue;
+    html += `<div class="team-section">
+      <div class="team-header">
+        <span style="font-size:1.3rem">${flag(teamName)}</span>
+        <h3>${esc(teamName)}</h3>
+        <span class="badge badge-accent">Group ${esc(data.group||"")}</span>
+        ${data.captain ? `<span style="font-size:.75rem;color:var(--cp-text-muted)">👑 ${esc(data.captain)}</span>` : ""}
+      </div>
+      <div class="player-grid">`;
+    filtered.forEach(p => {
+      html += `<div class="player-card">
+        <div class="player-name">${esc(p.name)}</div>
+        <div class="player-meta">${esc(p.pos||"")} · ${esc(p.club||"")} · Age ${p.age||"?"}</div>
+        ${p.note ? `<div class="player-note">💡 ${esc(p.note)}</div>` : ""}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+  if (!html) html = `<div style="text-align:center;color:var(--cp-text-muted);padding:2rem">No players found matching "${esc(filter)}"</div>`;
+  container.innerHTML = html;
+}
+function filterPlayers(val) { renderPlayers(val); }
+
+/* ══════════════════════════════════════════════════════════════════
+   COACHES
+══════════════════════════════════════════════════════════════════ */
+function renderCoaches(filter) {
+  const container = document.getElementById("coaches-container");
+  const groups = WC_COACHES.coaches || {};
+  let rows = "";
+  let count = 0;
+  for (const [grp, coaches] of Object.entries(groups)) {
+    for (const c of coaches) {
+      if (filter) {
+        const q = filter.toLowerCase();
+        if (!c.team?.toLowerCase().includes(q) && !c.coach?.toLowerCase().includes(q) && !c.nationality?.toLowerCase().includes(q)) continue;
+      }
+      rows += `<tr>
+        <td>${flag(c.team)} <strong>${esc(c.team)}</strong></td>
+        <td>${esc(grp)}</td>
+        <td>${esc(c.coach)}</td>
+        <td class="${c.foreign ? "foreign" : ""}">${esc(c.nationality)}</td>
+        <td>${c.note ? `<span style="font-size:.72rem">${esc(c.note)}</span>` : ""}</td>
+      </tr>`;
+      count++;
+    }
+  }
+  container.innerHTML = `
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="coaches-table">
+        <thead><tr>
+          <th>Team</th><th>Group</th><th>Head Coach</th><th>Nationality</th><th>Notes</th>
+        </tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--cp-text-muted)">No results</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div style="font-size:.72rem;color:var(--cp-text-muted);margin-top:.3rem">
+      🌍 Foreign coaches shown in <span class="foreign">amber</span> · ${count} coaches · 31 foreign / 17 native at this tournament
+    </div>`;
+}
+function filterCoaches(val) { renderCoaches(val); }
+
+/* ══════════════════════════════════════════════════════════════════
+   RECORDS
+══════════════════════════════════════════════════════════════════ */
+function renderRecords() {
+  const container = document.getElementById("records-container");
+  const r = WC_RECORDS;
+  let html = "";
+
+  // 2026 new records
+  const new2026 = r.wc2026_new_records || [];
+  html += `<div class="section-title"><span class="dot"></span> 🆕 New Records Broken at WC 2026</div><div class="card">`;
+  new2026.forEach(rec => {
+    html += `<div class="record-item">
+      <span class="record-icon">🏅</span>
+      <div class="record-body">
+        <h4>${esc(rec.record)}</h4>
+        <p>${esc(rec.detail)}${rec.match ? " (" + esc(rec.match) + ")" : ""}</p>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // All-time top scorers
+  const scorers = r.all_time_records?.top_scorers_all_time || [];
+  html += `<div class="section-title"><span class="dot"></span> ⚽ All-Time Top Scorers</div><div class="card">
+    <div class="scorer-list">`;
+  scorers.forEach(s => {
+    html += `<div class="scorer-item">
+      <span class="scorer-rank">#${s.rank}</span>
+      <span style="flex:1">${flag(s.country)} <strong>${esc(s.name)}</strong> (${esc(s.country)})</span>
+      <span class="badge ${s.active ? "badge-green" : "badge-gray"}">${s.goals} goals${s.active ? " ▶" : ""}</span>
+      ${s.note ? `<span style="font-size:.7rem;color:var(--cp-accent)">${esc(s.note)}</span>` : ""}
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // World Cup winners
+  const winners = r.world_cup_winners || [];
+  html += `<div class="section-title"><span class="dot"></span> 🌍 World Cup Winners</div><div class="card">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.4rem">`;
+  [...winners].reverse().forEach(w => {
+    const isCurrent = w.winner === "TBD";
+    html += `<div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;padding:.3rem .4rem;background:${isCurrent ? "var(--cp-highlight)" : ""};border-radius:6px">
+      <span style="color:var(--cp-text-muted);min-width:30px">${w.year}</span>
+      ${flag(isCurrent ? "" : w.winner)}
+      <strong>${isCurrent ? "🏆 TBD — Final Jul 19" : esc(w.winner)}</strong>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Titles count
+  const titles = r.titles_count || {};
+  html += `<div class="section-title"><span class="dot"></span> 🥇 Most Titles by Nation</div><div class="card" style="display:flex;flex-wrap:wrap;gap:.5rem">`;
+  Object.entries(titles).sort((a,b)=>b[1]-a[1]).forEach(([t,n]) => {
+    html += `<div style="text-align:center;min-width:80px;padding:.5rem;background:var(--cp-surface-soft);border-radius:8px;font-size:.78rem">
+      <div style="font-size:1.4rem">${flag(t)}</div>
+      <div style="font-weight:700">${esc(t)}</div>
+      <div class="badge badge-accent">${"🏆".repeat(n)} ${n}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+/* ── Init ── */
+document.getElementById("updatedAt").textContent = BUILT_AT;
+renderStandings();
+renderMatches();
+renderPredictions();
+buildPlayerIndex();
+renderPlayers("");
+renderCoaches();
+renderRecords();
+</script>
+</body>
+</html>
