@@ -446,6 +446,17 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .r32-arr-divider{text-align:center;font-size:9px;color:var(--text3);padding:2px 0}
 .r32-note-sm{font-size:8px;color:var(--text3);text-align:center;font-style:italic;margin-top:4px}
 .conf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
+/* Match Highlights Section */
+.hl-section{margin-top:0}
+.hl-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000;margin-bottom:10px}
+.hl-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:10px}
+.hl-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;padding:0 2px}
+.hl-link-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:11px;font-weight:700;text-decoration:none;transition:all .2s}
+.hl-link-btn:hover{border-color:var(--gold);color:var(--gold)}
+.hl-link-btn.yt{border-color:rgba(255,60,60,.3);color:#ff4444}
+.hl-link-btn.yt:hover{background:rgba(255,0,0,.1);border-color:#ff0000}
+.hl-link-btn.fifa{border-color:rgba(37,99,235,.3);color:var(--cont)}
+.hl-legal{font-size:9px;color:var(--text3);margin-top:8px;font-style:italic;padding:0 2px}
 /* ===== MOBILE RESPONSIVE — affects ≤768px only, zero impact on desktop ===== */
 /* Tablet: hero slightly shorter, smaller slide text */
 @media(max-width:768px){
@@ -1535,6 +1546,60 @@ function closeMatchDetail(){
   renderMatches();
 }
 
+// ================================================================
+// MATCH HIGHLIGHTS — Official YouTube embeds (FIFA/FOX Sports channels)
+// YouTube embedding is explicitly permitted by YouTube Terms of Service
+// ================================================================
+const WC_HIGHLIGHTS=[
+  // YouTube video IDs from official FIFA & FOX Sports YouTube channels
+  {h:'Argentina',   a:'Austria',       yt:'JakdhltyECE'},
+  {h:'Ivory Coast', a:'Ecuador',       yt:'j6uB9LcLMms'},
+  {h:'France',      a:'Iraq',          yt:'rWAfrEf8b3Y'},
+  {h:'France',      a:'Senegal',       yt:'n3JDGlOwMJ4'},
+  {h:'Canada',      a:'Qatar',         yt:'GofosiwCtEs'},
+  {h:'South Korea', a:'Czech Republic',yt:'cr8YxjadNDU'},
+  {h:'Saudi Arabia',a:'Uruguay',       yt:'XrDExPcLCXY'},
+  {h:'United States',a:'Paraguay',     yt:'Kw6WEgN7ueo'},
+  {h:'Netherlands', a:'Japan',         yt:'r8SvHZxALQs'},
+  {h:'Netherlands', a:'Sweden',        yt:'VFCwxPgOSCU'},
+  {h:'Portugal',    a:'DR Congo',      yt:'fJrctBM0poE'},
+  {h:'Mexico',      a:'South Korea',   yt:'hNgktsn0ejU'},
+  {h:'Mexico',      a:'South Africa',  yt:'zFXtpnyRc6w'},
+  {h:'Czech Republic',a:'South Africa',yt:'v-hvMI00Tw8'},
+  {h:'United States',a:'Australia',    yt:'tXxvgvgMiRg'},
+  {h:'England',     a:'Croatia',       yt:'ynqGWHJPkuQ'},
+  {h:'Brazil',      a:'Morocco',       yt:'vtUjMcuBsEI'},
+  {h:'Spain',       a:'Cape Verde',    yt:'wzKYVElYRrw'},
+  {h:'Portugal',    a:'Nigeria',       yt:'XiK7RwEkGsw'},
+  {h:'Belgium',     a:'Iran',          yt:'vGmvZrZu2rQ'},
+  // FIFA.com highlight page IDs (used as watch links, not embeds)
+  {h:'Argentina',   a:'Austria',       fifaId:'6N4dkwqyP1sUURyCXExX5s'},
+  {h:'New Zealand', a:'Egypt',         fifaId:'30AjAOgeWPeCcjnTx6hdH0'},
+];
+function _normTeam(t){
+  const aliases={
+    "côte d'ivoire":'ivory',"cote d'ivoire":'ivory','ivory coast':'ivory',
+    'dr congo':'drcong','congo dr':'drcong','democratic republic of congo':'drcong',
+    'korea republic':'skorea','south korea':'skorea',
+    'usa':'unitedst','united states':'unitedst',
+    'cape verde':'capeverd','new zealand':'newzeal',
+    'saudi arabia':'saudiarb',
+  };
+  const s=(t||'').toLowerCase().trim();
+  if(aliases[s])return aliases[s];
+  return s.replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,'').slice(0,8);
+}
+function getHighlight(home,away){
+  const nh=_normTeam(home),na=_normTeam(away);
+  let ytId=null,fifaId=null;
+  for(const h of WC_HIGHLIGHTS){
+    const hh=_normTeam(h.h),ha=_normTeam(h.a);
+    const match=(hh===nh&&ha===na)||(hh===na&&ha===nh);
+    if(match){if(h.yt&&!ytId)ytId=h.yt;if(h.fifaId&&!fifaId)fifaId=h.fifaId;}
+  }
+  return {ytId,fifaId};
+}
+
 function renderMatchDetailPage(eventId,evtList,summary,mInfo){
   const el=document.getElementById('matchesContent');
   if(!el)return;
@@ -1650,6 +1715,33 @@ function renderMatchDetailPage(eventId,evtList,summary,mInfo){
     });
     html+='</div>';
   }
+
+  // ── Match Highlights ─────────────────────────────────────────────
+  // Only shown for finished matches. Embeds official YouTube highlights.
+  if(mInfo.state==='post'){
+    const {ytId,fifaId}=getHighlight(home,away);
+    const ytSearch=`https://www.youtube.com/results?search_query=${encodeURIComponent('FIFA World Cup 2026 '+home+' vs '+away+' highlights')}`;
+    const fifaSearch=`https://www.fifa.com/en/watch${fifaId?'/'+fifaId:'?search='+encodeURIComponent(home+' '+away)}`;
+    html+=`<div class="card mb16 hl-section"><div class="card-hdr"><div class="card-title">&#x1F3AC; Match Highlights</div></div><div class="card-body">`;
+    if(ytId){
+      html+=`<div class="hl-video-wrap">
+        <iframe src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1"
+          title="${esc(home)} vs ${esc(away)} Highlights - FIFA World Cup 2026"
+          allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen loading="lazy"></iframe>
+      </div>`;
+    } else {
+      html+=`<div style="padding:10px 0 6px;color:var(--text2);font-size:12px">&#x1F50D; Full highlights will appear here once available. Use the links below to watch now:</div>`;
+    }
+    html+=`<div class="hl-links">
+      <a class="hl-link-btn yt" href="${ytSearch}" target="_blank" rel="noopener noreferrer">&#x25B6; ${ytId?'More on YouTube':'Search YouTube'}</a>
+      <a class="hl-link-btn fifa" href="${fifaSearch}" target="_blank" rel="noopener noreferrer">&#x1F30D; Watch on FIFA.com</a>
+    </div>
+    <div class="hl-legal">Official highlights from FIFA &amp; FOX Sports YouTube channels &mdash; embedding permitted by YouTube Terms of Service. Video rights belong to FIFA and respective broadcasters.</div>`;
+    html+='</div></div>';
+  }
+
   el.innerHTML=html;
 }
 
