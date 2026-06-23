@@ -776,6 +776,8 @@ async function doRefresh(){
   if(histData&&histData.events) espnHistory=histData.events;
   const built=buildLiveStandings([...espnHistory,...espnMatches]);
   if(built) liveGroupData=built;
+  // Fetch news in background (non-blocking) — updates wcNewsData for predictions
+  fetchWorldCupNews().catch(()=>{});
   const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
   document.getElementById('livePill').style.display=live>0?'flex':'none';
   updateWidget(espnMatches);
@@ -1739,6 +1741,71 @@ function computeMatchesPlayed(){
 }
 
 // ================================================================
+// NEWS FEED + INJURY DETECTION
+// ================================================================
+let wcNewsData={injuryFlags:{},headlines:[]};
+
+// Keywords that suggest a player is unavailable / a concern
+const NEWS_INJURY_RE=/\b(ruled?\s*out|injur(?:ed|y)|miss(?:es|ing|ed)\s+(?:the\s+|next\s+|this\s+)?(?:match|game|clash)|won't\s+(?:play|feature|start)|unavailable|withdrawn|pull(?:s|ed)\s+out|fitness\s+(?:concern|doubt|scare|test)|hamstring|ankle\s+(?:injur|problem)|knee\s+(?:injur|problem)|muscle\s+(?:injur|strain)|concussion|doubt(?:ful)?|unfit|absent)\b/i;
+// Keywords that are POSITIVE (overrule injury detection)
+const NEWS_POSITIVE_RE=/\b(passes?\s+fit|declared\s+fit|clears\s+fitness|returns?\s+(?:from|to\s+training)|available\s+for|ready\s+to\s+play|fit\s+(?:for|to\s+play))\b/i;
+
+async function fetchWorldCupNews(){
+  // Cache per hour
+  const cacheKey='wc_news_'+new Date().toISOString().slice(0,13);
+  try{
+    const c=localStorage.getItem(cacheKey);
+    if(c){const d=JSON.parse(c);wcNewsData=d;window.wcNewsData=d;return d;}
+  }catch{}
+  const data=await safeFetch(ESPN_BASE+'/news?limit=50');
+  if(!data||!data.articles)return wcNewsData;
+  const result={injuryFlags:{},headlines:[]};
+  data.articles.slice(0,50).forEach(a=>{
+    const text=(a.headline||'')+' '+(a.description||'');
+    result.headlines.push({
+      headline:a.headline||'',
+      description:(a.description||'').slice(0,200),
+      published:a.published||''
+    });
+    // Only proceed if injury-related AND not overridden by positive confirmation
+    if(!NEWS_INJURY_RE.test(text)||NEWS_POSITIVE_RE.test(text))return;
+    // Match player last names from WC_PLAYERS (word-boundary, min 4 chars)
+    Object.entries((WC_PLAYERS&&WC_PLAYERS.teams)||{}).forEach(([teamName,teamData])=>{
+      (teamData.key_players||[]).slice(0,22).forEach(player=>{
+        const nameParts=(player.name||'').split(' ').filter(p=>p.length>=4);
+        const matched=nameParts.some(part=>{
+          const re=new RegExp('\\b'+part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i');
+          return re.test(text);
+        });
+        if(!matched)return;
+        if(!result.injuryFlags[teamName])result.injuryFlags[teamName]=[];
+        if(!result.injuryFlags[teamName].find(x=>x.player===player.name)){
+          result.injuryFlags[teamName].push({
+            player:player.name,
+            reason:'Injury/doubt',
+            headline:(a.headline||'').slice(0,90)
+          });
+        }
+      });
+    });
+  });
+  try{localStorage.setItem(cacheKey,JSON.stringify(result));}catch{}
+  wcNewsData=result;
+  window.wcNewsData=result;
+  return result;
+}
+
+// Return news headlines relevant to a given list of team names
+function newsForTeams(teams){
+  const all=wcNewsData.headlines||[];
+  const teamLower=teams.map(t=>t.toLowerCase().slice(0,6));
+  return all.filter(a=>{
+    const txt=(a.headline+' '+(a.description||'')).toLowerCase();
+    return teamLower.some(t=>txt.includes(t));
+  }).slice(0,6);
+}
+
+// ================================================================
 // DYNAMIC PREDICTION ENGINE
 // ================================================================
 // Approximate team strength scores (FIFA Elo-based, 100=best)
@@ -1795,8 +1862,12 @@ function autoPredict(home,away){
   const susp=getSuspensions();
   const hSusp=(susp[normalizeEspnName(home)]||susp[home]||[]).length;
   const aSusp=(susp[normalizeEspnName(away)]||susp[away]||[]).length;
-  const hStr=hBase+hForm-hSusp*4;
-  const aStr=aBase+aForm-aSusp*4;
+  // News-detected injury penalty (-7 per flagged key player)
+  const news=wcNewsData.injuryFlags||{};
+  const hNews=(news[home]||news[normalizeEspnName(home)]||[]).length;
+  const aNews=(news[away]||news[normalizeEspnName(away)]||[]).length;
+  const hStr=hBase+hForm-hSusp*4-hNews*7;
+  const aStr=aBase+aForm-aSusp*4-aNews*7;
   // Elo-based win probability
   const diff=hStr-aStr;
   const hWinRaw=1/(1+Math.pow(10,-diff/25));
@@ -1962,8 +2033,26 @@ function renderPredictions(){
     }).join('')||'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">Loading...</div>'}
    </div>
    <div>
-    <h2 class="sec-title">&#x1F4C5; Today's Match Predictions</h2>
+    <h2 class="sec-title">&#x1F4C5; Today&#x2019;s Match Predictions
+     <span style="font-size:10px;color:var(--text3);font-weight:400;margin-left:8px">&#x1F916; = AI-generated from live data</span>
+    </h2>
     ${todayPreds.length?predMatchHtml(todayPreds):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No match predictions for today</div>'}
+    ${(()=>{
+      const teams=todayPreds.map(mp=>{const p=(mp.match||'').split(/\s+vs\s+/i);return[p[0]||'',p[1]||''];}).flat().filter(Boolean);
+      const news=newsForTeams(teams);
+      if(!news.length)return'';
+      return`<div style="margin-top:16px">
+       <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:8px">&#x1F4F0; Match News</h3>
+       ${news.map(n=>{
+         const isInjury=NEWS_INJURY_RE.test(n.headline+' '+n.description);
+         return`<div style="padding:8px 10px;border-radius:8px;margin-bottom:6px;background:${isInjury?'rgba(239,68,68,.08)':'var(--surface)'};border:1px solid ${isInjury?'rgba(239,68,68,.2)':'var(--border)'}">
+          ${isInjury?'<span style="color:var(--live);font-size:10px;font-weight:700">&#x26A0; INJURY </span>':''}
+          <span style="font-size:11px;font-weight:600">${esc(n.headline)}</span>
+          ${n.description?`<div style="font-size:10px;color:var(--text2);margin-top:2px">${esc(n.description)}</div>`:''}
+         </div>`;
+       }).join('')}
+      </div>`;
+    })()}
    </div>
   </div>
   <h2 class="sec-title" style="margin-top:24px">&#x1F52E; Matchday 3 Predictions (June 25-27)</h2>
