@@ -130,8 +130,10 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .hero::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),rgba(255,215,0,.4) 60%,transparent);z-index:5}
 /* Carousel */
 .hero-bg{position:absolute;inset:0;z-index:0}
-.hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background-size:cover;background-position:center}
-.hslide.hs-active{opacity:1;animation:kbZoom 12s ease-in-out forwards}
+.hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background-size:cover;background-position:center;pointer-events:none}
+.hslide.hs-active{opacity:1;animation:kbZoom 12s ease-in-out forwards;pointer-events:auto}
+/* Subtle football pitch grid overlay for CSS-only gradient slides */
+.hslide-grid::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,255,255,.03) 80px,rgba(255,255,255,.03) 82px),repeating-linear-gradient(90deg,transparent,transparent 120px,rgba(255,255,255,.03) 120px,rgba(255,255,255,.03) 122px);z-index:0}
 @keyframes kbZoom{0%{transform:scale(1)}100%{transform:scale(1.06)}}
 .hslide-ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.20) 100%)}
 .hslide-content{position:absolute;top:0;bottom:0;left:0;display:flex;flex-direction:column;justify-content:center;padding:36px 38px;z-index:3;max-width:540px;pointer-events:auto}
@@ -1098,48 +1100,44 @@ function toggleQualPanel(type){
 // ================================================================
 const HERO_SLIDES=[
   {
-    bg:`url(https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#001830,#003a6e)`,
+    bg:`url(https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat,linear-gradient(135deg,#001830,#003a6e)`,
     icon:'&#x1F3C6;',tag:'FIFA WORLD CUP 2026&#x2122;',
     headline:'48 Nations, One Dream',
     desc:'The greatest show on Earth returns to North America. USA &middot; Canada &middot; Mexico. June 11 &ndash; July 19, 2026.',
     cta:'Group Standings',ctaFn:"switchTab('standings')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#0a1628,#1e3a5f)`,
+    bg:`url(https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat,linear-gradient(135deg,#0a1628,#1e3a5f)`,
     icon:'&#x26BD;',tag:'MATCH CENTER',
     headline:'The Beautiful Game',
     desc:'Live scores, match events, lineups and statistics for every World Cup fixture.',
     cta:'All Matches',ctaFn:"switchTab('matches')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1552667466-07770ae110d0?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#001a0a,#003a18)`,
+    bg:`url(https://images.unsplash.com/photo-1552667466-07770ae110d0?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat,linear-gradient(135deg,#001a0a,#003a18)`,
     icon:'&#x1F947;',tag:'GROUP STAGE',
     headline:'Battle for the Top',
     desc:'48 teams, 12 groups. Only the best two from each group advance to the Round of 32.',
     cta:'Live Stats',ctaFn:"switchTab('stats')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#1a0030,#360060)`,
+    bg:`url(https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat,linear-gradient(135deg,#1a0030,#360060)`,
     icon:'&#x1F52E;',tag:'AI PREDICTIONS',
     headline:'Smart Match Predictions',
     desc:'Daily-updated AI forecasts based on live standings, injuries, suspensions and current form.',
     cta:'View Predictions',ctaFn:"switchTab('predictions')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#100030,#220060)`,
+    bg:`linear-gradient(135deg,#050e2a 0%,#0b2252 35%,#1a3a6e 65%,#0d1e42 100%)`,
+    cssOnly:true,
     icon:'&#x1F30D;',tag:'TEAMS &amp; SQUADS',
     headline:'World Class Nations',
     desc:'Explore squads, coaches, FIFA rankings and full tournament statistics for all 48 nations.',
     cta:'Teams &amp; Squads',ctaFn:"switchTab('teams')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1516802273409-68526ee1bdd6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
-    fallback:`linear-gradient(135deg,#0a0c00,#1e2000)`,
+    bg:`linear-gradient(135deg,#1a0e00 0%,#3d2200 30%,#6b3a00 55%,#2e1800 80%,#1a0e00 100%)`,
+    cssOnly:true,
     icon:'&#x1F3C6;',tag:'KNOCKOUT STAGE',
     headline:'Road to the Final',
     desc:'Follow every team on their path through the knockout rounds to World Cup glory.',
@@ -1151,7 +1149,7 @@ function initHeroCarousel(){
   const bg=document.getElementById('heroBg');
   if(!bg)return;
   bg.innerHTML=HERO_SLIDES.map((s,i)=>`
-    <div class="hslide${i===0?' hs-active':''}" style="background:${s.bg},${s.fallback}">
+    <div class="hslide${i===0?' hs-active':''}${s.cssOnly?' hslide-grid':''}" style="background:${s.bg}">
       <div class="hslide-ov"></div>
       <div class="hslide-content">
         <div class="hslide-tag">${s.icon} ${s.tag}</div>
