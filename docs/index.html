@@ -1231,6 +1231,8 @@ async function showMatchDetail(eventId){
   const mInfo=mergedMatches().find(m=>m.id===eventId)||{};
   // Fetch summary only for team stats (possession/shots/etc)
   const summary=await fetchMatchSummary(eventId);
+  // Guard: user may have navigated away while summary was fetching
+  if(matchDetailId!==eventId)return;
   renderMatchDetailPage(eventId,evtList,summary,mInfo);
 }
 
