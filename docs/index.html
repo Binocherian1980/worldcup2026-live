@@ -446,6 +446,64 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .r32-arr-divider{text-align:center;font-size:9px;color:var(--text3);padding:2px 0}
 .r32-note-sm{font-size:8px;color:var(--text3);text-align:center;font-style:italic;margin-top:4px}
 .conf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
+/* ===== MOBILE RESPONSIVE — affects ≤768px only, zero impact on desktop ===== */
+/* Tablet: hero slightly shorter, smaller slide text */
+@media(max-width:768px){
+  .hero{min-height:300px}
+  .hslide-head{font-size:24px}
+  .hslide-content{padding:22px 20px;max-width:420px}
+  .hslide-desc{font-size:12px}
+}
+/* Phone ≤480px: compact header, smaller hero, hide non-essential elements */
+@media(max-width:480px){
+  .brand-sub,.search-wrap{display:none}
+  .header-inner{padding:0 10px;gap:6px}
+  .page-title{font-size:20px}
+  .hero{min-height:220px}
+  .hero-hl{display:none}
+  .hslide-head{font-size:18px;margin-bottom:6px}
+  .hslide-tag{font-size:8px;margin-bottom:6px}
+  .hslide-desc{display:none}
+  .hslide-content{padding:14px 16px;justify-content:flex-end;padding-bottom:38px}
+  .hslide-btn{font-size:10px;padding:7px 14px}
+  .hero-dots{bottom:10px;left:16px}
+  .story-cards{grid-template-columns:1fr 1fr}
+  .scard{padding:12px 8px}
+  .scard-num{font-size:24px}
+  .scard-icon{font-size:20px;margin-bottom:4px}
+}
+/* Hero meta strip: stack vertically on phones */
+@media(max-width:540px){
+  .hero-meta{flex-direction:column}
+  .hm-stats{border-right:none;border-bottom:1px solid rgba(255,255,255,.07);width:100%}
+  .hm-cd{justify-content:center;width:100%;padding:8px 14px}
+  .hm-cd-lbl{display:none}
+  .sw-ring{width:38px;height:38px}
+  .sw-inner{width:28px;height:28px}
+  .sw-val{font-size:10px}
+}
+/* Standings table: horizontal scroll so it never clips on small screens */
+@media(max-width:640px){
+  .grp-card{overflow-x:auto!important}
+  .st{min-width:500px}
+  .tname{max-width:80px}
+}
+/* Match detail: single-column lineup, smaller score on mobile */
+@media(max-width:600px){
+  .md-lineup-grid{grid-template-columns:1fr}
+  .md-lineup-col:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .md-big-score{font-size:38px;padding:0 10px;letter-spacing:-1px}
+  .md-big-flag{font-size:36px}
+  .md-big-name{font-size:12px}
+  .md-hero{padding:16px 12px}
+  .md-teams-row{gap:4px}
+  .md-stat-home,.md-stat-away{width:40px;font-size:12px}
+}
+/* Ensure tables never overflow their containers */
+@media(max-width:480px){
+  .card{overflow-x:auto}
+  .grp-mini-grid{grid-template-columns:repeat(2,1fr)!important}
+}
 </style>
 </head>
 <body>
