@@ -1595,6 +1595,7 @@ function renderMatchDetailPage(eventId,evtList,summary,mInfo){
   el.innerHTML=html;
 }
 
+let mFilter='all';
 function renderMatches(){
   if(matchDetailId){showMatchDetail(matchDetailId);return;}
   const matches=mergedMatches();
