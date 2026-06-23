@@ -234,18 +234,43 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .pred-match{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .pred-team{display:flex;align-items:center;gap:7px;flex:1}
 .pred-team.r{justify-content:flex-end}
-.pb-row{display:grid;grid-template-columns:1fr auto 1fr;gap:5px;align-items:center;font-size:11px}
-.pb{height:7px;border-radius:4px}
-.pb.h{background:var(--cont)}.pb.a{background:var(--live)}
+.pred-meta{font-size:10px;color:var(--text3);margin-bottom:7px}
+.pb-row{display:flex;gap:4px;align-items:center;margin-top:8px}
+.pb{height:7px;border-radius:4px;min-width:4px}
+.pb.h{background:var(--cont)}.pb.a{background:var(--live)}.pb.d{background:var(--draw)}
+.pred-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:1100px){.pred-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.pred-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.pred-grid{grid-template-columns:1fr}}
+.pred-grp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.pred-grp-hdr{font-size:12px;font-weight:800;color:var(--gold);margin-bottom:8px}
+.pred-fixture{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)}
+.pred-qual{font-size:10px;color:var(--qual);margin-top:7px;font-weight:600}
 .coaches-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:900px){.coaches-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.coaches-grid{grid-template-columns:1fr}}
+.coaches-stats-bar{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px}
+.cs-item{text-align:center;min-width:80px}.cs-val{display:block;font-size:22px;font-weight:900;color:var(--accent2)}.cs-lbl{font-size:10px;color:var(--text2);text-transform:uppercase}
+.cs-wide{flex:1;text-align:left;min-width:200px}.cs-detail{font-size:11px;color:var(--text2);display:block;margin-top:3px}
 .c-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;display:flex;align-items:flex-start;gap:10px}
-.c-flag{font-size:28px}
+.c-flag-wrap{position:relative;flex-shrink:0;width:36px;height:36px}
+.c-team-flag{font-size:28px;line-height:1}
+.c-nat-flag{position:absolute;bottom:-3px;right:-6px;font-size:14px;background:var(--surface);border-radius:50%;padding:1px}
 .c-name{font-size:13px;font-weight:700;margin:0 0 2px}
 .c-team{font-size:11px;color:var(--text2)}
-.c-nat{font-size:10px;color:var(--text3)}
+.c-nat{font-size:10px;color:var(--text3);margin-top:2px}
+.c-note{font-size:10px;color:var(--text3);margin-top:4px;font-style:italic;line-height:1.4}
 .foreign-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(202,138,4,.15);color:var(--virt);margin-top:3px}
+.grp-mini-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:1100px){.grp-mini-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.grp-mini-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.grp-mini-grid{grid-template-columns:repeat(2,1fr)}}
+.grp-mini-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;transition:border-color .2s}
+.grp-mini-card:hover{border-color:var(--gold)}
+.grp-mini-lbl{font-size:9px;color:var(--gold);font-weight:800;text-transform:uppercase;margin-bottom:5px}
+.grp-mini-leader{display:flex;align-items:center;gap:6px}
+.grp-mini-name{font-size:11px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grp-mini-pts{font-size:11px;font-weight:900;color:var(--accent2)}
 .rec-section{margin-bottom:26px}
 .rec-title{font-size:15px;font-weight:800;margin:0 0 10px;padding-bottom:7px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:7px}
 .rec-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -284,7 +309,6 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
    <button class="nav-btn" data-tab="stats" onclick="switchTab('stats')"><span class="nav-icon">&#x1F4C8;</span>Stats</button>
    <button class="nav-btn" data-tab="predictions" onclick="switchTab('predictions')"><span class="nav-icon">&#x1F52E;</span>Predictions</button>
    <button class="nav-btn" data-tab="coaches" onclick="switchTab('coaches')"><span class="nav-icon">&#x1F9E2;</span>Coaches</button>
-   <button class="nav-btn" data-tab="records" onclick="switchTab('records')"><span class="nav-icon">&#x1F3C6;</span>Records</button>
   </nav>
   <div class="header-actions">
    <div class="search-wrap">
@@ -346,11 +370,6 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
   <div class="page-hdr"><div class="breadcrumb"><span>Home</span><span>&#x203A;</span><span>Coaches</span></div>
   <h1 class="page-title">Team Coaches</h1><p class="page-sub">All 48 national team head coaches</p></div>
   <div id="coachesContent"><div class="spinner"></div></div>
- </div>
- <div id="tab-records" class="tab-panel">
-  <div class="page-hdr"><div class="breadcrumb"><span>Home</span><span>&#x203A;</span><span>Records</span></div>
-  <h1 class="page-title">Records &amp; History</h1><p class="page-sub">World Cup all-time records &amp; 2026 milestones</p></div>
-  <div id="recordsContent"><div class="spinner"></div></div>
  </div>
 </main>
 
@@ -516,7 +535,7 @@ function formHtml(form){
 // ================================================================
 const ESPN_BASE='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world';
 const CORS='https://corsproxy.io/?';
-let espnMatches=[],refreshTimer=null;
+let espnMatches=[],espnHistory=[],refreshTimer=null;
 
 async function safeFetch(url){
   try{const r=await fetch(url,{cache:'no-store'});if(r.ok)return r.json();}catch{}
@@ -526,13 +545,15 @@ async function safeFetch(url){
 
 async function doRefresh(){
   document.getElementById('refreshStatus').textContent='\u21bb Refreshing\u2026';
-  const data=await safeFetch(ESPN_BASE+'/scoreboard');
-  if(data&&data.events){
-    espnMatches=data.events;
-    const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
-    document.getElementById('livePill').style.display=live>0?'flex':'none';
-    updateWidget(espnMatches);
-  }
+  const [todayData,histData]=await Promise.all([
+    safeFetch(ESPN_BASE+'/scoreboard'),
+    safeFetch(ESPN_BASE+'/scoreboard?dates=20260611-20260622&limit=200')
+  ]);
+  if(todayData&&todayData.events) espnMatches=todayData.events;
+  if(histData&&histData.events) espnHistory=histData.events;
+  const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
+  document.getElementById('livePill').style.display=live>0?'flex':'none';
+  updateWidget(espnMatches);
   document.getElementById('refreshStatus').textContent='\u2713 '+new Date().toLocaleTimeString();
   const act=document.querySelector('.tab-panel.active');
   if(act)renderTab(act.id.replace('tab-',''),false);
@@ -544,33 +565,40 @@ function scheduleRefresh(){
   refreshTimer=setTimeout(doRefresh,lv?15000:60000);
 }
 
+function normalizeEspnEvent(ev){
+  try{
+    const comp=(ev.competitions||[])[0];if(!comp)return null;
+    const cs=comp.competitors||[];
+    const h=cs.find(c=>c.homeAway==='home')||cs[0]||{};
+    const a=cs.find(c=>c.homeAway==='away')||cs[1]||{};
+    const st=ev.status||{},stt=st.type||{};
+    const hn=h.team?(h.team.shortDisplayName||h.team.displayName||'TBD'):'TBD';
+    const an=a.team?(a.team.shortDisplayName||a.team.displayName||'TBD'):'TBD';
+    return{id:ev.id,home:hn,away:an,
+      home_score:parseInt(h.score||0),away_score:parseInt(a.score||0),
+      state:stt.state||'pre',status:stt.shortDetail||stt.description||'',
+      minute:st.displayClock||'',date:ev.date||'',
+      group:((ev.league||{}).name||'').replace('Group ','Grp ')||'WC2026',
+      venue:((comp.venue||{}).fullName)||'',espn:true,
+      scorers:extractScorers(comp)};
+  }catch{return null;}
+}
+
 function mergedMatches(){
-  const out=[];
-  if(espnMatches.length){
-    espnMatches.forEach(ev=>{
-      try{
-        const comp=(ev.competitions||[])[0];if(!comp)return;
-        const cs=comp.competitors||[];
-        const h=cs.find(c=>c.homeAway==='home')||cs[0]||{};
-        const a=cs.find(c=>c.homeAway==='away')||cs[1]||{};
-        const st=ev.status||{},stt=st.type||{};
-        const hn=h.team?(h.team.shortDisplayName||h.team.displayName||'TBD'):'TBD';
-        const an=a.team?(a.team.shortDisplayName||a.team.displayName||'TBD'):'TBD';
-        out.push({id:ev.id,home:hn,away:an,
-          home_score:parseInt(h.score||0),away_score:parseInt(a.score||0),
-          state:stt.state||'pre',status:stt.shortDetail||stt.description||'',
-          minute:st.displayClock||'',date:ev.date||'',
-          group:((ev.league||{}).name||'').replace('Group ','Grp ')||'WC2026',
-          venue:((comp.venue||{}).fullName)||'',espn:true,
-          scorers:extractScorers(comp)});
-      }catch{}
-    });
-  }
+  const out=[],seen=new Set();
+  // All ESPN events (history + today), deduped by id
+  [...espnHistory,...espnMatches].forEach(ev=>{
+    if(seen.has(ev.id))return;
+    seen.add(ev.id);
+    const m=normalizeEspnEvent(ev);
+    if(m)out.push(m);
+  });
+  // Fill in today_matches not already covered
   (WC_GROUPS.today_matches_june22||[]).forEach(tm=>{
     const p=parseTodayMatch(tm);
     if(!p)return;
     const{home,away,home_score,away_score}=p;
-    const exists=out.find(m=>m.home&&m.home.toLowerCase().startsWith(home.toLowerCase().slice(0,4)));
+    const exists=out.find(m=>m.home&&m.home.toLowerCase().includes(home.toLowerCase().slice(0,4)));
     if(!exists){
       const isFinal=/FINAL|FT/i.test(tm.status||'');
       const isLive=/live|in progress/i.test(tm.status||'');
@@ -580,6 +608,15 @@ function mergedMatches(){
         status:tm.status||'UPCOMING',minute:tm.minute||'',
         date:tm.time_et||tm.time||'',group:tm.group?'Grp '+tm.group:'',
         venue:tm.venue||'',espn:false,scorers:scorerList});
+    }
+  });
+  // Add static MD3 upcoming fixtures not yet in ESPN
+  WC_MD3_FIXTURES.forEach(f=>{
+    const exists=out.find(m=>m.home&&m.home.toLowerCase().includes(f.home.toLowerCase().slice(0,4))&&m.state!=='post');
+    if(!exists){
+      out.push({id:f.home+f.away,home:f.home,away:f.away,home_score:0,away_score:0,
+        state:'pre',status:'Upcoming',minute:'',date:f.date+' '+f.time,
+        group:'Grp '+f.g,venue:f.venue||'',espn:false,scorers:[]});
     }
   });
   const order=m=>{
@@ -652,7 +689,7 @@ function switchTab(id){
 function renderTab(id){
   ({home:renderHome,standings:renderStandings,matches:renderMatches,
     teams:()=>renderTeams(),stats:renderStats,predictions:renderPredictions,
-    coaches:renderCoaches,records:renderRecords})[id]?.();
+    coaches:renderCoaches})[id]?.();
 }
 function toggleTheme(){
   const h=document.documentElement;
@@ -697,14 +734,40 @@ function renderHome(){
   const days=Math.max(0,Math.floor(diff/864e5));
   const hours=Math.max(0,Math.floor((diff%864e5)/36e5));
   const mins=Math.max(0,Math.floor((diff%36e5)/6e4));
+
+  // Today's matches (live + upcoming + recent final)
   const todayCards=merged.slice(0,6).map(m=>matchCardHtml(m)).join('');
-  const recentFinal=today.filter(m=>m.status==='FINAL').slice(-5).reverse();
-  const recentHtml=recentFinal.length?recentFinal.map(m=>`
-  <div class="match-card" style="margin-bottom:7px"><div class="m-body">
-   <div class="m-team"><span class="m-flag">${flag(m.home)}</span><span class="m-tname">${esc(m.home)}</span></div>
-   <div class="m-score-wrap"><div class="m-score">${m.home_score}-${m.away_score}</div><div class="m-min" style="color:var(--qual)">FT</div></div>
-   <div class="m-team r"><span class="m-tname">${esc(m.away)}</span><span class="m-flag">${flag(m.away)}</span></div>
-  </div></div>`).join(''):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No results yet</div>';
+
+  // Recent results from espnHistory
+  const recent=merged.filter(m=>m.state==='post').slice(-6).reverse();
+  const recentHtml=recent.length?recent.map(m=>`
+  <div class="match-card" style="margin-bottom:7px">
+   <div class="m-hdr"><span class="mbadge mb-ft">&#x2705; FT</span><span>${esc(m.group||'')}</span></div>
+   <div class="m-body">
+    <div class="m-team"><span class="m-flag">${flag(m.home)}</span><span class="m-tname">${esc(m.home)}</span></div>
+    <div class="m-score-wrap"><div class="m-score">${m.home_score}-${m.away_score}</div></div>
+    <div class="m-team r"><span class="m-tname">${esc(m.away)}</span><span class="m-flag">${flag(m.away)}</span></div>
+   </div>
+  </div>`).join(''):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No results yet</div>';
+
+  // Group leaders mini-grid
+  const leadersHtml=`<div class="grp-mini-grid">`+groups.map(grp=>{
+    const t=grp.teams[0];
+    return `<div class="grp-mini-card">
+     <div class="grp-mini-lbl">Group ${esc(grp.group)}</div>
+     <div class="grp-mini-leader">
+      <span style="font-size:18px">${flag(t.team)}</span>
+      <span class="grp-mini-name">${esc(t.team)}</span>
+      <span class="grp-mini-pts">${t.pts||0}pts</span>
+     </div>
+    </div>`;
+  }).join('')+'</div>';
+
+  // Top scorers from ESPN + records
+  const topScorers=buildTopScorers().slice(0,5);
+  const topScorersHtml=topScorers.length?topScorers.map((p,i)=>lbItem(i,flag(p.team),p.name,p.team,`${p.goals} goal${p.goals!==1?'s':''}`,p.goals,(topScorers[0]?.goals||1))).join('')
+    :'<div style="text-align:center;color:var(--text2);padding:16px">Loading scorer data...</div>';
+
   document.getElementById('tab-home').innerHTML=`
   <div class="hero">
    <div class="hero-title">FIFA World Cup <span>2026&#8482;</span></div>
@@ -712,7 +775,7 @@ function renderHome(){
    <div class="hero-stats">
     <div><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
     <div><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
-    <div><span class="hstat-val">16</span><span class="hstat-lbl">Groups</span></div>
+    <div><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
     <div><span class="hstat-val">${nV}</span><span class="hstat-lbl">Virtually Qualified</span></div>
    </div>
    <div class="countdown">
@@ -737,7 +800,22 @@ function renderHome(){
     ${recentHtml}
     <button class="fbtn active" style="margin-top:8px" onclick="switchTab('standings')">View Standings &#x2192;</button>
    </div>
+  </div>
+  <h2 class="sec-title" style="margin-top:24px">&#x1F4CA; Group Leaders</h2>
+  ${leadersHtml}
+  <div class="g2" style="margin-top:24px">
+   <div><h2 class="sec-title">&#x26BD; Top Scorers</h2>${topScorersHtml}
+    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('stats')">Full Stats &#x2192;</button>
+   </div>
+   <div><h2 class="sec-title">&#x1F52E; Tournament Favourites</h2>
+    ${(WC_PREDICTIONS.tournament_winner_prediction&&WC_PREDICTIONS.tournament_winner_prediction.favorites||[]).slice(0,5).map((f,i)=>{
+      const pct=parseFloat(f.probability||'0');
+      return lbItem(i,flag(f.team),f.team,f.reason||'',f.probability,pct,18);
+    }).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">Loading...</div>'}
+    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('predictions')">Full Predictions &#x2192;</button>
+   </div>
   </div>`;
+}
 }
 
 // ================================================================
@@ -998,36 +1076,122 @@ function buildGroupLeaders(){
     const l=grp.teams[0];
     return lbItem(i,flag(l.team),l.team,`Group ${grp.group}`,`${l.played||0}P &middot; ${l.pts||0}pts`,l.pts||0,(groups[0].teams[0].pts||1));
   }).join('');}
-function computeTotalGoals(){let g=0;(WC_GROUPS.today_matches_june22||[]).forEach(m=>{if(m.status==='FINAL')g+=(m.home_score||0)+(m.away_score||0);});return g;}
-function computeMatchesPlayed(){return(WC_GROUPS.today_matches_june22||[]).filter(m=>m.status==='FINAL').length;}
+function computeTotalGoals(){
+  let g=0;
+  [...espnHistory,...espnMatches].forEach(ev=>{
+    try{
+      const stt=(ev.status||{}).type||{};
+      if(stt.state==='post'){
+        const cs=((ev.competitions||[])[0]||{}).competitors||[];
+        cs.forEach(c=>{g+=parseInt(c.score||0);});
+      }
+    }catch{}
+  });
+  if(!g)(WC_GROUPS.today_matches_june22||[]).forEach(m=>{
+    if(!/FINAL|FT/i.test(m.status||''))return;
+    const p=parseTodayMatch(m);if(p)g+=(p.home_score||0)+(p.away_score||0);
+  });
+  return g;
+}
+function computeMatchesPlayed(){
+  const fromEspn=new Set();
+  [...espnHistory,...espnMatches].forEach(ev=>{
+    if((ev.status&&ev.status.type&&ev.status.type.state==='post'))fromEspn.add(ev.id);
+  });
+  if(fromEspn.size)return fromEspn.size;
+  return(WC_GROUPS.today_matches_june22||[]).filter(m=>/FINAL|FT/i.test(m.status||'')).length;
+}
 
 // ================================================================
 // PREDICTIONS TAB
 // ================================================================
 function renderPredictions(){
   const preds=WC_PREDICTIONS;
-  const sorted=Object.entries(preds)
-    .filter(([k,v])=>v&&typeof v==='object'&&v.win_pct)
-    .sort(([,a],[,b])=>(b.win_pct||0)-(a.win_pct||0)).slice(0,10);
-  const upcoming=preds.upcoming_matches||preds.matches||[];
-  const maxWP=(sorted[0]||[,{win_pct:1}])[1].win_pct||1;
-  let html=`<div class="g2">
-   <div><h2 class="sec-title">&#x1F3C6; Tournament Winner Odds</h2>
-    ${sorted.map(([team,d],i)=>lbItem(i,flag(team),team,'',d.win_pct+'% chance',d.win_pct||0,maxWP)).join('')}
-   </div>
-   <div><h2 class="sec-title">&#x1F4C5; Match Predictions</h2>
-    ${upcoming.slice(0,6).map(m=>`<div class="pred-card">
+  const favorites=(preds.tournament_winner_prediction&&preds.tournament_winner_prediction.favorites)||[];
+  const maxPct=parseFloat((favorites[0]||{}).probability||'1');
+  const todayPreds=((preds.match_predictions||{}).today_june22)||[];
+  const upcomingPreds=((preds.match_predictions&&preds.match_predictions.upcoming_group_stage_matchday3)||{}).predictions||[];
+  const qOutlook=preds.group_qualification_outlook||{};
+  const vq=(qOutlook.virtually_qualified||[]);
+  const sp=(qOutlook.strong_position||[]);
+
+  const predMatchHtml=(arr,showResult)=>arr.map(mp=>{
+    const parts=(mp.match||'').split(/\s+vs\s+/i);
+    const home=parts[0]||'',away=parts[1]||'';
+    const wp=mp.win_probability||{};
+    const hpct=parseFloat(wp[home]||wp[Object.keys(wp)[0]]||0);
+    const dpct=parseFloat(wp.Draw||wp.draw||0);
+    const apct=parseFloat(wp[away]||wp[Object.keys(wp).slice(-1)[0]]||0);
+    return `<div class="pred-card">
+     <div class="pred-meta">Group ${esc(mp.group||'?')} &middot; ${esc(mp.time_et||mp.status||'')}</div>
      <div class="pred-match">
-      <div class="pred-team"><span style="font-size:20px">${flag(m.home)}</span><span style="font-weight:700">${esc(m.home)}</span></div>
-      <span style="font-size:11px;color:var(--text3)">vs</span>
-      <div class="pred-team r"><span style="font-weight:700">${esc(m.away)}</span><span style="font-size:20px">${flag(m.away)}</span></div>
+      <div class="pred-team"><span style="font-size:22px">${flag(home)}</span><span style="font-weight:700">${esc(home)}</span></div>
+      <div style="text-align:center">
+       ${showResult&&mp.status?`<div class="mbadge mb-lv" style="font-size:10px">${esc(mp.status)}</div>`:'<span style="color:var(--text3);font-size:12px">vs</span>'}
+       <div style="font-size:11px;color:var(--gold);margin-top:3px">${esc(mp.prediction||'')}</div>
+      </div>
+      <div class="pred-team r"><span style="font-weight:700">${esc(away)}</span><span style="font-size:22px">${flag(away)}</span></div>
      </div>
      <div class="pb-row">
-      <div style="text-align:right"><div style="font-size:11px">${m.home_win||0}%</div><div class="pb h" style="width:${m.home_win||0}%;margin-left:auto"></div></div>
-      <div style="font-size:10px;color:var(--text3);text-align:center">${m.draw||0}%<br><small>Draw</small></div>
-      <div><div style="font-size:11px">${m.away_win||0}%</div><div class="pb a" style="width:${m.away_win||0}%"></div></div>
+      <div style="flex:${hpct||33}"><div class="pb h"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${home} ${hpct||0}%</div></div>
+      <div style="flex:${dpct||20};text-align:center"><div class="pb d"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">Draw ${dpct||0}%</div></div>
+      <div style="flex:${apct||33};text-align:right"><div class="pb a" style="margin-left:auto"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${apct||0}% ${away}</div></div>
      </div>
-    </div>`).join('')||'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No match predictions available</div>'}
+    </div>`;
+  }).join('');
+
+  let html=`<div class="g2">
+   <div>
+    <h2 class="sec-title">&#x1F3C6; Tournament Winner Odds</h2>
+    ${favorites.map((f,i)=>{
+      const pct=parseFloat(f.probability||'0');
+      return `<div class="lb-item">
+       <span class="lb-rank ${i<3?'t3':''}">${i===0?'&#x1F947;':(i===1?'&#x1F948;':(i===2?'&#x1F949;':i+1))}</span>
+       <span class="lb-flag">${flag(f.team)}</span>
+       <div class="lb-info">
+        <div class="lb-name">${esc(f.team)}</div>
+        <div class="lb-detail">${esc(f.reason||'')}</div>
+        <div class="lb-bar-w"><div class="lb-bar"><div class="lb-bar-f" style="width:${maxPct>0?pct/maxPct*100:0}%"></div></div></div>
+       </div>
+       <span class="lb-val">${esc(f.probability)}</span>
+      </div>`;
+    }).join('')||'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">Loading...</div>'}
+   </div>
+   <div>
+    <h2 class="sec-title">&#x1F4C5; Today's Match Predictions</h2>
+    ${todayPreds.length?predMatchHtml(todayPreds,true):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No match predictions for today</div>'}
+   </div>
+  </div>
+  <h2 class="sec-title" style="margin-top:24px">&#x1F52E; Matchday 3 Predictions (June 25-27)</h2>
+  <div class="pred-grid">
+  ${upcomingPreds.map(g=>`
+   <div class="pred-grp-card">
+    <div class="pred-grp-hdr">Group ${esc(g.group)}</div>
+    ${(g.matches||[]).map(m=>{
+      const pts=m.split(/\s+vs\s+/i);
+      return `<div class="pred-fixture"><span>${flag(pts[0]||'')} ${esc(pts[0]||'')}</span><span style="color:var(--text3)">vs</span><span>${esc(pts[1]||'')} ${flag(pts[1]||'')}</span></div>`;
+    }).join('')}
+    <div class="pred-qual">&#x1F3AF; ${(g.predicted_qualifiers||[]).join(' &middot; ')}</div>
+   </div>`).join('')}
+  </div>
+  <div class="g2" style="margin-top:24px">
+   <div>
+    <h2 class="sec-title">&#x2705; Virtually Qualified</h2>
+    ${vq.map(t=>`<div class="lb-item">
+     <span class="lb-flag" style="font-size:22px">${flag(t.team)}</span>
+     <div class="lb-info"><div class="lb-name">${esc(t.team)}</div>
+      <div class="lb-detail">Group ${esc(t.group)} &middot; ${t.points}pts &middot; ${esc(t.certainty)} certainty</div>
+     </div>
+    </div>`).join('')||'<div style="color:var(--text2);padding:16px">No data</div>'}
+   </div>
+   <div>
+    <h2 class="sec-title">&#x1F4AA; Strong Position</h2>
+    ${sp.map(t=>`<div class="lb-item">
+     <span class="lb-flag" style="font-size:22px">${flag(t.team)}</span>
+     <div class="lb-info"><div class="lb-name">${esc(t.team)}</div>
+      <div class="lb-detail">Group ${esc(t.group)} &middot; ${t.points}pts &middot; ${esc(t.certainty)} certainty</div>
+     </div>
+    </div>`).join('')||'<div style="color:var(--text2);padding:16px">No data</div>'}
    </div>
   </div>`;
   document.getElementById('predictionsContent').innerHTML=html;
@@ -1037,25 +1201,35 @@ function renderPredictions(){
 // COACHES TAB
 // ================================================================
 function renderCoaches(){
-  const entries=Object.entries(WC_COACHES).sort(([a],[b])=>a.localeCompare(b));
-  const fgn=entries.filter(([,c])=>typeof c==='object'&&c.foreign).length;
-  let html=`<div style="display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:var(--text2)">
-   <span>${entries.length} coaches total &middot; <span style="color:var(--virt)">${fgn} foreign</span></span>
-  </div><div class="coaches-grid">`;
-  entries.forEach(([team,coach])=>{
-    const cn=typeof coach==='object'?(coach.name||coach.coach||'TBD'):String(coach||'TBD');
-    const cnat=typeof coach==='object'?(coach.nationality||coach.nat||''):'';
-    const cfor=typeof coach==='object'?!!coach.foreign:false;
-    const cnotes=typeof coach==='object'?(coach.notes||''):'';
-    html+=`<div class="c-card"><span class="c-flag">${flag(team)}</span>
-     <div style="flex:1">
-      <div class="c-name">${esc(cn)}</div>
-      <div class="c-team">${flag(team)} ${esc(team)}</div>
-      ${cnat?`<div class="c-nat">&#x1F30D; ${esc(cnat)}</div>`:''}
-      ${cfor?'<span class="foreign-badge">Foreign Coach</span>':''}
-      ${cnotes?`<div style="font-size:10px;color:var(--text3);margin-top:3px">${esc(cnotes)}</div>`:''}
+  // WC_COACHES.coaches = {"Group A": [{team,coach,nationality,foreign,note?},...], ...}
+  const allCoaches=[];
+  Object.entries(WC_COACHES.coaches||{}).forEach(([grpName,arr])=>{
+    (arr||[]).forEach(c=>allCoaches.push({...c,grpName}));
+  });
+  allCoaches.sort((a,b)=>a.grpName.localeCompare(b.grpName)||a.team.localeCompare(b.team));
+  const fgn=allCoaches.filter(c=>c.foreign).length;
+  const stats=WC_COACHES.coaching_stats||{};
+  let html=`
+  <div class="coaches-stats-bar">
+   <div class="cs-item"><span class="cs-val">${allCoaches.length}</span><span class="cs-lbl">Total Coaches</span></div>
+   <div class="cs-item"><span class="cs-val" style="color:var(--virt)">${fgn}</span><span class="cs-lbl">Foreign Coaches</span></div>
+   <div class="cs-item"><span class="cs-val">${allCoaches.length-fgn}</span><span class="cs-lbl">Native Coaches</span></div>
+   ${stats.oldest_coach_record?`<div class="cs-item cs-wide"><span class="cs-lbl">&#x1F4DC; Record</span><span class="cs-detail">${esc(stats.oldest_coach_record)}</span></div>`:''}
+  </div>
+  <div class="coaches-grid">`;
+  allCoaches.forEach(c=>{
+    const isForeign=!!c.foreign;
+    html+=`<div class="c-card">
+     <div class="c-flag-wrap">
+      <span class="c-team-flag">${flag(c.team)}</span>
+      ${isForeign?`<span class="c-nat-flag" title="${esc(c.nationality||'')}">${flag(c.nationality||c.team)}</span>`:''}
      </div>
-     ${cnat&&cnat!==team?`<span style="font-size:18px">${flag(cnat)}</span>`:''}
+     <div style="flex:1;min-width:0">
+      <div class="c-name">${esc(c.coach||c.name||'TBD')}</div>
+      <div class="c-team">${esc(c.team)}</div>
+      <div class="c-nat">${esc(c.nationality||'')}${isForeign?' <span class="foreign-badge">Foreign</span>':''}</div>
+      ${c.note?`<div class="c-note">${esc(c.note)}</div>`:''}
+     </div>
     </div>`;
   });
   html+='</div>';
@@ -1109,8 +1283,34 @@ function renderRecords(){
 }
 
 // ================================================================
-// INIT
+// MD3 UPCOMING FIXTURES (June 25-27)
 // ================================================================
+const WC_MD3_FIXTURES=[
+  {g:'A',home:'Mexico',away:'Czechia',date:'Jun 25',time:'3:00 PM ET',venue:'SoFi Stadium'},
+  {g:'A',home:'South Korea',away:'South Africa',date:'Jun 25',time:'3:00 PM ET',venue:'Rose Bowl'},
+  {g:'B',home:'Canada',away:'Bosnia & Herzegovina',date:'Jun 25',time:'6:00 PM ET',venue:'AT&T Stadium'},
+  {g:'B',home:'Switzerland',away:'Qatar',date:'Jun 25',time:'6:00 PM ET',venue:'Lumen Field'},
+  {g:'C',home:'Brazil',away:'Scotland',date:'Jun 25',time:'9:00 PM ET',venue:'MetLife Stadium'},
+  {g:'C',home:'Morocco',away:'Haiti',date:'Jun 25',time:'9:00 PM ET',venue:'Hard Rock Stadium'},
+  {g:'D',home:'United States',away:'Turkey',date:'Jun 26',time:'3:00 PM ET',venue:'AT&T Stadium'},
+  {g:'D',home:'Australia',away:'Paraguay',date:'Jun 26',time:'3:00 PM ET',venue:'Rose Bowl'},
+  {g:'E',home:'Germany',away:'Ecuador',date:'Jun 26',time:'6:00 PM ET',venue:'MetLife Stadium'},
+  {g:'E',home:'Ivory Coast',away:'Curacao',date:'Jun 26',time:'6:00 PM ET',venue:'Lumen Field'},
+  {g:'F',home:'Netherlands',away:'Tunisia',date:'Jun 26',time:'9:00 PM ET',venue:'SoFi Stadium'},
+  {g:'F',home:'Japan',away:'Sweden',date:'Jun 26',time:'9:00 PM ET',venue:'Hard Rock Stadium'},
+  {g:'G',home:'Egypt',away:'Belgium',date:'Jun 27',time:'3:00 PM ET',venue:'AT&T Stadium'},
+  {g:'G',home:'Iran',away:'New Zealand',date:'Jun 27',time:'3:00 PM ET',venue:'Rose Bowl'},
+  {g:'H',home:'Spain',away:'Uruguay',date:'Jun 27',time:'6:00 PM ET',venue:'MetLife Stadium'},
+  {g:'H',home:'Cape Verde',away:'Saudi Arabia',date:'Jun 27',time:'6:00 PM ET',venue:'SoFi Stadium'},
+  {g:'I',home:'France',away:'Norway',date:'Jun 27',time:'9:00 PM ET',venue:'Hard Rock Stadium'},
+  {g:'I',home:'Senegal',away:'Iraq',date:'Jun 27',time:'9:00 PM ET',venue:'Lumen Field'},
+  {g:'J',home:'Argentina',away:'Jordan',date:'Jun 28',time:'3:00 PM ET',venue:'Rose Bowl'},
+  {g:'J',home:'Algeria',away:'Austria',date:'Jun 28',time:'3:00 PM ET',venue:'AT&T Stadium'},
+  {g:'K',home:'Portugal',away:'Uzbekistan',date:'Jun 28',time:'6:00 PM ET',venue:'SoFi Stadium'},
+  {g:'K',home:'Colombia',away:'DR Congo',date:'Jun 28',time:'6:00 PM ET',venue:'MetLife Stadium'},
+  {g:'L',home:'England',away:'Panama',date:'Jun 28',time:'9:00 PM ET',venue:'Hard Rock Stadium'},
+  {g:'L',home:'Ghana',away:'Croatia',date:'Jun 28',time:'9:00 PM ET',venue:'Lumen Field'}
+];
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('builtAt').textContent=BUILT_AT;
   document.getElementById('themeBtn').textContent=
