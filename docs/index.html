@@ -947,7 +947,6 @@ setInterval(()=>{if(wMatches.length>1)renderWidgetSlide((wCarousel+1)%wMatches.l
 // NAVIGATION
 // ================================================================
 function switchTab(id){
-  if(id==='home')window._heroInitialized=false;
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const p=document.getElementById('tab-'+id);if(p)p.classList.add('active');
@@ -1171,7 +1170,7 @@ function initHeroCarousel(){
       if(i===n&&!was){s.style.animation='none';void s.offsetWidth;s.style.animation='';}
     });
     document.querySelectorAll('.hsdot').forEach((d,i)=>d.classList.toggle('active',i===n));
-    cur=n;
+    cur=n;window._heroCurrentIdx=n;
   };
   clearInterval(window._heroTimer);
   window._heroTimer=setInterval(()=>jumpSlide((cur+1)%HERO_SLIDES.length),7000);
@@ -1375,15 +1374,10 @@ function renderHome(){
     <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('bracket')">Tournament Bracket &#x2192;</button>
    </div>
   </div>`;
-  // Only init carousel on first render; preserve slide on re-renders
-  if(!window._heroInitialized){
-    window._heroInitialized=true;
-    initHeroCarousel();
-  } else {
-    // Lightweight refresh: update highlights + hero-meta counts only
-    const hlEl=document.querySelector('.hero-hl');
-    if(hlEl)hlEl.innerHTML=`<div class="hl-hdr">&#x1F525; Highlights</div>${buildHighlightsHtml()}`;
-  }
+  // Always reinit carousel (innerHTML was reset), but preserve current slide index
+  const savedSlide=window._heroCurrentIdx||0;
+  initHeroCarousel();
+  if(savedSlide>0)requestAnimationFrame(()=>window.jumpSlide&&window.jumpSlide(savedSlide));
 }
 
 // ================================================================
