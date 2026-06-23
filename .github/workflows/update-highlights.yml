@@ -1,0 +1,37 @@
+name: Update Highlights
+
+on:
+  schedule:
+    # Every 30 minutes — picks up new FIFA YouTube highlights automatically
+    - cron: '*/30 * * * *'
+  workflow_dispatch:   # also allow manual trigger from GitHub Actions UI
+
+jobs:
+  update-highlights:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit docs/data/highlights.json
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch FIFA YouTube playlist and update highlights
+        run: python scripts/update_highlights.py
+
+      - name: Commit if highlights changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/highlights.json
+          if git diff --staged --quiet; then
+            echo "No highlight changes — nothing to commit"
+          else
+            git commit -m "chore: auto-update highlights [skip ci]"
+            git push
+          fi
