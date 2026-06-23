@@ -126,56 +126,51 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 @media(max-width:1200px){.g6{grid-template-columns:repeat(4,1fr)}.g4{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.g6{grid-template-columns:repeat(3,1fr)}.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
 @media(max-width:560px){.g6,.g4,.g3{grid-template-columns:repeat(2,1fr)}}
-.hero{border-radius:var(--r2);margin-bottom:20px;border:1px solid rgba(255,215,0,.3);position:relative;overflow:hidden;display:flex;box-shadow:0 8px 32px rgba(0,0,0,.6);min-height:260px}
+.hero{border-radius:var(--r2);margin-bottom:0;border:1px solid rgba(255,215,0,.25);position:relative;overflow:hidden;display:flex;box-shadow:0 8px 32px rgba(0,0,0,.7);min-height:440px}
 .hero::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),rgba(255,215,0,.4) 60%,transparent);z-index:5}
 /* Carousel */
 .hero-bg{position:absolute;inset:0;z-index:0}
-.hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease}
-.hslide.hs-active{opacity:1}
+.hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;background-size:cover;background-position:center}
+.hslide.hs-active{opacity:1;animation:kbZoom 12s ease-in-out forwards}
 @keyframes kbZoom{0%{transform:scale(1)}100%{transform:scale(1.06)}}
-.hslide.hs-active{opacity:1;animation:kbZoom 8s ease-in-out forwards}
-.hslide-ov{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,16,30,.85) 0%,rgba(6,16,30,.62) 50%,rgba(6,16,30,.38) 100%)}
-.hslide-mark{position:absolute;right:12%;top:50%;transform:translateY(-50%);font-size:110px;opacity:.08;pointer-events:none;filter:blur(.5px);line-height:1}
-.hero-dots{position:absolute;bottom:10px;left:30px;display:flex;gap:6px;z-index:4}
-.hsdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .35s ease;cursor:pointer;border:none;padding:0}
-.hsdot.active{background:var(--gold);width:20px;border-radius:3px}
-.hslide-content{position:absolute;bottom:28px;left:28px;z-index:3;max-width:480px}
-.hslide-tag{font-size:9px;font-weight:800;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;opacity:.9}
-.hslide-head{font-size:26px;font-weight:900;color:#fff;margin:0 0 6px;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.8)}
-.hslide-desc{font-size:12px;color:rgba(255,255,255,.75);margin:0 0 14px;line-height:1.5;text-shadow:0 1px 6px rgba(0,0,0,.8)}
-.hslide-btn{display:inline-flex;align-items:center;gap:5px;background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:7px 18px;border-radius:20px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;text-transform:uppercase;letter-spacing:.06em}
-.hslide-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(255,215,0,.4)}
-/* Hero content */
-.hero-info{flex:1;padding:24px 28px;position:relative;z-index:2}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:3px 12px;font-size:9px;color:var(--gold);font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
-.hero-live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:3px 12px;font-size:9px;font-weight:800;color:#f87171;animation:bpulse 2s infinite;margin-bottom:10px;text-transform:uppercase}
-.hero-hl{width:290px;flex-shrink:0;background:rgba(0,0,0,.38);border-left:1px solid rgba(255,215,0,.12);padding:16px 14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:310px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.3) transparent;position:relative;z-index:2}
-@media(max-width:860px){.hero{flex-direction:column}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,215,0,.12);max-height:none}}
+.hslide-ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.20) 100%)}
+.hslide-content{position:absolute;top:0;bottom:0;left:0;display:flex;flex-direction:column;justify-content:center;padding:36px 38px;z-index:3;max-width:540px;pointer-events:auto}
+.hslide-tag{font-size:9px;font-weight:800;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.hslide-tag::before{content:'';width:28px;height:2px;background:var(--gold);border-radius:1px;flex-shrink:0}
+.hslide-head{font-size:36px;font-weight:900;color:#fff;margin:0 0 12px;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.9)}
+.hslide-desc{font-size:13px;color:rgba(255,255,255,.82);margin:0 0 20px;line-height:1.6;text-shadow:0 1px 10px rgba(0,0,0,.9);max-width:400px}
+.hslide-btn{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:#000814;font-size:11px;font-weight:900;padding:10px 24px;border-radius:24px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;text-transform:uppercase;letter-spacing:.08em;width:fit-content}
+.hslide-btn:hover{transform:scale(1.06);box-shadow:0 6px 24px rgba(255,215,0,.55)}
+.hero-dots{position:absolute;bottom:16px;left:38px;display:flex;gap:7px;z-index:4}
+.hsdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);transition:all .35s ease;cursor:pointer;border:none;padding:0}
+.hsdot.active{background:var(--gold);width:24px;border-radius:3.5px}
+/* Hero highlights panel */
+.hero-hl{width:280px;flex-shrink:0;background:rgba(0,0,0,.55);border-left:1px solid rgba(255,215,0,.14);padding:16px 14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:440px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.3) transparent;position:relative;z-index:2}
+@media(max-width:900px){.hero{flex-direction:column;min-height:360px}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,215,0,.12);max-height:180px}}
 .hl-hdr{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .hl-hdr::before{content:"";width:3px;height:12px;background:var(--gold);border-radius:2px;flex-shrink:0}
 .hl-item{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;background:rgba(255,255,255,.04);border-radius:7px;border-left:3px solid var(--gold);font-size:10.5px;color:rgba(255,255,255,.82);line-height:1.45;transition:background .15s;flex-shrink:0}
 .hl-item:hover{background:rgba(255,255,255,.08)}
 .hl-item.hl-red{border-left-color:#f87171}.hl-item.hl-green{border-left-color:var(--qual)}.hl-item.hl-blue{border-left-color:var(--cont)}.hl-item.hl-news{border-left-color:#60a5fa}
 .hl-icon{font-size:13px;flex-shrink:0;line-height:1.5}
-.hero-title{font-size:30px;font-weight:900;color:#fff;margin:0 0 3px;line-height:1.1}
-.hero-title span{color:var(--gold)}
-.hero-sub{font-size:12px;color:rgba(255,255,255,.5);margin:0 0 12px}
-/* Compact stats strip */
-.hero-stats{display:flex;gap:0;flex-wrap:nowrap;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08);margin-bottom:14px}
-.hstat-item{flex:1;padding:7px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}
-.hstat-item:last-child{border-right:none}
-.hstat-val{font-size:17px;font-weight:900;color:var(--gold);display:block;line-height:1.1}
-.hstat-lbl{font-size:7px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
-/* Stopwatch countdown rings */
-.countdown{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
-.sw-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
-.sw-ring{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.sw-inner{width:46px;height:46px;border-radius:50%;background:#06101e;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.sw-val{font-size:16px;font-weight:900;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
-.sw-lbl{font-size:7px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em}
-.sw-sep{font-size:20px;font-weight:900;color:rgba(255,215,0,.45);align-self:center;margin:0 -4px;margin-bottom:14px;animation:blink 1s step-end infinite}
+/* Hero meta row: compact stats + countdown BELOW the hero */
+.hero-meta{display:flex;align-items:center;gap:0;background:rgba(6,16,30,.95);border:1px solid rgba(255,215,0,.2);border-top:none;border-radius:0 0 var(--r2) var(--r2);margin-bottom:18px;flex-wrap:wrap;overflow:hidden}
+.hm-stats{display:flex;flex:1;min-width:180px;border-right:1px solid rgba(255,255,255,.07)}
+.hm-stat{flex:1;padding:8px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}
+.hm-stat:last-child{border-right:none}
+.hm-stat-val{font-size:15px;font-weight:900;color:var(--gold);display:block;line-height:1}
+.hm-stat-lbl{font-size:6.5px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.05em}
+.hm-cd{display:flex;gap:6px;align-items:center;padding:6px 14px;flex-shrink:0}
+.hm-cd-lbl{font-size:8px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-right:4px;white-space:nowrap}
+/* Stopwatch rings (compact for meta row) */
+.sw-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sw-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sw-inner{width:34px;height:34px;border-radius:50%;background:#06101e;display:flex;align-items:center;justify-content:center}
+.sw-val{font-size:12px;font-weight:900;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+.sw-lbl{font-size:6px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em}
+.sw-sep{font-size:14px;font-weight:900;color:rgba(255,215,0,.4);align-self:center;margin:0 -2px;margin-bottom:8px;animation:blink 1s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-.sw-final{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 14px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:10px;font-size:10px;font-weight:800;color:var(--gold);text-align:center;line-height:1.5;min-width:56px}
+.sw-final{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 8px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:6px;font-size:8px;font-weight:800;color:var(--gold);text-align:center;line-height:1.4}
 .scards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:12px}
 @media(max-width:900px){.scards{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:460px){.scards{grid-template-columns:1fr}}
@@ -1100,45 +1095,51 @@ function toggleQualPanel(type){
 // ================================================================
 const HERO_SLIDES=[
   {
-    bg:`radial-gradient(ellipse at 30% 40%,rgba(255,200,50,.30) 0%,transparent 50%),radial-gradient(ellipse at 75% 65%,rgba(180,120,10,.20) 0%,transparent 40%),linear-gradient(135deg,#090500 0%,#1c1000 50%,#2e1a00 100%)`,
+    bg:`url(https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#001830,#003a6e)`,
     icon:'&#x1F3C6;',tag:'FIFA WORLD CUP 2026&#x2122;',
-    headline:'Glory Awaits',
-    desc:'48 nations compete for the most coveted trophy in world football. USA &middot; Canada &middot; Mexico.',
+    headline:'48 Nations, One Dream',
+    desc:'The greatest show on Earth returns to North America. USA &middot; Canada &middot; Mexico. June 11 &ndash; July 19, 2026.',
     cta:'Group Standings',ctaFn:"switchTab('standings')"
   },
   {
-    bg:`radial-gradient(ellipse at 28% 55%,rgba(30,100,220,.35) 0%,transparent 52%),radial-gradient(ellipse at 72% 35%,rgba(15,70,180,.22) 0%,transparent 45%),linear-gradient(180deg,#00091a 0%,#001332 55%,#000b1e 100%)`,
+    bg:`url(https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#0a1628,#1e3a5f)`,
     icon:'&#x26BD;',tag:'MATCH CENTER',
     headline:'The Beautiful Game',
-    desc:'Live scores, detailed stats and match events from every World Cup game.',
+    desc:'Live scores, match events, lineups and statistics for every World Cup fixture.',
     cta:'All Matches',ctaFn:"switchTab('matches')"
   },
   {
-    bg:`repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 90px),radial-gradient(ellipse at 50% 45%,rgba(20,100,35,.40) 0%,transparent 58%),linear-gradient(180deg,#000f03 0%,#002808 55%,#000f03 100%)`,
+    bg:`url(https://images.unsplash.com/photo-1552667466-07770ae110d0?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#001a0a,#003a18)`,
     icon:'&#x1F947;',tag:'GROUP STAGE',
-    headline:'On The Pitch',
-    desc:'Top nations battle for qualification. Every goal, every card, every moment.',
+    headline:'Battle for the Top',
+    desc:'48 teams, 12 groups. Only the best two from each group advance to the Round of 32.',
     cta:'Live Stats',ctaFn:"switchTab('stats')"
   },
   {
-    bg:`radial-gradient(ellipse at 60% 42%,rgba(220,40,20,.38) 0%,transparent 52%),radial-gradient(ellipse at 25% 65%,rgba(180,20,10,.20) 0%,transparent 42%),linear-gradient(135deg,#0d0000 0%,#220000 50%,#380000 100%)`,
-    icon:'&#x1F525;',tag:'PREDICTIONS',
-    headline:'Passion &amp; Power',
-    desc:'AI-powered predictions updated daily with live standings and injury news.',
-    cta:'AI Predictions',ctaFn:"switchTab('predictions')"
+    bg:`url(https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#1a0030,#360060)`,
+    icon:'&#x1F52E;',tag:'AI PREDICTIONS',
+    headline:'Smart Match Predictions',
+    desc:'Daily-updated AI forecasts based on live standings, injuries, suspensions and current form.',
+    cta:'View Predictions',ctaFn:"switchTab('predictions')"
   },
   {
-    bg:`radial-gradient(ellipse at 45% 48%,rgba(110,20,200,.32) 0%,transparent 55%),radial-gradient(ellipse at 75% 25%,rgba(80,10,160,.20) 0%,transparent 40%),linear-gradient(135deg,#070012 0%,#130028 50%,#1e0040 100%)`,
-    icon:'&#x2B50;',tag:'WORLD CLASS TEAMS',
-    headline:'48 Nations, 1 Dream',
-    desc:'Squads, coaches, stats and every players journey to the World Cup.',
+    bg:`url(https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#100030,#220060)`,
+    icon:'&#x1F30D;',tag:'TEAMS &amp; SQUADS',
+    headline:'World Class Nations',
+    desc:'Explore squads, coaches, FIFA rankings and full tournament statistics for all 48 nations.',
     cta:'Teams &amp; Squads',ctaFn:"switchTab('teams')"
   },
   {
-    bg:`radial-gradient(ellipse at 35% 50%,rgba(255,215,0,.18) 0%,transparent 55%),radial-gradient(ellipse at 70% 30%,rgba(200,170,0,.14) 0%,transparent 40%),radial-gradient(ellipse at 55% 75%,rgba(150,110,0,.15) 0%,transparent 40%),linear-gradient(160deg,#090800 0%,#181200 50%,#0c0a00 100%)`,
-    icon:'&#x1F30D;',tag:'BRACKET &amp; KNOCKOUT',
+    bg:`url(https://images.unsplash.com/photo-1516802273409-68526ee1bdd6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    fallback:`linear-gradient(135deg,#0a0c00,#1e2000)`,
+    icon:'&#x1F3C6;',tag:'KNOCKOUT STAGE',
     headline:'Road to the Final',
-    desc:'Track the bracket as teams advance through the knockout rounds to glory.',
+    desc:'Follow every team on their path through the knockout rounds to World Cup glory.',
     cta:'View Bracket',ctaFn:"switchTab('bracket')"
   }
 ];
@@ -1147,7 +1148,7 @@ function initHeroCarousel(){
   const bg=document.getElementById('heroBg');
   if(!bg)return;
   bg.innerHTML=HERO_SLIDES.map((s,i)=>`
-    <div class="hslide${i===0?' hs-active':''}" style="background:${s.bg}">
+    <div class="hslide${i===0?' hs-active':''}" style="background:${s.bg},${s.fallback}">
       <div class="hslide-ov"></div>
       <div class="hslide-content">
         <div class="hslide-tag">${s.icon} ${s.tag}</div>
@@ -1161,14 +1162,15 @@ function initHeroCarousel(){
   let cur=0;
   window.jumpSlide=function(n){
     document.querySelectorAll('.hslide').forEach((s,i)=>{
+      const was=s.classList.contains('hs-active');
       s.classList.toggle('hs-active',i===n);
-      if(i===n)s.style.animation='none',void s.offsetWidth,s.style.animation='';
+      if(i===n&&!was){s.style.animation='none';void s.offsetWidth;s.style.animation='';}
     });
     document.querySelectorAll('.hsdot').forEach((d,i)=>d.classList.toggle('active',i===n));
     cur=n;
   };
   clearInterval(window._heroTimer);
-  window._heroTimer=setInterval(()=>jumpSlide((cur+1)%HERO_SLIDES.length),6000);
+  window._heroTimer=setInterval(()=>jumpSlide((cur+1)%HERO_SLIDES.length),7000);
 }
 
 // Ring-style countdown unit: conic-gradient progress circle
@@ -1247,30 +1249,25 @@ function renderHome(){
   <div class="hero">
    <div id="heroBg" class="hero-bg"></div>
    <div id="heroDots" class="hero-dots"></div>
-   <div class="hero-info">
-    ${nLive>0
-      ?`<div class="hero-live-badge">&#x1F534; ${nLive} Match${nLive>1?'es':''} Live Now</div>`
-      :`<div class="hero-badge">&#x1F3C6; FIFA World Cup 2026&#x2122;</div>`}
-    <div class="hero-title">FIFA World Cup <span>2026&#8482;</span></div>
-    <div class="hero-sub">USA &middot; Canada &middot; Mexico &nbsp;|&nbsp; June 11 &ndash; July 19, 2026</div>
-    <div class="hero-stats">
-     <div class="hstat-item"><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
-     <div class="hstat-item"><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
-     <div class="hstat-item"><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
-     <div class="hstat-item"><span class="hstat-val" style="color:var(--qual)">${nV}</span><span class="hstat-lbl">R32 Qualified</span></div>
-    </div>
-    <div class="countdown">
-     ${cdRing(days,38,'Days')}
-     <span class="sw-sep">:</span>
-     ${cdRing(hours,24,'Hours')}
-     <span class="sw-sep">:</span>
-     ${cdRing(mins,60,'Mins')}
-     <div class="sw-final">Until<br>&#x1F3C6; Final</div>
-    </div>
-   </div>
    <div class="hero-hl">
     <div class="hl-hdr">&#x1F525; Highlights</div>
     ${buildHighlightsHtml()}
+   </div>
+  </div>
+  <div class="hero-meta">
+   <div class="hm-stats">
+    <div class="hm-stat"><span class="hm-stat-val">48</span><span class="hm-stat-lbl">&#x1F3C6; Teams</span></div>
+    <div class="hm-stat"><span class="hm-stat-val">104</span><span class="hm-stat-lbl">&#x26BD; Matches</span></div>
+    <div class="hm-stat"><span class="hm-stat-val">12</span><span class="hm-stat-lbl">&#x1F4CA; Groups</span></div>
+    <div class="hm-stat"><span class="hm-stat-val" style="color:var(--qual)">${nV}</span><span class="hm-stat-lbl">&#x2705; R32 Qualified</span></div>
+   </div>
+   <div class="hm-cd">
+    <span class="hm-cd-lbl">&#x23F1; Until Final</span>
+    ${cdRing(days,38,'Days')}
+    <span class="sw-sep">:</span>
+    ${cdRing(hours,24,'Hrs')}
+    <span class="sw-sep">:</span>
+    ${cdRing(mins,60,'Min')}
    </div>
   </div>
   ${(()=>{
