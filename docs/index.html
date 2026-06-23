@@ -145,7 +145,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .hsdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);transition:all .35s ease;cursor:pointer;border:none;padding:0}
 .hsdot.active{background:var(--gold);width:24px;border-radius:3.5px}
 /* Hero highlights panel */
-.hero-hl{width:280px;flex-shrink:0;background:rgba(0,0,0,.55);border-left:1px solid rgba(255,215,0,.14);padding:16px 14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:440px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.3) transparent;position:relative;z-index:2}
+.hero-hl{width:280px;flex-shrink:0;margin-left:auto;background:rgba(0,0,0,.55);border-left:1px solid rgba(255,215,0,.14);padding:16px 14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:440px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.3) transparent;position:relative;z-index:2}
 @media(max-width:900px){.hero{flex-direction:column;min-height:360px}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,215,0,.12);max-height:180px}}
 .hl-hdr{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .hl-hdr::before{content:"";width:3px;height:12px;background:var(--gold);border-radius:2px;flex-shrink:0}
@@ -181,6 +181,9 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .story-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:0;overflow:hidden;transition:transform .2s,border-color .2s;cursor:pointer}
 .story-card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:var(--shadow2)}
 .sc-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden}
+.sc-live-dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--live);animation:bpulse 2s infinite}
+.story-card.sc-live{border-color:rgba(239,68,68,.4)!important}
+.story-card.sc-live .sc-tag{color:var(--live)}
 .sc-body{padding:12px 14px}
 .sc-tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:4px}
 .sc-title{font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px;line-height:1.35}
@@ -944,6 +947,7 @@ setInterval(()=>{if(wMatches.length>1)renderWidgetSlide((wCarousel+1)%wMatches.l
 // NAVIGATION
 // ================================================================
 function switchTab(id){
+  if(id==='home')window._heroInitialized=false;
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const p=document.getElementById('tab-'+id);if(p)p.classList.add('active');
@@ -1127,7 +1131,7 @@ const HERO_SLIDES=[
     cta:'View Predictions',ctaFn:"switchTab('predictions')"
   },
   {
-    bg:`url(https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
+    bg:`url(https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=1920&q=80) center/cover no-repeat`,
     fallback:`linear-gradient(135deg,#100030,#220060)`,
     icon:'&#x1F30D;',tag:'TEAMS &amp; SQUADS',
     headline:'World Class Nations',
@@ -1273,44 +1277,64 @@ function renderHome(){
   ${(()=>{
     const merged2=mergedMatches();
     const cards=[];
-    // Top scorer card
     const tStats=buildTournamentStats();
-    const top=Object.values(tStats).sort((a,b)=>b.goals-a.goals)[0];
-    if(top&&top.goals>0)cards.push({
-      bg:'linear-gradient(135deg,#1a0a00,#3d1800)',icon:'&#x26BD;',tag:'TOP SCORER',
-      title:`${flag(top.team)} ${esc(top.player)} &mdash; ${top.goals} Goal${top.goals!==1?'s':''}`,
-      desc:`${esc(top.team)} &middot; ${top.yellows} yellow${top.yellows!==1?'s':''}, ${top.reds} red${top.reds!==1?'s':''}`,
-      fn:"switchTab('stats')"
-    });
-    // Latest result card
+    // 1. LIVE match card (highest priority) — show all live matches
+    const liveMatches=merged2.filter(m=>m.state==='in');
+    if(liveMatches.length){
+      liveMatches.slice(0,2).forEach(m=>{
+        cards.push({
+          bg:'linear-gradient(135deg,#1a0000,#3d0000)',icon:'&#x1F534;',tag:'LIVE NOW',
+          title:`${flag(m.home)} ${esc(m.home)} <span style="color:var(--gold);font-size:16px;font-weight:900">${m.home_score}&#x2013;${m.away_score}</span> ${esc(m.away)} ${flag(m.away)}`,
+          desc:`${esc(m.minute||'')} &mdash; click for match details`,
+          fn:`showMatchDetail&&showMatchDetail('${m.espnId||''}')`,
+          live:true
+        });
+      });
+    }
+    // 2. Top scorer — live from tournament stats
+    const allScorers=Object.values(tStats).filter(s=>s.goals>0).sort((a,b)=>b.goals-a.goals);
+    const top=allScorers[0];
+    if(top){
+      const runner=allScorers[1];
+      cards.push({
+        bg:'linear-gradient(135deg,#1a0a00,#3d1800)',icon:'&#x26BD;',tag:'TOP SCORER',
+        title:`${flag(top.team)} ${esc(top.player)} &mdash; ${top.goals} Goal${top.goals!==1?'s':''}`,
+        desc:runner?`2nd: ${esc(runner.player)} (${runner.team}) &mdash; ${runner.goals} goal${runner.goals!==1?'s':''}`:`${esc(top.team)}`,
+        fn:"switchTab('stats')"
+      });
+    }
+    // 3. Latest result — most recently finished match
     const last=merged2.filter(m=>m.state==='post').slice(-1)[0];
-    if(last)cards.push({
-      bg:'linear-gradient(135deg,#001a10,#003520)',icon:'&#x2705;',tag:'LATEST RESULT',
-      title:`${flag(last.home)} ${esc(last.home)} ${last.home_score}&#x2013;${last.away_score} ${esc(last.away)} ${flag(last.away)}`,
-      desc:'Full time &mdash; click for match details',
-      fn:`showMatchDetail&&showMatchDetail('${last.espnId||''}')`
-    });
-    // Qualification card
+    if(last){
+      cards.push({
+        bg:'linear-gradient(135deg,#001a10,#003520)',icon:'&#x2705;',tag:'LATEST RESULT',
+        title:`${flag(last.home)} ${esc(last.home)} ${last.home_score}&#x2013;${last.away_score} ${esc(last.away)} ${flag(last.away)}`,
+        desc:'Full time &mdash; click for match details',
+        fn:`showMatchDetail&&showMatchDetail('${last.espnId||''}')`
+      });
+    }
+    // 4. Next upcoming match
+    const next=merged2.filter(m=>m.state==='pre')[0];
+    if(next){
+      cards.push({
+        bg:'linear-gradient(135deg,#001a30,#003060)',icon:'&#x23F0;',tag:'NEXT MATCH',
+        title:`${flag(next.home)} ${esc(next.home)} vs ${esc(next.away)} ${flag(next.away)}`,
+        desc:next.date?`Kick-off: ${fmtMatchTime(next.date)}`:'Coming up',
+        fn:"switchTab('matches')"
+      });
+    }
+    // 5. Qualification summary
     cards.push({
-      bg:'linear-gradient(135deg,#001a30,#003060)',icon:'&#x1F3C6;',tag:'QUALIFICATION',
-      title:`${nV} Teams Qualified for Round of 32`,
-      desc:`${nC} still in contention &middot; ${nE} eliminated`,
+      bg:'linear-gradient(135deg,#001230,#002660)',icon:'&#x1F3C6;',tag:'QUALIFICATION',
+      title:`${nV} Team${nV!==1?'s':''} Qualified for Round of 32`,
+      desc:`${nC} in contention &middot; ${nE} eliminated`,
       fn:"toggleQualPanel('virtual')"
     });
-    // Next match card
-    const next=merged2.filter(m=>m.state==='pre')[0];
-    if(next)cards.push({
-      bg:'linear-gradient(135deg,#1a0030,#360060)',icon:'&#x23F0;',tag:'NEXT MATCH',
-      title:`${flag(next.home)} ${esc(next.home)} vs ${esc(next.away)} ${flag(next.away)}`,
-      desc:next.date?`Kick-off: ${fmtMatchTime(next.date)}`:'Coming up',
-      fn:"switchTab('matches')"
-    });
-    if(!cards.length)return'';
-    return`<div class="story-cards">${cards.map(c=>`
-      <div class="story-card" onclick="${c.fn}">
-        <div class="sc-img" style="background:${c.bg}">${c.icon}</div>
+    return`<div class="story-cards">${cards.slice(0,4).map(c=>`
+      <div class="story-card${c.live?' sc-live':''}" onclick="${c.fn}">
+        <div class="sc-img" style="background:${c.bg}">${c.icon}${c.live?'<span class="sc-live-dot"></span>':''}</div>
         <div class="sc-body">
-          <div class="sc-tag">${c.tag}</div>
+          <div class="sc-tag">${c.live?'<span class="ldot" style="margin-right:4px"></span>':''} ${c.tag}</div>
           <div class="sc-title">${c.title}</div>
           <div class="sc-desc">${c.desc}</div>
         </div>
@@ -1351,7 +1375,15 @@ function renderHome(){
     <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('bracket')">Tournament Bracket &#x2192;</button>
    </div>
   </div>`;
-  initHeroCarousel();
+  // Only init carousel on first render; preserve slide on re-renders
+  if(!window._heroInitialized){
+    window._heroInitialized=true;
+    initHeroCarousel();
+  } else {
+    // Lightweight refresh: update highlights + hero-meta counts only
+    const hlEl=document.querySelector('.hero-hl');
+    if(hlEl)hlEl.innerHTML=`<div class="hl-hdr">&#x1F525; Highlights</div>${buildHighlightsHtml()}`;
+  }
 }
 
 // ================================================================
