@@ -1077,14 +1077,7 @@ function renderHome(){
     :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No live matches &mdash; <a href="#" onclick="switchTab(\'matches\');return false" style="color:var(--accent2)">view schedule</a></div>';
 
   const recentHtml=recentResults.length?recentResults.map(m=>`
-  <div class="match-card">
-   <div class="m-hdr"><span class="mbadge mb-ft">&#x2705; FT</span><span>${esc(m.group||'')}</span></div>
-   <div class="m-body">
-    <div class="m-team"><span class="m-flag">${flag(m.home)}</span><div class="m-tname">${esc(m.home)}</div></div>
-    <div class="m-score-wrap"><div class="m-score">${m.home_score}-${m.away_score}</div></div>
-    <div class="m-team r"><div class="m-tname">${esc(m.away)}</div><span class="m-flag">${flag(m.away)}</span></div>
-   </div>
-  </div>`).join('')
+  <div class="match-card" ${m.espn&&m.id?`onclick="goToMatchDetail('${m.id}')" style="cursor:pointer" title="Click for match details"`:''}>`+matchCardHtml(m,false).replace(/^<div[^>]*>/,'')
   :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No results yet</div>';
 
   document.getElementById('tab-home').innerHTML=`
@@ -1183,7 +1176,7 @@ function matchCardHtml(m,clickable=true){
   const min=isLive&&m.minute?`<div class="m-min">${esc(m.minute)}</div>`:'';
   const timeStr=m.date&&m.state==='pre'?`<div class="m-min">${fmtMatchTime(m.date)}</div>`:'';
   const scorers=(m.scorers||[]).map(s=>`<span class="m-scorer"><span>${esc(s.name||s)}</span>${s.minute?` ${s.minute}'`:''}</span>`).join(' &middot; ');
-  const clickAttr=(clickable&&m.espn&&m.id)?`onclick="showMatchDetail('${m.id}')" title="Click for match details"`:'';
+  const clickAttr=(clickable&&m.espn&&m.id)?`onclick="goToMatchDetail('${m.id}')" title="Click for match details"`:'';
   const detailHint=(clickable&&m.espn&&m.id)?`<span style="margin-left:auto;font-size:9px;color:var(--accent2)">&#x1F4CB; Details</span>`:'';
   return `<div class="match-card ${isLive?'lv':''}" ${clickAttr}>
   <div class="m-hdr">${matchBadge(m)}<span>${esc(m.group||'')}</span>${m.venue?`<span>&#x1F4CD; ${esc(m.venue)}</span>`:''} ${detailHint}</div>
@@ -1200,6 +1193,12 @@ function matchCardHtml(m,clickable=true){
 // MATCH DETAIL PAGE
 // ================================================================
 let matchDetailId=null;
+
+// Called from any tab — switches to Matches tab and shows detail
+function goToMatchDetail(eventId){
+  matchDetailId=eventId;
+  switchTab('tab-matches'); // renderMatches() picks up matchDetailId automatically
+}
 
 async function showMatchDetail(eventId){
   matchDetailId=eventId;
@@ -1469,11 +1468,13 @@ function renderTeamDetail(teamName){
   const status=td?getQualStatus(teamName,grp.teams,grp.teams.length):'other';
   const gd=td?((td.gf||0)-(td.ga||0)):0;
   const tournStats=buildTournamentStats();
-  // Find stats for a player by last-name fuzzy match
+  // Match player by last-name normalized (strips diacritics so Mbappé=Mbappe etc.)
+  const normTeam=normalizeEspnName(teamName);
   const playerStats=(pName)=>{
-    const last=(pName||'').split(' ').filter(Boolean).pop()?.toLowerCase()||'';
+    const key=normPlayerKey(pName);
+    if(!key)return null;
     for(const[,v] of Object.entries(tournStats)){
-      if(v.team===teamName&&v.player.toLowerCase().includes(last))return v;
+      if(normalizeEspnName(v.team)===normTeam&&normPlayerKey(v.player)===key)return v;
     }
     return null;
   };
