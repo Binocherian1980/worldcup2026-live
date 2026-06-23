@@ -776,8 +776,6 @@ async function doRefresh(){
   if(histData&&histData.events) espnHistory=histData.events;
   const built=buildLiveStandings([...espnHistory,...espnMatches]);
   if(built) liveGroupData=built;
-  // Fire-and-forget caps + events update — fetches per-match lineups, caches in localStorage
-  buildWcData([...espnHistory,...espnMatches]);
   const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
   document.getElementById('livePill').style.display=live>0?'flex':'none';
   updateWidget(espnMatches);
@@ -1206,12 +1204,36 @@ let matchDetailId=null;
 async function showMatchDetail(eventId){
   matchDetailId=eventId;
   const el=document.getElementById('matchesContent');
+  if(!el)return;
   el.innerHTML='<div class="md-loading">&#x23F3; Loading match details&hellip;</div>';
+
+  // Extract events from scoreboard data (goals + cards) — source of truth
+  const allEvents=[...espnHistory,...espnMatches];
+  const ev=allEvents.find(e=>e.id===eventId);
+  const evtList=[];
+  if(ev){
+    const comp=(ev.competitions||[])[0]||{};
+    const idMap={};
+    (comp.competitors||[]).forEach(c=>{
+      if(c.team?.id&&c.team?.displayName)idMap[c.team.id]=c.team.displayName;
+    });
+    (comp.details||[]).forEach(d=>{
+      const ath=(d.athletesInvolved||[])[0];
+      if(!ath)return;
+      const pName=ath.displayName||'';
+      const teamName=normalizeEspnName(idMap[d.team?.id||'']||d.team?.displayName||'');
+      const minute=d.clock?.displayValue||'';
+      if(d.scoringPlay&&!d.ownGoal)evtList.push({type:'goal',player:pName,team:teamName,minute});
+      else if(d.ownGoal)evtList.push({type:'owngoal',player:pName,team:teamName,minute});
+      else if(d.yellowCard)evtList.push({type:'yellow',player:pName,team:teamName,minute});
+      else if(d.redCard)evtList.push({type:'red',player:pName,team:teamName,minute});
+    });
+  }
+
+  const mInfo=mergedMatches().find(m=>m.id===eventId)||{};
+  // Fetch summary only for team stats (possession/shots/etc)
   const summary=await fetchMatchSummary(eventId);
-  // Also find the match info for scores/status
-  const allM=mergedMatches();
-  const mInfo=allM.find(m=>m.id===eventId)||{};
-  renderMatchDetailPage(eventId,summary,mInfo);
+  renderMatchDetailPage(eventId,evtList,summary,mInfo);
 }
 
 function closeMatchDetail(){
@@ -1219,7 +1241,7 @@ function closeMatchDetail(){
   renderMatches();
 }
 
-function renderMatchDetailPage(eventId,summary,mInfo){
+function renderMatchDetailPage(eventId,evtList,summary,mInfo){
   const el=document.getElementById('matchesContent');
   if(!el)return;
   const home=mInfo.home||'Home';
@@ -1240,84 +1262,50 @@ function renderMatchDetailPage(eventId,summary,mInfo){
    ${mInfo.group?`<div style="text-align:center;font-size:10px;color:rgba(255,255,255,.5);margin-top:4px">${esc(mInfo.group)}${mInfo.venue?' &bull; '+esc(mInfo.venue):''}</div>`:''}
   </div>`;
 
-  if(!summary){
-    html+=`<div class="card mb16"><div style="padding:24px;text-align:center;color:var(--text2)">Detailed stats not available for this match.</div></div>`;
-    el.innerHTML=html;return;
-  }
+  const evtIcon={goal:'&#x26BD;',owngoal:'&#x26BD;&#xFE0F;',yellow:'&#x1F7E8;',red:'&#x1F7E5;'};
 
-  const evtIcon={goal:'&#x26BD;',yellow:'&#x1F7E8;',red:'&#x1F7E5;',sub:'&#x1F504;'};
-  const sortedEvts=(summary.events||[]).sort((a,b)=>(parseInt(a.minute)||0)-(parseInt(b.minute)||0));
-
-  // Match Events
-  if(sortedEvts.length){
+  // Match Events (from scoreboard — goals + cards)
+  if(evtList.length){
     html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4C5; Match Events</div></div>
     <div class="md-evt-list">`;
-    sortedEvts.forEach(e=>{
+    evtList.forEach(e=>{
       const icon=evtIcon[e.type]||'&#x2022;';
-      const extraInfo=e.type==='sub'&&e.out?` <span style="color:var(--text3);font-size:10px">&#x2193; ${esc(e.out)}</span>`:'';
+      const label=e.type==='owngoal'?' <span style="color:var(--text3);font-size:10px">(OG)</span>':'';
       html+=`<div class="md-evt">
-       <span class="md-evt-min">${e.minute?e.minute+"'":''}</span>
+       <span class="md-evt-min">${e.minute||''}</span>
        <span class="md-evt-icon">${icon}</span>
-       <span class="md-evt-player">${esc(e.player||'')}</span>${extraInfo}
+       <span class="md-evt-player">${esc(e.player||'')}${label}</span>
        <span class="md-evt-team">${flag(e.team)} ${esc(e.team)}</span>
       </div>`;
     });
     html+='</div></div>';
+  } else if(mInfo.state==='pre'){
+    html+=`<div class="card mb16"><div style="padding:24px;text-align:center;color:var(--text2)">Match has not started yet.</div></div>`;
+  } else {
+    html+=`<div class="card mb16"><div style="padding:24px;text-align:center;color:var(--text2)">No events available for this match.</div></div>`;
   }
 
-  // Lineups
-  const homeLineup=summary.lineups?.[home]||[];
-  const awayLineup=summary.lineups?.[away]||[];
-  if(homeLineup.length||awayLineup.length){
-    const renderLineupCol=(players,teamName)=>{
-      const starters=players.filter(p=>p.starter);
-      const subs=players.filter(p=>!p.starter&&p.played);
-      const bench=players.filter(p=>!p.starter&&!p.played);
-      // Get events for this player
-      const playerEvts=(name)=>sortedEvts.filter(e=>e.player&&e.player.toLowerCase().includes(name.toLowerCase().split(' ').pop()));
-      const plHtml=(p)=>{
-        const icons=playerEvts(p.name).map(e=>evtIcon[e.type]||'').join('');
-        return `<div class="md-pl">
-         <span class="md-pl-no">${p.jersey||''}</span>
-         <span class="ppos ${posClass(p.pos)}" style="font-size:9px;padding:1px 4px">${posLabel(p.pos)||p.pos||'?'}</span>
-         <span class="md-pl-name" title="${esc(p.name)}">${esc((p.name||'').split(' ').pop())}, ${esc((p.name||'').split(' ').slice(0,-1).join(' '))}</span>
-         ${icons?`<span class="md-pl-icons">${icons}</span>`:''}
-        </div>`;
-      };
-      return `<div class="md-lineup-hdr">${flag(teamName)} ${esc(teamName)}</div>
-       ${starters.map(plHtml).join('')}
-       ${subs.length?`<div class="md-lineup-sub-hdr">&#x1F504; Substitutes (played)</div>${subs.map(plHtml).join('')}`:''}
-       ${bench.length?`<div class="md-lineup-sub-hdr">&#x1F4CB; Bench</div>${bench.map(plHtml).join('')}`:''}`;
-    };
-    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4CB; Lineups</div></div>
-    <div class="md-lineup-grid">
-     <div class="md-lineup-col">${renderLineupCol(homeLineup,home)}</div>
-     <div class="md-lineup-col">${renderLineupCol(awayLineup,away)}</div>
-    </div></div>`;
-  }
-
-  // Team Stats
+  // Team Stats (from summary)
   const statKeys=[
-    {k:'possessionPct',l:'Possession'},
+    {k:'possessionPct',l:'Possession %'},
     {k:'totalShots',l:'Total Shots'},
     {k:'shotsOnTarget',l:'Shots on Target'},
-    {k:'corners',l:'Corners'},
-    {k:'fouls',l:'Fouls'},
+    {k:'wonCorners',l:'Corners'},
+    {k:'foulsCommitted',l:'Fouls'},
     {k:'offsides',l:'Offsides'},
     {k:'saves',l:'Saves'},
     {k:'yellowCards',l:'Yellow Cards'},
     {k:'redCards',l:'Red Cards'},
   ];
-  const hStats=summary.teamStats?.[home]||{};
-  const aStats=summary.teamStats?.[away]||{};
+  const hStats=summary?.teamStats?.[home]||{};
+  const aStats=summary?.teamStats?.[away]||{};
   const hasStats=Object.keys(hStats).length>0||Object.keys(aStats).length>0;
   if(hasStats){
     html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4CA; Team Stats</div></div>`;
     statKeys.forEach(({k,l})=>{
-      const hv=hStats[k]||hStats[k.toLowerCase()]||'—';
-      const av=aStats[k]||aStats[k.toLowerCase()]||'—';
+      const hv=hStats[k]!=null?hStats[k]:'—';
+      const av=aStats[k]!=null?aStats[k]:'—';
       if(hv==='—'&&av==='—')return;
-      // Simple bar: parse percent or number for visual width
       const hNum=parseFloat(hv)||0;
       const aNum=parseFloat(av)||0;
       const total=hNum+aNum||1;
@@ -1338,7 +1326,6 @@ function renderMatchDetailPage(eventId,summary,mInfo){
   }
   el.innerHTML=html;
 }
-
 
 function renderMatches(){
   if(matchDetailId){showMatchDetail(matchDetailId);return;}
@@ -1582,65 +1569,35 @@ function buildTournamentStats(){
     seen.add(ev.id);
     const comp=(ev.competitions||[])[0];
     if(!comp)return;
+    // ESPN detail.team only has {id:"202"} — build map from competitors
+    const idMap={};
+    (comp.competitors||[]).forEach(c=>{
+      if(c.team?.id&&c.team?.displayName)idMap[c.team.id]=c.team.displayName;
+    });
     (comp.details||[]).forEach(d=>{
-      const typeText=(d.type?.text||'').toLowerCase();
       const ath=(d.athletesInvolved||[])[0];
-      const teamName=d.team?.displayName||d.team?.name||'';
-      if(!ath||!teamName)return;
+      if(!ath)return;
       const pName=ath.displayName||ath.shortName||'';
-      if(typeText.includes('goal')||typeText==='penalty')add(teamName,pName,'goal');
-      else if(typeText.includes('yellow'))add(teamName,pName,'yellow');
-      else if(typeText.includes('red'))add(teamName,pName,'red');
+      const teamName=idMap[d.team?.id||'']||d.team?.displayName||d.team?.name||'';
+      if(!teamName||!pName)return;
+      if(d.scoringPlay&&!d.ownGoal)add(teamName,pName,'goal');
+      else if(d.yellowCard)add(teamName,pName,'yellow');
+      else if(d.redCard)add(teamName,pName,'red');
     });
   });
-  // Also pull from per-match summaries (covers historical where scoreboard lacks details)
-  (window.wcMatchEvents||[]).forEach(e=>{add(e.team,e.player,e.type);});
   return stats;
 }
-// ── Fetch full ESPN match summary (lineups + events + stats) ───────────────
-// Caches completed matches in localStorage; live matches always re-fetched.
+// ── Fetch ESPN match summary — only team stats (possession/shots/etc) ────────
+// Note: ESPN summary does NOT have cards or lineups; use scoreboard details for those.
 async function fetchMatchSummary(eventId){
   const cacheKey='wc_sum2_'+eventId;
-  try{const c=localStorage.getItem(cacheKey);if(c){const p=JSON.parse(c);if(p&&p.capsKeys)return p;}}catch{}
+  try{const c=localStorage.getItem(cacheKey);if(c){const p=JSON.parse(c);if(p&&p.teamStats)return p;}}catch{}
   const url=ESPN_BASE+'/summary?event='+eventId;
   const data=await safeFetch(url);
   if(!data)return null;
   const hComp=(data.header?.competitions||[])[0]||{};
   const bsc=data.boxscore||{};
-  // Lineups
-  const lineups={};
-  const capsKeys=[];
-  (bsc.players||[]).forEach(td=>{
-    const tName=normalizeEspnName(td.team?.displayName||td.team?.shortDisplayName||'');
-    if(!tName)return;
-    lineups[tName]=[];
-    (td.statistics||[]).forEach(sg=>{
-      (sg.athletes||[]).forEach(a=>{
-        const played=!a.didNotPlay&&(a.starter||a.active);
-        const entry={name:a.athlete?.displayName||'',jersey:a.athlete?.jersey||'',
-          pos:a.position?.abbreviation||a.athlete?.position?.abbreviation||'',
-          starter:!!a.starter,played};
-        lineups[tName].push(entry);
-        if(played&&entry.name)capsKeys.push(normPlayerKey(entry.name));
-      });
-    });
-  });
-  // Events: goals / yellow / red / subs with minute
-  const events=[];
-  (hComp.details||[]).forEach(d=>{
-    const typeText=(d.type?.text||'').toLowerCase();
-    const ath=(d.athletesInvolved||[])[0];
-    const ath2=(d.athletesInvolved||[])[1];
-    const team=normalizeEspnName(d.team?.displayName||'');
-    const cv=d.clock?.value;
-    const minute=cv?Math.ceil(cv/60):(d.clock?.displayValue||'');
-    const player=ath?.displayName||'';
-    if(typeText.includes('goal')||typeText==='penalty')events.push({type:'goal',player,team,minute});
-    else if(typeText.includes('yellow'))events.push({type:'yellow',player,team,minute});
-    else if(typeText.includes('red'))events.push({type:'red',player,team,minute});
-    else if(typeText.includes('sub'))events.push({type:'sub',player,team,minute,out:ath2?.displayName||''});
-  });
-  // Team stats
+  // Team stats (possession, shots, corners, fouls, saves, etc.)
   const teamStats={};
   (bsc.teams||[]).forEach(ts=>{
     const tName=normalizeEspnName(ts.team?.displayName||'');
@@ -1649,46 +1606,13 @@ async function fetchMatchSummary(eventId){
     (ts.statistics||[]).forEach(s=>{if(s.name&&s.displayValue!=null)st[s.name]=s.displayValue;});
     teamStats[tName]=st;
   });
-  const state=hComp.status?.type?.state||data.header?.competitions?.[0]?.status?.type?.state;
-  const result={eventId,lineups,events,teamStats,capsKeys};
-  // Cache completed matches that have at least some data (events or lineups)
-  try{
-    if(state==='post'&&(capsKeys.length||events.length||Object.keys(teamStats).length))
-      localStorage.setItem(cacheKey,JSON.stringify(result));
-  }catch{}
+  const state=hComp.status?.type?.state;
+  const result={eventId,teamStats};
+  try{if(state==='post'&&Object.keys(teamStats).length)localStorage.setItem(cacheKey,JSON.stringify(result));}catch{}
   return result;
 }
 
-// ── Aggregate WC2026 data (caps + match events) from all completed matches ──
-// Only fetches summaries not already in localStorage to avoid rate-limiting.
-async function buildWcData(events){
-  const completed=(events||[]).filter(e=>e?.id&&e.status?.type?.state==='post');
-  if(!completed.length)return;
-  // Only fetch what isn't already cached
-  const uncached=completed.filter(e=>{
-    try{return !localStorage.getItem('wc_sum2_'+e.id);}catch{return true;}
-  });
-  // Fetch uncached one-at-a-time with 400ms delay to avoid 429s
-  for(const e of uncached){
-    await fetchMatchSummary(e.id);
-    await new Promise(r=>setTimeout(r,400));
-  }
-  // Now build from all cached summaries
-  const caps={};
-  const matchEvts=[];
-  completed.forEach(e=>{
-    try{
-      const raw=localStorage.getItem('wc_sum2_'+e.id);
-      if(!raw)return;
-      const s=JSON.parse(raw);
-      (s.capsKeys||[]).forEach(k=>{caps[k]=(caps[k]||0)+1;});
-      (s.events||[]).filter(ev=>ev.type!=='sub').forEach(ev=>matchEvts.push(ev));
-    }catch{}
-  });
-  window.wcCapsData=caps;
-  window.wcMatchEvents=matchEvts;
-  if(window.detailTeam)renderTeamDetail(window.detailTeam);
-}
+
 
 function buildTopScorers(){
   const sc=[];
