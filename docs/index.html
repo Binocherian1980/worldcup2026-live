@@ -1249,20 +1249,31 @@ function renderTeamDetail(teamName){
   const groups=getGroups();
   let td=null,grp=null;
   groups.forEach(g=>{const t=g.teams.find(x=>x.team===teamName);if(t){td=t;grp=g;}});
-  const pData=WC_PLAYERS[teamName]||{};
+  // WC_PLAYERS.teams is the correct path
+  const pData=(WC_PLAYERS.teams||WC_PLAYERS)[teamName]||{};
   const squad=pData.squad||pData.key_players||[];
   const coachEntry=WC_COACHES[teamName];
   const cName=coachEntry?(typeof coachEntry==='object'?(coachEntry.name||coachEntry.coach||'TBD'):String(coachEntry)):'TBD';
   const predD=WC_PREDICTIONS[teamName]||{};
   const status=td?getQualStatus(teamName,grp.teams,grp.teams.length):'other';
   const gd=td?((td.gf||0)-(td.ga||0)):0;
+  const tournStats=buildTournamentStats();
+  // Find stats for a player by last-name fuzzy match
+  const playerStats=(pName)=>{
+    const last=(pName||'').split(' ').filter(Boolean).pop()?.toLowerCase()||'';
+    for(const[,v] of Object.entries(tournStats)){
+      if(v.team===teamName&&v.player.toLowerCase().includes(last))return v;
+    }
+    return null;
+  };
   let html=`<button class="back-btn" onclick="renderTeams()">&#x2190; Back to Teams</button>
   <div class="td-hdr">
    <span class="td-flag">${flag(teamName)}</span>
    <div>
     <div class="td-name">${esc(teamName)}</div>
     <div class="td-info">Group ${grp?esc(grp.group):'?'} &middot; ${td?td.played||0:0} played &middot; ${td?td.pts||0:0} pts &middot; GD: ${gd>0?'+':''}${gd}</div>
-    <div class="td-coach">&#x1F9E2; ${esc(cName)}</div>
+    <div class="td-coach">&#x1F9E2; ${esc(pData.coach||cName)}</div>
+    ${pData.captain?`<div style="font-size:11px;color:var(--gold);margin-top:3px">&#x1F451; ${esc(pData.captain)}</div>`:''}
     <div style="margin-top:5px"><span class="tqbadge ${qualBadgeClass(status)}">${qualLabel(status)}</span></div>
    </div>
    ${predD.win_pct?`<div style="margin-left:auto;text-align:center"><div style="font-size:26px;font-weight:900;color:var(--gold)">${predD.win_pct}%</div><div style="font-size:10px;color:rgba(255,255,255,.45)">Win probability</div></div>`:''}
@@ -1281,20 +1292,31 @@ function renderTeamDetail(teamName){
     html+='</tbody></table></div></div>';
   }
   if(squad.length){
-    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F3C3; Squad</div></div>
+    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F3C3; Squad &mdash; ${squad.length} Players</div>
+     <div style="font-size:9px;color:var(--text3)">&#x26A1; Goals &amp; cards update live from ESPN</div></div>
     <div style="overflow-x:auto"><table class="sq-table">
-     <thead><tr><th>#</th><th>Player</th><th>Pos</th><th>Club</th><th>Notes</th></tr></thead><tbody>`;
+     <thead><tr><th>#</th><th>Player</th><th>Pos</th><th style="text-align:center">Age</th><th>Club</th><th style="text-align:center">WC &#x26BD;</th><th style="text-align:center">Cards</th><th>Note</th></tr></thead><tbody>`;
     squad.forEach((p,i)=>{
       const pn=typeof p==='string'?p:(p.name||p.player||'');
       const pp=typeof p==='object'?(p.position||p.pos||''):'';
       const pc=typeof p==='object'?(p.club||''):'';
-      const pno=typeof p==='object'?(p.notes||''):'';
-      const isCap=typeof p==='object'&&!!p.captain;
-      html+=`<tr><td style="font-weight:800;color:var(--text3)">${i+1}</td>
-       <td style="font-weight:600">${esc(pn)}${isCap?' <span title="Captain">&copy;</span>':''}</td>
+      const pno=typeof p==='object'?(p.note||p.notes||''):'';
+      const page=typeof p==='object'?(p.age||''):'';
+      const isCap=typeof p==='object'&&(!!p.captain||(pData.captain&&pn===pData.captain));
+      const ps=playerStats(pn);
+      const goalsBadge=ps&&ps.goals>0?`<span style="background:rgba(22,163,74,.15);color:var(--qual);font-weight:800;padding:1px 7px;border-radius:10px;font-size:11px">${ps.goals}</span>`:`<span style="color:var(--text3)">&#8212;</span>`;
+      const yellowBadge=ps&&ps.yellows>0?`<span style="background:rgba(202,138,4,.2);color:#d97706;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E8;${ps.yellows>1?ps.yellows:''}</span>`:'';
+      const redBadge=ps&&ps.reds>0?`<span style="background:rgba(239,68,68,.2);color:var(--elim);padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E5;${ps.reds>1?ps.reds:''}</span>`:'';
+      const cardsBadge=(yellowBadge||redBadge)?`${yellowBadge}${redBadge}`:`<span style="color:var(--text3)">&#8212;</span>`;
+      html+=`<tr>
+       <td style="font-weight:800;color:var(--text3);width:28px">${i+1}</td>
+       <td style="font-weight:600;white-space:nowrap">${esc(pn)}${isCap?' <span title="Captain" style="color:var(--gold);font-size:11px">&#x1F451;</span>':''}</td>
        <td><span class="ppos ${posClass(pp)}">${posLabel(pp)}</span></td>
-       <td style="font-size:11px;color:var(--text2)">${esc(pc)}</td>
-       <td style="font-size:10px;color:var(--text3)">${esc(pno)}</td>
+       <td style="text-align:center;color:var(--text2);font-size:11px">${esc(String(page))}</td>
+       <td style="font-size:11px;color:var(--text2);white-space:nowrap">${esc(pc)}</td>
+       <td style="text-align:center">${goalsBadge}</td>
+       <td style="text-align:center;white-space:nowrap">${cardsBadge}</td>
+       <td style="font-size:10px;color:var(--text3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(pno)}">${esc(pno.slice(0,60))}${pno.length>60?'…':''}</td>
       </tr>`;
     });
     html+='</tbody></table></div></div>';
@@ -1345,15 +1367,55 @@ function lbItem(idx,fl,name,team,detail,value,maxVal){
    </div>
    <span class="lb-val">${value}</span>
   </div>`;}
+function buildTournamentStats(){
+  const stats={};
+  const add=(teamRaw,playerRaw,type)=>{
+    const team=normalizeEspnName(teamRaw||'');
+    const player=playerRaw||'';
+    if(!team||!player)return;
+    const key=`${team}|||${player}`;
+    if(!stats[key])stats[key]={team,player,goals:0,yellows:0,reds:0};
+    if(type==='goal')stats[key].goals++;
+    else if(type==='yellow')stats[key].yellows++;
+    else if(type==='red')stats[key].reds++;
+  };
+  const seen=new Set();
+  [...espnHistory,...espnMatches].forEach(ev=>{
+    if(!ev||!ev.id||seen.has(ev.id))return;
+    seen.add(ev.id);
+    const comp=(ev.competitions||[])[0];
+    if(!comp)return;
+    (comp.details||[]).forEach(d=>{
+      const typeText=(d.type?.text||'').toLowerCase();
+      const ath=(d.athletesInvolved||[])[0];
+      const teamName=d.team?.displayName||d.team?.name||'';
+      if(!ath||!teamName)return;
+      const pName=ath.displayName||ath.shortName||'';
+      if(typeText.includes('goal')||typeText==='penalty')add(teamName,pName,'goal');
+      else if(typeText.includes('yellow'))add(teamName,pName,'yellow');
+      else if(typeText.includes('red'))add(teamName,pName,'red');
+    });
+  });
+  return stats;
+}
+
 function buildTopScorers(){
   const sc=[];
-  Object.entries(WC_PLAYERS).forEach(([team,data])=>{
+  // First collect from ESPN events (live)
+  const ts=buildTournamentStats();
+  Object.values(ts).forEach(v=>{
+    if(v.goals>0)sc.push({name:v.player,team:v.team,goals:v.goals});
+  });
+  // Fill in from static WC_PLAYERS notes if not already covered
+  Object.entries(WC_PLAYERS.teams||WC_PLAYERS).forEach(([team,data])=>{
+    if(typeof data!=='object')return;
     const squad=data.squad||data.key_players||[];
     squad.forEach(p=>{
       if(typeof p!=='object')return;
-      const notes=(p.notes||'').toLowerCase();
+      const notes=(p.note||p.notes||'').toLowerCase();
       const m=notes.match(/(\d+)\s*goal/);
-      if(m)sc.push({name:p.name||p.player,team,goals:parseInt(m[1])});
+      if(m&&!sc.find(x=>x.name===(p.name||p.player)))
+        sc.push({name:p.name||p.player,team,goals:parseInt(m[1])});
     });
   });
   if(WC_RECORDS.top_scorers_2026){
@@ -1406,8 +1468,7 @@ function renderPredictions(){
   const todayPreds=((preds.match_predictions||{}).today_june22)||[];
   const upcomingPreds=((preds.match_predictions&&preds.match_predictions.upcoming_group_stage_matchday3)||{}).predictions||[];
   const qOutlook=preds.group_qualification_outlook||{};
-  const vq=(qOutlook.virtually_qualified||[]);
-  const sp=(qOutlook.strong_position||[]);
+  // qOutlook no longer displayed (static data removed from predictions tab)
 
   const predMatchHtml=(arr)=>arr.map(mp=>{
     const parts=(mp.match||'').split(/\s+vs\s+/i);
@@ -1500,26 +1561,6 @@ function renderPredictions(){
     }).join('')}
     <div class="pred-qual">&#x1F3AF; ${(g.predicted_qualifiers||[]).join(' &middot; ')}</div>
    </div>`).join('')}
-  </div>
-  <div class="g2" style="margin-top:24px">
-   <div>
-    <h2 class="sec-title">&#x2705; Virtually Qualified</h2>
-    ${vq.map(t=>`<div class="lb-item">
-     <span class="lb-flag" style="font-size:22px">${flag(t.team)}</span>
-     <div class="lb-info"><div class="lb-name">${esc(t.team)}</div>
-      <div class="lb-detail">Group ${esc(t.group)} &middot; ${t.points}pts &middot; ${esc(t.certainty)} certainty</div>
-     </div>
-    </div>`).join('')||'<div style="color:var(--text2);padding:16px">No data</div>'}
-   </div>
-   <div>
-    <h2 class="sec-title">&#x1F4AA; Strong Position</h2>
-    ${sp.map(t=>`<div class="lb-item">
-     <span class="lb-flag" style="font-size:22px">${flag(t.team)}</span>
-     <div class="lb-info"><div class="lb-name">${esc(t.team)}</div>
-      <div class="lb-detail">Group ${esc(t.group)} &middot; ${t.points}pts &middot; ${esc(t.certainty)} certainty</div>
-     </div>
-    </div>`).join('')||'<div style="color:var(--text2);padding:16px">No data</div>'}
-   </div>
   </div>`;
   document.getElementById('predictionsContent').innerHTML=html;
 }
