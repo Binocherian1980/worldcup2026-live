@@ -656,6 +656,13 @@ const ESPN_BASE='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world
 const CORS='https://corsproxy.io/?';
 let espnMatches=[],espnHistory=[],refreshTimer=null,liveGroupData=null;
 window.wcCapsData={}; // {normPlayerKey: wcAppearanceCount} — updated async on each refresh
+window.wcMatchEvents=[];
+
+// Normalise player name to last-name key for ESPN↔FIFA matching
+function normPlayerKey(name){
+  const last=(name||'').split(' ').filter(Boolean).pop()||name||'';
+  return last.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,'');
+}
 
 // ESPN uses different team names — normalize them to match our static data
 const ESPN_NAME_MAP={
@@ -744,7 +751,14 @@ function getGroups(){return liveGroupData||applyTodayResults(WC_GROUPS);}
 
 
 async function safeFetch(url){
-  try{const r=await fetch(url,{cache:'no-store'});if(r.ok)return r.json();}catch{}
+  // Try direct fetch first
+  try{
+    const r=await fetch(url,{cache:'no-store'});
+    if(r.ok)return r.json();
+    // Don't try proxy for client errors (400/403/429) — proxy won't help
+    if(r.status===400||r.status===403||r.status===404||r.status===429)return null;
+  }catch{}
+  // Only try proxy if direct fetch failed with network/CORS error
   try{const r=await fetch(CORS+encodeURIComponent(url),{cache:'no-store'});if(r.ok)return r.json();}catch{}
   return null;
 }
@@ -1643,16 +1657,30 @@ async function fetchMatchSummary(eventId){
 }
 
 // ── Aggregate WC2026 data (caps + match events) from all completed matches ──
+// Only fetches summaries not already in localStorage to avoid rate-limiting.
 async function buildWcData(events){
   const completed=(events||[]).filter(e=>e?.id&&e.status?.type?.state==='post');
   if(!completed.length)return;
-  const summaries=await Promise.all(completed.map(e=>fetchMatchSummary(e.id)));
+  // Only fetch what isn't already cached
+  const uncached=completed.filter(e=>{
+    try{return !localStorage.getItem('wc_sum2_'+e.id);}catch{return true;}
+  });
+  // Fetch uncached one-at-a-time with 400ms delay to avoid 429s
+  for(const e of uncached){
+    await fetchMatchSummary(e.id);
+    await new Promise(r=>setTimeout(r,400));
+  }
+  // Now build from all cached summaries
   const caps={};
   const matchEvts=[];
-  summaries.forEach(s=>{
-    if(!s)return;
-    (s.capsKeys||[]).forEach(k=>{caps[k]=(caps[k]||0)+1;});
-    (s.events||[]).filter(e=>e.type!=='sub').forEach(e=>matchEvts.push(e));
+  completed.forEach(e=>{
+    try{
+      const raw=localStorage.getItem('wc_sum2_'+e.id);
+      if(!raw)return;
+      const s=JSON.parse(raw);
+      (s.capsKeys||[]).forEach(k=>{caps[k]=(caps[k]||0)+1;});
+      (s.events||[]).filter(ev=>ev.type!=='sub').forEach(ev=>matchEvts.push(ev));
+    }catch{}
   });
   window.wcCapsData=caps;
   window.wcMatchEvents=matchEvts;
