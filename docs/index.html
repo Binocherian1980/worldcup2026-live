@@ -1076,8 +1076,7 @@ function renderHome(){
     ?currentMatches.map(m=>matchCardHtml(m)).join('')
     :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No live matches &mdash; <a href="#" onclick="switchTab(\'matches\');return false" style="color:var(--accent2)">view schedule</a></div>';
 
-  const recentHtml=recentResults.length?recentResults.map(m=>`
-  <div class="match-card" ${m.espn&&m.id?`onclick="goToMatchDetail('${m.id}')" style="cursor:pointer" title="Click for match details"`:''}>`+matchCardHtml(m,false).replace(/^<div[^>]*>/,'')
+  const recentHtml=recentResults.length?recentResults.map(m=>matchCardHtml(m)).join('')
   :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No results yet</div>';
 
   document.getElementById('tab-home').innerHTML=`
