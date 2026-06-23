@@ -1196,7 +1196,7 @@ let matchDetailId=null;
 // Called from any tab — switches to Matches tab and shows detail
 function goToMatchDetail(eventId){
   matchDetailId=eventId;
-  switchTab('tab-matches'); // renderMatches() picks up matchDetailId automatically
+  switchTab('matches'); // switchTab prepends 'tab-' internally
 }
 
 async function showMatchDetail(eventId){
