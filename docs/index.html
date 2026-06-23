@@ -1897,45 +1897,86 @@ function renderPredictions(){
   const preds=WC_PREDICTIONS;
   const favorites=(preds.tournament_winner_prediction&&preds.tournament_winner_prediction.favorites)||[];
   const maxPct=parseFloat((favorites[0]||{}).probability||'1');
-  // Dynamic today key: try "today_june{day}", fall back to live ESPN + MD3 fixtures
-  const todayDay=new Date().getDate();
+  // Build today's fixture list — ESPN is SOURCE OF TRUTH for fixtures.
+  // Stored predictions only provide enrichment (key_player, notes) matched by team name.
+  const now=new Date();
+  const y=now.getFullYear(),mo=now.getMonth(),d=now.getDate();
+  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const todayDay=d;
   const todayKey='today_june'+todayDay;
-  let todayPreds=((preds.match_predictions||{})[todayKey])||[];
-  // Fallback: find today's matches from ESPN + WC_MD3_FIXTURES, auto-predict if needed
-  if(!todayPreds.length){
-    const now=new Date();
-    const y=now.getFullYear(),mo=now.getMonth(),d=now.getDate();
-    const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    // ESPN matches for today
-    const todayEspn=mergedMatches().filter(m=>{
-      if(!m.date)return false;
-      const md=new Date(m.date);
-      if(isNaN(md))return false;
-      return md.getFullYear()===y&&md.getMonth()===mo&&md.getDate()===d;
-    });
-    // MD3 static fixtures for today (date format "Jun 25")
-    const todayMd3=(typeof WC_MD3_FIXTURES!=='undefined'?WC_MD3_FIXTURES:[]).filter(f=>{
-      const pts=(f.date||'').split(' ');
-      return MONTHS.indexOf(pts[0])===mo&&parseInt(pts[1]||0)===d;
-    });
-    const seenKeys=new Set(todayEspn.map(m=>(m.home+m.away).toLowerCase().replace(/[^a-z]/g,'')));
-    const combined=[...todayEspn,...todayMd3
-      .filter(f=>!seenKeys.has((f.home+f.away).toLowerCase().replace(/[^a-z]/g,'')))
-      .map(f=>({home:f.home,away:f.away,group:'Grp '+f.g,state:'pre'}))];
-    if(combined.length){
-      todayPreds=combined.map(m=>{
-        const pred=autoPredict(m.home,m.away);
-        return {match:`${m.home} vs ${m.away}`,group:(m.group||'').replace('Grp ',''),...pred};
-      });
-    }
-  }
-  // For any stored prediction without win_probability, overlay auto-predict
-  todayPreds=todayPreds.map(mp=>{
-    if(mp.prediction&&Object.keys(mp.win_probability||{}).length)return mp;
-    const parts=(mp.match||'').split(/\s+vs\s+/i);
-    const auto=autoPredict(parts[0]||'',parts[1]||'');
-    return {...mp,...auto,prediction:mp.prediction||auto.prediction};
+  const storedForDay=((preds.match_predictions||{})[todayKey])||[];
+
+  // Step 1: get ESPN fixtures for today
+  const todayEspn=mergedMatches().filter(m=>{
+    if(!m.date)return false;
+    const md=new Date(m.date);
+    if(isNaN(md))return false;
+    return md.getFullYear()===y&&md.getMonth()===mo&&md.getDate()===d;
   });
+
+  // Step 2: get MD3 static fixtures for today as secondary source
+  const todayMd3=(typeof WC_MD3_FIXTURES!=='undefined'?WC_MD3_FIXTURES:[]).filter(f=>{
+    const pts=(f.date||'').split(' ');
+    return MONTHS.indexOf(pts[0])===mo&&parseInt(pts[1]||0)===d;
+  });
+
+  // Build lookup index from stored predictions: key = first 5 chars of each team name
+  const storedLookup={};
+  storedForDay.forEach(sp=>{
+    const pts=(sp.match||'').split(/\s+vs\s+/i);
+    const hk=(pts[0]||'').toLowerCase().replace(/[^a-z]/g,'').slice(0,5);
+    const ak=(pts[1]||'').toLowerCase().replace(/[^a-z]/g,'').slice(0,5);
+    if(hk)storedLookup[hk]=sp;
+    if(ak)storedLookup[ak]=sp;
+  });
+  const findStored=(home,away)=>{
+    const hk=home.toLowerCase().replace(/[^a-z]/g,'').slice(0,5);
+    const ak=away.toLowerCase().replace(/[^a-z]/g,'').slice(0,5);
+    return storedLookup[hk]||storedLookup[ak]||null;
+  };
+
+  // Step 3: build canonical fixture list — prefer ESPN, then MD3
+  let fixtureSource=[];
+  if(todayEspn.length){
+    const seen=new Set(todayEspn.map(m=>(m.home+m.away).toLowerCase().replace(/[^a-z]/g,'')));
+    const md3extra=todayMd3
+      .filter(f=>!seen.has((f.home+f.away).toLowerCase().replace(/[^a-z]/g,'')))
+      .map(f=>({home:f.home,away:f.away,group:'Grp '+f.g,state:'pre',date:null}));
+    fixtureSource=[...todayEspn,...md3extra];
+  } else if(todayMd3.length){
+    fixtureSource=todayMd3.map(f=>({home:f.home,away:f.away,group:'Grp '+f.g,state:'pre',date:null}));
+  }
+
+  // Step 4: for each fixture find stored enrichment, otherwise auto-predict
+  let todayPreds;
+  if(fixtureSource.length){
+    todayPreds=fixtureSource.map(m=>{
+      const stored=findStored(m.home,m.away);
+      if(stored){
+        // Re-auto-predict for live win% but keep stored prediction text + key_player
+        const auto=autoPredict(m.home,m.away);
+        return {
+          ...stored,
+          match:`${m.home} vs ${m.away}`,
+          group:stored.group||m.group||'?',
+          win_probability:auto.win_probability,
+          prediction:stored.prediction||auto.prediction,
+          generated:false
+        };
+      }
+      const auto=autoPredict(m.home,m.away);
+      return {match:`${m.home} vs ${m.away}`,group:(m.group||'').replace('Grp ',''),...auto};
+    });
+  } else if(storedForDay.length){
+    // No ESPN data yet — fall back to stored, overlay auto win_probability
+    todayPreds=storedForDay.map(mp=>{
+      const parts=(mp.match||'').split(/\s+vs\s+/i);
+      const auto=autoPredict(parts[0]||'',parts[1]||'');
+      return {...mp,win_probability:auto.win_probability,prediction:mp.prediction||auto.prediction};
+    });
+  } else {
+    todayPreds=[];
+  }
   const upcomingPreds=((preds.match_predictions&&preds.match_predictions.upcoming_group_stage_matchday3)||{}).predictions||[];
   // Suspension data for overlay
   const suspData=getSuspensions();
