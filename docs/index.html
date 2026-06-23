@@ -1582,7 +1582,8 @@ function buildTournamentStats(){
   // Also pull from per-match summaries (covers historical where scoreboard lacks details)
   (window.wcMatchEvents||[]).forEach(e=>{add(e.team,e.player,e.type);});
   return stats;
-} (lineups + events + stats) ───────────────
+}
+// ── Fetch full ESPN match summary (lineups + events + stats) ───────────────
 // Caches completed matches in localStorage; live matches always re-fetched.
 async function fetchMatchSummary(eventId){
   const cacheKey='wc_sum2_'+eventId;
