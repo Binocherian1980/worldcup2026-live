@@ -622,6 +622,7 @@ function formHtml(form){
 const ESPN_BASE='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world';
 const CORS='https://corsproxy.io/?';
 let espnMatches=[],espnHistory=[],refreshTimer=null,liveGroupData=null;
+window.wcCapsData={}; // {normPlayerKey: wcAppearanceCount} — updated async on each refresh
 
 // ESPN uses different team names — normalize them to match our static data
 const ESPN_NAME_MAP={
@@ -728,6 +729,8 @@ async function doRefresh(){
   if(histData&&histData.events) espnHistory=histData.events;
   const built=buildLiveStandings([...espnHistory,...espnMatches]);
   if(built) liveGroupData=built;
+  // Fire-and-forget caps update — fetches per-match lineups, caches in localStorage
+  buildWcCaps([...espnHistory,...espnMatches]);
   const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
   document.getElementById('livePill').style.display=live>0?'flex':'none';
   updateWidget(espnMatches);
@@ -1216,6 +1219,7 @@ function renderStandings(){
 let teamsSearchQuery='',teamsQF='all';
 function renderTeams(detailTeam){
   if(detailTeam){renderTeamDetail(detailTeam);return;}
+  window.detailTeam=null; // clear when showing team list
   const groups=getGroups();
   const allTeams=[];
   groups.forEach(grp=>grp.teams.forEach(t=>{
@@ -1245,6 +1249,7 @@ function renderTeams(detailTeam){
   document.getElementById('teamsContent').innerHTML=html;
 }
 function renderTeamDetail(teamName){
+  window.detailTeam=teamName;
   const groups=getGroups();
   let td=null,grp=null;
   groups.forEach(g=>{const t=g.teams.find(x=>x.team===teamName);if(t){td=t;grp=g;}});
@@ -1294,29 +1299,34 @@ function renderTeamDetail(teamName){
     html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F3C3; Squad &mdash; ${squad.length} Players</div>
      <div style="font-size:9px;color:var(--text3)">&#x26A1; Goals &amp; cards update live from ESPN</div></div>
     <div style="overflow-x:auto"><table class="sq-table">
-     <thead><tr><th>#</th><th>Player</th><th>Pos</th><th style="text-align:center">Age</th><th>Club</th><th style="text-align:center">WC &#x26BD;</th><th style="text-align:center">Cards</th><th>Note</th></tr></thead><tbody>`;
+    <thead><tr><th>#</th><th>Player</th><th>Pos</th><th style="text-align:center">Age</th><th>Club</th><th style="text-align:center" title="Total international caps (FIFA data + WC2026 appearances)">Caps</th><th style="text-align:center">WC &#x26BD;</th><th style="text-align:center">Cards</th></tr></thead><tbody>`;
     squad.forEach((p,i)=>{
       const pn=typeof p==='string'?p:(p.name||p.player||'');
       const pp=typeof p==='object'?(p.position||p.pos||''):'';
       const pc=typeof p==='object'?(p.club||''):'';
-      const pno=typeof p==='object'?(p.note||p.notes||''):'';
-      const page=typeof p==='object'?(p.age||''):'';
-      const isCap=typeof p==='object'&&(!!p.captain||(pData.captain&&pn===pData.captain));
-      const ps=playerStats(pn);
-      const goalsBadge=ps&&ps.goals>0?`<span style="background:rgba(22,163,74,.15);color:var(--qual);font-weight:800;padding:1px 7px;border-radius:10px;font-size:11px">${ps.goals}</span>`:`<span style="color:var(--text3)">&#8212;</span>`;
-      const yellowBadge=ps&&ps.yellows>0?`<span style="background:rgba(202,138,4,.2);color:#d97706;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E8;${ps.yellows>1?ps.yellows:''}</span>`:'';
-      const redBadge=ps&&ps.reds>0?`<span style="background:rgba(239,68,68,.2);color:var(--elim);padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E5;${ps.reds>1?ps.reds:''}</span>`:'';
-      const cardsBadge=(yellowBadge||redBadge)?`${yellowBadge}${redBadge}`:`<span style="color:var(--text3)">&#8212;</span>`;
-      html+=`<tr>
-       <td style="font-weight:800;color:var(--text3);width:28px">${i+1}</td>
-       <td style="font-weight:600;white-space:nowrap">${esc(pn)}${isCap?' <span title="Captain" style="color:var(--gold);font-size:11px">&#x1F451;</span>':''}</td>
-       <td><span class="ppos ${posClass(pp)}">${posLabel(pp)}</span></td>
-       <td style="text-align:center;color:var(--text2);font-size:11px">${esc(String(page))}</td>
-       <td style="font-size:11px;color:var(--text2);white-space:nowrap">${esc(pc)}</td>
-       <td style="text-align:center">${goalsBadge}</td>
-       <td style="text-align:center;white-space:nowrap">${cardsBadge}</td>
-       <td style="font-size:10px;color:var(--text3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(pno)}">${esc(pno.slice(0,60))}${pno.length>60?'…':''}</td>
-      </tr>`;
+     const page=typeof p==='object'?(p.age||''):'';
+     const pjerseyNum=typeof p==='object'?(p.jersey||i+1):(i+1);
+     const staticCaps=typeof p==='object'?(p.caps||0):0;
+     const isCap=typeof p==='object'&&(!!p.captain||(pData.captain&&pn===pData.captain));
+     const ps=playerStats(pn);
+     // WC2026 appearances from ESPN per-match lineups (async, updates after first refresh)
+     const wcApps=(window.wcCapsData&&window.wcCapsData[normPlayerKey(pn)])||0;
+     const totalCaps=staticCaps+wcApps;
+     const goalsBadge=ps&&ps.goals>0?`<span style="background:rgba(22,163,74,.15);color:var(--qual);font-weight:800;padding:1px 7px;border-radius:10px;font-size:11px">${ps.goals}</span>`:`<span style="color:var(--text3)">&#8212;</span>`;
+     const yellowBadge=ps&&ps.yellows>0?`<span style="background:rgba(202,138,4,.2);color:#d97706;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E8;${ps.yellows>1?' '+ps.yellows:''}</span>`:'';
+     const redBadge=ps&&ps.reds>0?`<span style="background:rgba(239,68,68,.2);color:var(--elim);padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700">&#x1F7E5;${ps.reds>1?' '+ps.reds:''}</span>`:'';
+     const cardsBadge=(yellowBadge||redBadge)?`${yellowBadge}${redBadge}`:`<span style="color:var(--text3)">&#8212;</span>`;
+     const capsDisplay=totalCaps>0?`<span style="font-size:12px;font-weight:700;color:var(--text1)">${totalCaps}</span>${wcApps>0?`<span style="font-size:9px;color:var(--text3);margin-left:2px">+${wcApps}</span>`:''}`:(`<span style="color:var(--text3)">&#8212;</span>`);
+     html+=`<tr>
+      <td style="font-weight:800;color:var(--text3);width:28px">${pjerseyNum}</td>
+      <td style="font-weight:600;white-space:nowrap">${esc(pn)}${isCap?' <span title="Captain" style="color:var(--gold);font-size:11px">&#x1F451;</span>':''}</td>
+      <td><span class="ppos ${posClass(pp)}">${posLabel(pp)}</span></td>
+      <td style="text-align:center;color:var(--text2);font-size:11px">${esc(String(page))}</td>
+      <td style="font-size:11px;color:var(--text2);white-space:nowrap">${esc(pc)}</td>
+      <td style="text-align:center">${capsDisplay}</td>
+      <td style="text-align:center">${goalsBadge}</td>
+      <td style="text-align:center;white-space:nowrap">${cardsBadge}</td>
+     </tr>`;
     });
     html+='</tbody></table></div></div>';
   }else{
@@ -1398,7 +1408,51 @@ function buildTournamentStats(){
   return stats;
 }
 
-function buildTopScorers(){
+// ── Player-name normalizer for caps lookup ─────────────────────────────────
+// Uses last name stripped of diacritics for robust ESPN↔FIFA matching
+function normPlayerKey(name){
+  const last=(name||'').split(' ').filter(Boolean).pop()||name||'';
+  return last.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,'');
+}
+
+// ── Fetch per-match lineups with localStorage cache ─────────────────────────
+// Only fetches ESPN summary once per completed match; subsequent calls use cache.
+// Roster: players with starter===true OR (active===true AND didNotPlay!==true)
+async function fetchMatchLineups(eventId){
+  const cacheKey='wc_lu_'+eventId;
+  try{const c=localStorage.getItem(cacheKey);if(c)return JSON.parse(c);}catch{}
+  try{
+    const url='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldcup/summary?event='+eventId;
+    const data=await safeFetch(url);
+    if(!data?.boxscore)return [];
+    const keys=[];
+    (data.boxscore.players||[]).forEach(td=>{
+      (td.statistics||[]).forEach(sg=>{
+        (sg.athletes||[]).forEach(a=>{
+          if(!a.didNotPlay&&(a.starter||a.active)){
+            const nm=a.athlete?.displayName||a.athlete?.shortName||'';
+            if(nm)keys.push(normPlayerKey(nm));
+          }
+        });
+      });
+    });
+    try{if(keys.length)localStorage.setItem(cacheKey,JSON.stringify(keys));}catch{}
+    return keys;
+  }catch{return [];}
+}
+
+// ── Aggregate WC2026 appearances from all completed ESPN matches ─────────────
+// Runs asynchronously; stores result in window.wcCapsData so renderTeamDetail
+// can add WC appearances to each player's static FIFA cap count.
+async function buildWcCaps(events){
+  const completed=(events||[]).filter(e=>e?.id&&e.status?.type?.state==='post');
+  const results=await Promise.all(completed.map(e=>fetchMatchLineups(e.id)));
+  const caps={};
+  results.forEach(keys=>keys.forEach(k=>{caps[k]=(caps[k]||0)+1;}));
+  window.wcCapsData=caps;
+  // If team detail is currently shown, refresh it with updated caps
+  if(window.detailTeam)renderTeamDetail(window.detailTeam);
+}
   const sc=[];
   // First collect from ESPN events (live)
   const ts=buildTournamentStats();
