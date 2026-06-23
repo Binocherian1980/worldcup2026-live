@@ -1601,8 +1601,8 @@ function buildTournamentStats(){
 // Caches completed matches in localStorage; live matches always re-fetched.
 async function fetchMatchSummary(eventId){
   const cacheKey='wc_sum2_'+eventId;
-  try{const c=localStorage.getItem(cacheKey);if(c)return JSON.parse(c);}catch{}
-  const url='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldcup/summary?event='+eventId;
+  try{const c=localStorage.getItem(cacheKey);if(c){const p=JSON.parse(c);if(p&&p.capsKeys)return p;}}catch{}
+  const url=ESPN_BASE+'/summary?event='+eventId;
   const data=await safeFetch(url);
   if(!data)return null;
   const hComp=(data.header?.competitions||[])[0]||{};
@@ -1649,10 +1649,13 @@ async function fetchMatchSummary(eventId){
     (ts.statistics||[]).forEach(s=>{if(s.name&&s.displayValue!=null)st[s.name]=s.displayValue;});
     teamStats[tName]=st;
   });
-  const state=hComp.status?.type?.state;
+  const state=hComp.status?.type?.state||data.header?.competitions?.[0]?.status?.type?.state;
   const result={eventId,lineups,events,teamStats,capsKeys};
-  // Only cache completed matches (live data must stay fresh)
-  try{if(state==='post'&&capsKeys.length)localStorage.setItem(cacheKey,JSON.stringify(result));}catch{}
+  // Cache completed matches that have at least some data (events or lineups)
+  try{
+    if(state==='post'&&(capsKeys.length||events.length||Object.keys(teamStats).length))
+      localStorage.setItem(cacheKey,JSON.stringify(result));
+  }catch{}
   return result;
 }
 
