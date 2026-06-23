@@ -614,7 +614,93 @@ function formHtml(form){
 // ================================================================
 const ESPN_BASE='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world';
 const CORS='https://corsproxy.io/?';
-let espnMatches=[],espnHistory=[],refreshTimer=null;
+let espnMatches=[],espnHistory=[],refreshTimer=null,liveGroupData=null;
+
+// ESPN uses different team names — normalize them to match our static data
+const ESPN_NAME_MAP={
+  'Türkiye':'Turkey','Curaçao':'Curacao','Congo DR':'DR Congo',
+  'Bosnia-Herzegovina':'Bosnia & Herzegovina',
+  'Bosnia and Herzegovina':'Bosnia & Herzegovina'
+};
+function normalizeEspnName(n){return ESPN_NAME_MAP[n]||n;}
+
+// Build a lowercase-name → {grp, teamName} lookup from WC_GROUPS static data
+function buildTeamGroupMap(){
+  const m={};
+  Object.entries(WC_GROUPS.groups||{}).forEach(([grp,data])=>{
+    (data.teams||[]).forEach(name=>{m[name.toLowerCase()]={grp,name};});
+  });
+  return m;
+}
+
+// Fuzzy find: try exact match then first-5-char prefix
+function findTeamEntry(tgMap,rawName){
+  const k=rawName.toLowerCase();
+  if(tgMap[k])return tgMap[k];
+  const pre=k.slice(0,5);
+  for(const[mk,mv]of Object.entries(tgMap)){
+    if(mk.startsWith(pre)||pre.startsWith(mk.slice(0,5)))return mv;
+  }
+  return null;
+}
+
+// Build fully live standings from ESPN events — called after every fetch
+function buildLiveStandings(events){
+  const tgMap=buildTeamGroupMap();
+  // Initialize all teams to zero
+  const stats={};
+  Object.entries(WC_GROUPS.groups||{}).forEach(([grp,data])=>{
+    (data.teams||[]).forEach(name=>{
+      stats[name]={team:name,group:grp,pts:0,played:0,won:0,drawn:0,lost:0,gf:0,ga:0,gd:0};
+    });
+  });
+  // Dedup + apply completed events
+  const seen=new Set();
+  let applied=0;
+  events.forEach(ev=>{
+    if(!ev||!ev.id||seen.has(ev.id))return;
+    seen.add(ev.id);
+    const comp=(ev.competitions||[])[0];
+    if(!comp)return;
+    const state=comp.status?.type?.state||ev.status?.type?.state||'';
+    if(state!=='post')return; // only completed matches
+    const cs=comp.competitors||[];
+    const h=cs.find(c=>c.homeAway==='home')||cs[0];
+    const a=cs.find(c=>c.homeAway==='away')||cs[1];
+    if(!h||!a)return;
+    const hName=normalizeEspnName(h.team?.displayName||h.team?.name||'');
+    const aName=normalizeEspnName(a.team?.displayName||a.team?.name||'');
+    const hEntry=findTeamEntry(tgMap,hName);
+    const aEntry=findTeamEntry(tgMap,aName);
+    if(!hEntry||!aEntry||hEntry.grp!==aEntry.grp)return; // must be same group
+    const hs=parseInt(h.score)||0,as_=parseInt(a.score)||0;
+    const ht=stats[hEntry.name],at=stats[aEntry.name];
+    if(!ht||!at)return;
+    ht.played++;at.played++;
+    ht.gf+=hs;ht.ga+=as_;ht.gd=ht.gf-ht.ga;
+    at.gf+=as_;at.ga+=hs;at.gd=at.gf-at.ga;
+    if(hs>as_){ht.won++;ht.pts+=3;at.lost++;}
+    else if(hs<as_){at.won++;at.pts+=3;ht.lost++;}
+    else{ht.drawn++;ht.pts++;at.drawn++;at.pts++;}
+    applied++;
+  });
+  if(applied===0)return null; // no ESPN data yet → fall back to static
+  // Group into sorted arrays
+  const grouped={};
+  Object.values(stats).forEach(t=>{
+    if(!grouped[t.group])grouped[t.group]=[];
+    grouped[t.group].push(t);
+  });
+  return Object.entries(grouped).map(([grp,teams])=>({
+    group:grp,
+    teams:teams.sort((a,b)=>(b.pts-a.pts)||((b.gd||0)-(a.gd||0))||((b.gf||0)-(a.gf||0)))
+  })).sort((a,b)=>a.group.localeCompare(b.group));
+}
+
+// Central helper — always use live ESPN standings when available
+function getGroups(){return liveGroupData||applyTodayResults(WC_GROUPS);}
+
+
 
 async function safeFetch(url){
   try{const r=await fetch(url,{cache:'no-store'});if(r.ok)return r.json();}catch{}
@@ -624,12 +710,17 @@ async function safeFetch(url){
 
 async function doRefresh(){
   document.getElementById('refreshStatus').textContent='\u21bb Refreshing\u2026';
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const todayStr=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate()+1)}`;
   const [todayData,histData]=await Promise.all([
     safeFetch(ESPN_BASE+'/scoreboard'),
-    safeFetch(ESPN_BASE+'/scoreboard?dates=20260611-20260622&limit=200')
+    safeFetch(ESPN_BASE+`/scoreboard?dates=20260611-${todayStr}&limit=200`)
   ]);
   if(todayData&&todayData.events) espnMatches=todayData.events;
   if(histData&&histData.events) espnHistory=histData.events;
+  const built=buildLiveStandings([...espnHistory,...espnMatches]);
+  if(built) liveGroupData=built;
   const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
   document.getElementById('livePill').style.display=live>0?'flex':'none';
   updateWidget(espnMatches);
@@ -783,7 +874,7 @@ function toggleTheme(){
 function onHeaderSearch(q){
   const el=document.getElementById('hsr');
   if(!q||q.length<2){el.classList.remove('show');return;}
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const teams=[];
   groups.forEach(grp=>grp.teams.forEach(t=>teams.push({name:t.team,group:grp.group,pts:t.pts||0})));
   const hits=teams.filter(t=>t.name.toLowerCase().includes(q.toLowerCase())).slice(0,8);
@@ -827,7 +918,7 @@ function buildHighlights(){
     }catch{}
   });
   // Notable group leaders
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   groups.filter(g=>g.teams[0]&&(g.teams[0].pts||0)>=6).forEach(g=>{
     const t=g.teams[0];
     if(!items.find(i=>i.text.includes(t.team)))
@@ -842,7 +933,7 @@ function buildHighlights(){
 }
 
 function getGroupPositions(){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const pos={};
   groups.forEach(grp=>{
     const sz=grp.teams.length,totalGames=sz-1;
@@ -866,7 +957,7 @@ function toggleQualPanel(type){
   const panel=document.getElementById('qualPanel');
   if(qualPanelType===type){qualPanelType=null;panel.style.display='none';return;}
   qualPanelType=type;
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const teams=[];
   groups.forEach(grp=>grp.teams.forEach(t=>{
     if(getQualStatus(t.team,grp.teams,grp.teams.length)===type)
@@ -894,7 +985,7 @@ function toggleQualPanel(type){
 }
 
 function renderHome(){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const today=WC_GROUPS.today_matches_june22||[];
   const merged=mergedMatches();
   let nV=0,nC=0,nE=0;
@@ -1069,7 +1160,7 @@ function renderMatches(){
 // STANDINGS TAB
 // ================================================================
 function renderStandings(){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const today=WC_GROUPS.today_matches_june22||[];
   let html='<div class="grp-grid">';
   groups.forEach(grp=>{
@@ -1105,7 +1196,7 @@ function renderStandings(){
 let teamsSearchQuery='',teamsQF='all';
 function renderTeams(detailTeam){
   if(detailTeam){renderTeamDetail(detailTeam);return;}
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const allTeams=[];
   groups.forEach(grp=>grp.teams.forEach(t=>{
     allTeams.push({name:t.team,group:grp.group,status:getQualStatus(t.team,grp.teams,grp.teams.length),pts:t.pts||0});
@@ -1134,7 +1225,7 @@ function renderTeams(detailTeam){
   document.getElementById('teamsContent').innerHTML=html;
 }
 function renderTeamDetail(teamName){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   let td=null,grp=null;
   groups.forEach(g=>{const t=g.teams.find(x=>x.team===teamName);if(t){td=t;grp=g;}});
   const pData=WC_PLAYERS[teamName]||{};
@@ -1253,7 +1344,7 @@ function buildTopScorers(){
   return sc.sort((a,b)=>b.goals-a.goals);
 }
 function buildGroupLeaders(){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   return groups.map((grp,i)=>{
     const l=grp.teams[0];
     return lbItem(i,flag(l.team),l.team,`Group ${grp.group}`,`${l.played||0}P &middot; ${l.pts||0}pts`,l.pts||0,(groups[0].teams[0].pts||1));
@@ -1507,7 +1598,7 @@ const WC_R32_PAIRS=[
 ];
 
 function renderBracket(){
-  const groups=applyTodayResults(WC_GROUPS);
+  const groups=getGroups();
   const groupMap={};
   groups.forEach(grp=>{groupMap[grp.group]=grp;});
 
