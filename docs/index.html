@@ -116,8 +116,15 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 @media(max-width:1200px){.g6{grid-template-columns:repeat(4,1fr)}.g4{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.g6{grid-template-columns:repeat(3,1fr)}.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
 @media(max-width:560px){.g6,.g4,.g3{grid-template-columns:repeat(2,1fr)}}
-.hero{background:linear-gradient(135deg,#0a1628 0%,#1e3a5f 55%,#2d5282 100%);border-radius:var(--r2);padding:28px;margin-bottom:20px;border:1px solid var(--gold);position:relative;overflow:hidden}
-.hero::before{content:"\26BD";position:absolute;right:20px;bottom:-20px;font-size:130px;opacity:.05;transform:rotate(15deg)}
+.hero{background:linear-gradient(135deg,#0a1628 0%,#1e3a5f 55%,#2d5282 100%);border-radius:var(--r2);margin-bottom:20px;border:1px solid var(--gold);position:relative;overflow:hidden;display:flex}
+.hero-info{flex:1;padding:28px;position:relative;z-index:1}
+.hero-info::before{content:"\26BD";position:absolute;right:-10px;bottom:-20px;font-size:130px;opacity:.05;transform:rotate(15deg);pointer-events:none}
+.hero-hl{width:260px;flex-shrink:0;background:rgba(0,0,0,.25);border-left:1px solid rgba(255,255,255,.08);padding:16px;display:flex;flex-direction:column;gap:0}
+@media(max-width:860px){.hero{flex-direction:column}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,255,255,.08)}}
+.hl-hdr{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.hl-item{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.8);line-height:1.4}
+.hl-item:last-child{border-bottom:none}
+.hl-icon{font-size:15px;flex-shrink:0;margin-top:1px}
 .hero-title{font-size:32px;font-weight:900;color:#fff;margin:0 0 4px}
 .hero-title span{color:var(--gold)}
 .hero-sub{font-size:14px;color:rgba(255,255,255,.65);margin:0 0 20px}
@@ -128,18 +135,52 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .cd-unit{background:rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;text-align:center}
 .cd-val{font-size:26px;font-weight:900;color:#fff;display:block}
 .cd-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em}
-.scards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.scards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:12px}
 @media(max-width:900px){.scards{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:460px){.scards{grid-template-columns:1fr}}
-.scard{background:var(--surface);border-radius:var(--r2);padding:18px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:transform .2s}
-.scard:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.scard{background:var(--surface);border-radius:var(--r2);padding:18px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:transform .2s,border-color .2s}
+.scard:hover{transform:translateY(-2px);box-shadow:var(--shadow2);border-color:var(--gold)}
 .scard-icon{font-size:28px;margin-bottom:6px}
 .scard-num{font-size:32px;font-weight:900;margin:0 0 3px}
 .scard-lbl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.scard-hint{font-size:9px;color:var(--text3);margin-top:2px}
 .scard.q .scard-num{color:var(--qual)}
 .scard.v .scard-num{color:var(--virt)}
 .scard.e .scard-num{color:var(--elim)}
 .scard.l .scard-num{color:var(--live)}
+.qual-popup{background:var(--surface2);border:1px solid var(--gold);border-radius:var(--r2);padding:16px;margin-bottom:16px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.qp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.qp-title{font-size:14px;font-weight:800}
+.qp-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:0 4px}
+.qp-subtitle{font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.qp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px}
+.qp-team{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:border-color .15s}
+.qp-team:hover{border-color:var(--gold)}
+.bracket-flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:16px 0;margin-bottom:22px;scrollbar-width:none}
+.bracket-flow::-webkit-scrollbar{display:none}
+.bf-stage{text-align:center;flex-shrink:0;padding:0 16px}
+.bf-stage-name{font-size:9px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.bf-stage-num{font-size:28px;font-weight:900;color:var(--accent2);line-height:1}
+.bf-stage-lbl{font-size:9px;color:var(--text3);margin-top:2px}
+.bf-arrow{font-size:22px;color:var(--border2);flex-shrink:0}
+.r32-section{margin-bottom:28px}
+.r32-title{font-size:15px;font-weight:800;margin:0 0 6px;display:flex;align-items:center;gap:7px}
+.r32-note{font-size:11px;color:var(--text2);margin-bottom:14px;padding:9px 12px;background:var(--surface);border-radius:var(--r);border-left:3px solid var(--gold)}
+.r32-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.r32-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.r32-grid{grid-template-columns:1fr}}
+.r32-pair{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.r32-pair-hdr{background:linear-gradient(90deg,var(--navy),var(--navy2));padding:5px 12px;font-size:9px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between}
+.r32-match{display:flex;align-items:center;padding:10px 12px;gap:6px}
+.r32-match:not(:last-child){border-bottom:1px solid var(--border)}
+.r32-slot{flex:1;display:flex;align-items:center;gap:6px}
+.r32-slot.r{justify-content:flex-end}
+.r32-slot-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r32-slot-sub{font-size:9px;color:var(--text3)}
+.r32-vs{font-size:10px;color:var(--text3);padding:0 4px;flex-shrink:0}
+.r32-tbd .r32-slot-name{color:var(--text3);font-weight:400;font-style:italic}
+.confirmed-badge{font-size:9px;color:var(--qual)}
 .grp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:22px}
 @media(max-width:900px){.grp-grid{grid-template-columns:1fr}}
 .grp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
@@ -313,6 +354,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
    <button class="nav-btn" data-tab="stats" onclick="switchTab('stats')"><span class="nav-icon">&#x1F4C8;</span>Stats</button>
    <button class="nav-btn" data-tab="predictions" onclick="switchTab('predictions')"><span class="nav-icon">&#x1F52E;</span>Predictions</button>
    <button class="nav-btn" data-tab="coaches" onclick="switchTab('coaches')"><span class="nav-icon">&#x1F9E2;</span>Coaches</button>
+   <button class="nav-btn" data-tab="bracket" onclick="switchTab('bracket')"><span class="nav-icon">&#x1F3C6;</span>Bracket</button>
   </nav>
   <div class="header-actions">
    <div class="search-wrap">
@@ -374,6 +416,11 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
   <div class="page-hdr"><div class="breadcrumb"><span>Home</span><span>&#x203A;</span><span>Coaches</span></div>
   <h1 class="page-title">Team Coaches</h1><p class="page-sub">All 48 national team head coaches</p></div>
   <div id="coachesContent"><div class="spinner"></div></div>
+ </div>
+ <div id="tab-bracket" class="tab-panel">
+  <div class="page-hdr"><div class="breadcrumb"><span>Home</span><span>&#x203A;</span><span>Bracket</span></div>
+  <h1 class="page-title">&#x1F3C6; Tournament Bracket</h1><p class="page-sub">R32 matchups and tournament progression</p></div>
+  <div id="bracketContent"><div class="spinner"></div></div>
  </div>
 </main>
 
@@ -693,7 +740,7 @@ function switchTab(id){
 function renderTab(id){
   ({home:renderHome,standings:renderStandings,matches:renderMatches,
     teams:()=>renderTeams(),stats:renderStats,predictions:renderPredictions,
-    coaches:renderCoaches})[id]?.();
+    coaches:renderCoaches,bracket:renderBracket})[id]?.();
 }
 function toggleTheme(){
   const h=document.documentElement;
@@ -723,6 +770,101 @@ function onHeaderSearch(q){
 // ================================================================
 // HOME TAB
 // ================================================================
+function buildHighlights(){
+  const items=[];
+  // New WC2026 records/milestones
+  (WC_RECORDS.wc2026_new_records||[]).forEach(r=>{
+    if(r.record||r.detail) items.push({icon:'&#x1F3C6;',text:`<strong>${esc(r.record||'Record')}</strong>: ${esc(r.detail||'')}`});
+  });
+  // Today's scorers (brace/hat-trick highlights)
+  const scorerCounts={};
+  (WC_GROUPS.today_matches_june22||[]).forEach(tm=>{
+    if(!/FINAL|FT/i.test(tm.status||''))return;
+    (tm.scorers||[]).forEach(s=>{
+      const name=(typeof s==='string'?s:s.name||'').split(/\s+\d/)[0].trim();
+      if(name)scorerCounts[name]=(scorerCounts[name]||0)+1;
+    });
+  });
+  Object.entries(scorerCounts).forEach(([name,g])=>{
+    if(g>=2)items.push({icon:g>=3?'&#x1F3A9;':'&#x26BD;',text:`<strong>${esc(name)}</strong> scored ${g} goals today!`});
+  });
+  // ESPN today's red cards
+  espnMatches.forEach(ev=>{
+    try{
+      const comp=(ev.competitions||[])[0];if(!comp)return;
+      (comp.details||[]).filter(d=>d.type&&/red card/i.test(d.type.text||'')).forEach(d=>{
+        const ath=(d.athletesInvolved||[])[0];
+        if(ath)items.push({icon:'&#x1F7E5;',text:`<strong>${esc(ath.shortName||ath.displayName||'Player')}</strong> sent off`});
+      });
+    }catch{}
+  });
+  // Notable group leaders
+  const groups=applyTodayResults(WC_GROUPS);
+  groups.filter(g=>g.teams[0]&&(g.teams[0].pts||0)>=6).forEach(g=>{
+    const t=g.teams[0];
+    if(!items.find(i=>i.text.includes(t.team)))
+      items.push({icon:'&#x1F4CA;',text:`<strong>${esc(t.team)}</strong> lead Group ${g.group} &mdash; ${t.gf||0} goals in ${t.played||0} games`});
+  });
+  // Today's results
+  (WC_GROUPS.today_matches_june22||[]).filter(m=>/FINAL|FT/i.test(m.status||'')).forEach(m=>{
+    const p=parseTodayMatch(m);
+    if(p)items.push({icon:'&#x2705;',text:`<strong>FT:</strong> ${flag(p.home)} ${esc(p.home)} ${p.home_score}&ndash;${p.away_score} ${esc(p.away)} ${flag(p.away)}`});
+  });
+  return items.slice(0,8);
+}
+
+function getGroupPositions(){
+  const groups=applyTodayResults(WC_GROUPS);
+  const pos={};
+  groups.forEach(grp=>{
+    const sz=grp.teams.length,totalGames=sz-1;
+    const t=grp.teams; // already sorted by pts
+    const isVirtual=(team,idx)=>{
+      if(idx>=2)return false;
+      const t3=t[2];
+      const max3=t3?(t3.pts||0)+(totalGames-(t3.played||0))*3:0;
+      return(team.pts||0)>max3||(team.played||0)===totalGames;
+    };
+    pos[grp.group]={
+      first:{team:t[0]?t[0].team:'TBD',pts:t[0]?t[0].pts:0,confirmed:t[0]?isVirtual(t[0],0):false},
+      second:{team:t[1]?t[1].team:'TBD',pts:t[1]?t[1].pts:0,confirmed:false}
+    };
+  });
+  return pos;
+}
+
+let qualPanelType=null;
+function toggleQualPanel(type){
+  const panel=document.getElementById('qualPanel');
+  if(qualPanelType===type){qualPanelType=null;panel.style.display='none';return;}
+  qualPanelType=type;
+  const groups=applyTodayResults(WC_GROUPS);
+  const teams=[];
+  groups.forEach(grp=>grp.teams.forEach(t=>{
+    if(getQualStatus(t.team,grp.teams,grp.teams.length)===type)
+      teams.push({team:t.team,group:grp.group,pts:t.pts||0});
+  }));
+  const titles={virtual:'&#x2705; Virtually Qualified for Round of 32',contention:'&#x1F535; Teams In Contention',eliminated:'&#x1F534; Eliminated Teams'};
+  const descs={
+    virtual:'These teams have <strong>mathematically secured</strong> a top-2 spot in their group and will advance to the <strong>Round of 32</strong> regardless of their last match result.',
+    contention:'These teams can still finish in the <strong>top 2</strong> of their group and qualify, but need results to go their way.',
+    eliminated:'These teams <strong>cannot mathematically</strong> finish in the top 2 of their group.'
+  };
+  panel.innerHTML=`
+   <div class="qp-header"><span class="qp-title">${titles[type]||type}</span>
+    <button class="qp-close" onclick="toggleQualPanel('${type}')">&#x2715;</button></div>
+   <p class="qp-subtitle">${descs[type]||''} &mdash; <strong>Click a team</strong> to view full squad &amp; stats.</p>
+   <div class="qp-grid">${teams.map(t=>`
+    <div class="qp-team" onclick="renderTeams('${esc(t.team)}');switchTab('teams')">
+     <span style="font-size:24px">${flag(t.team)}</span>
+     <div><div style="font-weight:700;font-size:13px">${esc(t.team)}</div>
+      <div style="font-size:10px;color:var(--text2)">Group ${esc(t.group)} &middot; ${t.pts}pts</div>
+     </div>
+    </div>`).join('')}
+   </div>`;
+  panel.style.display='block';
+}
+
 function renderHome(){
   const groups=applyTodayResults(WC_GROUPS);
   const today=WC_GROUPS.today_matches_june22||[];
@@ -739,20 +881,16 @@ function renderHome(){
   const hours=Math.max(0,Math.floor((diff%864e5)/36e5));
   const mins=Math.max(0,Math.floor((diff%36e5)/6e4));
 
-  // Today + live matches (state=in or came from today_matches)
-  const todayNow=merged.filter(m=>m.state==='in'||m.state==='pre'&&!m.espn||m.state==='pre');
-  // Show live first, then today's upcoming (hide far-future MD3 fixtures unless nothing else)
+  const highlights=buildHighlights();
   const liveAndToday=merged.filter(m=>m.state==='in');
-  const todayUpcoming=merged.filter(m=>m.state==='pre'&&m.espn); // ESPN pre = real scheduled
+  const todayUpcoming=merged.filter(m=>m.state==='pre'&&m.espn);
   const staticUpcoming=merged.filter(m=>m.state==='pre'&&!m.espn).slice(0,2);
-  const currentMatches=[...liveAndToday,...todayUpcoming,...(todayUpcoming.length===0?staticUpcoming:[])].slice(0,5);
-
-  // Recent results: last 3 completed
+  const currentMatches=[...liveAndToday,...todayUpcoming,...(todayUpcoming.length===0?staticUpcoming:[])].slice(0,4);
   const recentResults=merged.filter(m=>m.state==='post').slice(-3).reverse();
 
   const todayHtml=currentMatches.length
     ?currentMatches.map(m=>matchCardHtml(m)).join('')
-    :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No matches right now &mdash; check the <a href="#" onclick="switchTab(\'matches\');return false" style="color:var(--accent2)">Matches tab</a></div>';
+    :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No live matches &mdash; <a href="#" onclick="switchTab(\'matches\');return false" style="color:var(--accent2)">view schedule</a></div>';
 
   const recentHtml=recentResults.length?recentResults.map(m=>`
   <div class="match-card">
@@ -763,41 +901,65 @@ function renderHome(){
     <div class="m-team r"><div class="m-tname">${esc(m.away)}</div><span class="m-flag">${flag(m.away)}</span></div>
    </div>
   </div>`).join('')
-  :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No results yet today</div>';
+  :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No results yet</div>';
 
   document.getElementById('tab-home').innerHTML=`
   <div class="hero">
-   <div class="hero-title">FIFA World Cup <span>2026&#8482;</span></div>
-   <div class="hero-sub">USA &middot; Canada &middot; Mexico &nbsp;|&nbsp; June 11 &ndash; July 19, 2026</div>
-   <div class="hero-stats">
-    <div><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
-    <div><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
-    <div><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
-    <div><span class="hstat-val">${nV}</span><span class="hstat-lbl">Virtually Qualified</span></div>
+   <div class="hero-info">
+    <div class="hero-title">FIFA World Cup <span>2026&#8482;</span></div>
+    <div class="hero-sub">USA &middot; Canada &middot; Mexico &nbsp;|&nbsp; June 11 &ndash; July 19, 2026</div>
+    <div class="hero-stats">
+     <div><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
+     <div><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
+     <div><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
+     <div><span class="hstat-val">${nV}</span><span class="hstat-lbl">R32 Qualified</span></div>
+    </div>
+    <div class="countdown">
+     <div class="cd-unit"><span class="cd-val">${days}</span><span class="cd-lbl">Days</span></div>
+     <div class="cd-unit"><span class="cd-val">${hours}</span><span class="cd-lbl">Hours</span></div>
+     <div class="cd-unit"><span class="cd-val">${mins}</span><span class="cd-lbl">Mins</span></div>
+     <div class="cd-unit"><span class="cd-val" style="font-size:12px;color:var(--gold)">Until<br>Final</span></div>
+    </div>
    </div>
-   <div class="countdown">
-    <div class="cd-unit"><span class="cd-val">${days}</span><span class="cd-lbl">Days</span></div>
-    <div class="cd-unit"><span class="cd-val">${hours}</span><span class="cd-lbl">Hours</span></div>
-    <div class="cd-unit"><span class="cd-val">${mins}</span><span class="cd-lbl">Mins</span></div>
-    <div class="cd-unit"><span class="cd-val" style="font-size:12px;color:var(--gold)">Until<br>Final</span></div>
+   <div class="hero-hl">
+    <div class="hl-hdr">&#x1F525; Today&#x27;s Highlights</div>
+    ${highlights.length?highlights.map(h=>`<div class="hl-item"><span class="hl-icon">${h.icon}</span><span>${h.text}</span></div>`).join('')
+    :'<div class="hl-item"><span class="hl-icon">&#x26BD;</span><span>Highlights loading...</span></div>'}
    </div>
   </div>
   <div class="scards">
-   <div class="scard q" onclick="switchTab('standings')"><div class="scard-icon">&#x2705;</div><div class="scard-num">${nV}</div><div class="scard-lbl">Virtually Qualified</div></div>
-   <div class="scard v" onclick="switchTab('standings')"><div class="scard-icon">&#x1F535;</div><div class="scard-num">${nC}</div><div class="scard-lbl">In Contention</div></div>
-   <div class="scard e" onclick="switchTab('standings')"><div class="scard-icon">&#x1F534;</div><div class="scard-num">${nE}</div><div class="scard-lbl">Eliminated</div></div>
-   <div class="scard l" onclick="switchTab('matches')"><div class="scard-icon">${nLive>0?'&#x26A1;':'&#x26BD;'}</div><div class="scard-num">${nLive>0?nLive:today.length}</div><div class="scard-lbl">${nLive>0?'Live Now':"Today's Matches"}</div></div>
+   <div class="scard q" onclick="toggleQualPanel('virtual')">
+    <div class="scard-icon">&#x2705;</div><div class="scard-num">${nV}</div>
+    <div class="scard-lbl">Round of 32 Qualified</div>
+    <div class="scard-hint">Click to see teams</div>
+   </div>
+   <div class="scard v" onclick="toggleQualPanel('contention')">
+    <div class="scard-icon">&#x1F535;</div><div class="scard-num">${nC}</div>
+    <div class="scard-lbl">In Contention</div>
+    <div class="scard-hint">Click to see teams</div>
+   </div>
+   <div class="scard e" onclick="toggleQualPanel('eliminated')">
+    <div class="scard-icon">&#x1F534;</div><div class="scard-num">${nE}</div>
+    <div class="scard-lbl">Eliminated</div>
+    <div class="scard-hint">Click to see teams</div>
+   </div>
+   <div class="scard l" onclick="switchTab('matches')">
+    <div class="scard-icon">${nLive>0?'&#x26A1;':'&#x26BD;'}</div><div class="scard-num">${nLive>0?nLive:today.length}</div>
+    <div class="scard-lbl">${nLive>0?'Live Now':"Today's Matches"}</div>
+    <div class="scard-hint">View matches</div>
+   </div>
   </div>
+  <div id="qualPanel" class="qual-popup" style="display:none"></div>
   <div class="g2">
    <div>
-    <h2 class="sec-title">&#x26BD; ${nLive>0?'Live &amp; Today':'Today\'s Matches'}</h2>
+    <h2 class="sec-title">&#x26BD; ${nLive>0?'Live &amp; Today':'Today&#x27;s Matches'}</h2>
     ${todayHtml}
     <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('matches')">All Matches &amp; Schedule &#x2192;</button>
    </div>
    <div>
     <h2 class="sec-title">&#x1F3C6; Recent Results</h2>
     ${recentHtml}
-    <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('standings')">Full Standings &#x2192;</button>
+    <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('bracket')">Tournament Bracket &#x2192;</button>
    </div>
   </div>`;
 }
@@ -1305,6 +1467,104 @@ function renderRecords(){
   }
   if(!html)html='<div class="empty-state"><div class="empty-icon">&#x1F4DA;</div><p>Records loading...</p></div>';
   document.getElementById('recordsContent').innerHTML=html;
+}
+
+// ================================================================
+// BRACKET TAB
+// ================================================================
+// Predetermined R32 bracket: group pairs
+const WC_R32_PAIRS=[
+  {g1:'A',g2:'B'},{g1:'C',g2:'D'},{g1:'E',g2:'F'},
+  {g1:'G',g2:'H'},{g1:'I',g2:'J'},{g1:'K',g2:'L'}
+];
+
+function renderBracket(){
+  const pos=getGroupPositions();
+  // Tournament progression flow
+  const flowHtml=`<div class="bracket-flow">
+   <div class="bf-stage"><div class="bf-stage-name">Group Stage</div><div class="bf-stage-num">48</div><div class="bf-stage-lbl">Teams</div></div>
+   <div class="bf-arrow">&#x2192;</div>
+   <div class="bf-stage"><div class="bf-stage-name">Round of 32</div><div class="bf-stage-num">32</div><div class="bf-stage-lbl">Teams</div></div>
+   <div class="bf-arrow">&#x2192;</div>
+   <div class="bf-stage"><div class="bf-stage-name">Round of 16</div><div class="bf-stage-num">16</div><div class="bf-stage-lbl">Teams</div></div>
+   <div class="bf-arrow">&#x2192;</div>
+   <div class="bf-stage"><div class="bf-stage-name">Quarter-Finals</div><div class="bf-stage-num">8</div><div class="bf-stage-lbl">Teams</div></div>
+   <div class="bf-arrow">&#x2192;</div>
+   <div class="bf-stage"><div class="bf-stage-name">Semi-Finals</div><div class="bf-stage-num">4</div><div class="bf-stage-lbl">Teams</div></div>
+   <div class="bf-arrow">&#x2192;</div>
+   <div class="bf-stage"><div class="bf-stage-name" style="color:#f5d06b">&#x1F3C6; Final</div><div class="bf-stage-num" style="color:var(--gold)">2</div><div class="bf-stage-lbl">Teams</div></div>
+  </div>`;
+
+  // How qualification works note
+  const noteHtml=`<div class="r32-note">
+   &#x2139;&#xFE0F; <strong>How it works:</strong> The top <strong>2 teams from each of the 12 groups</strong> advance to the Round of 32 (24 teams).
+   The <strong>8 best 3rd-place teams</strong> also qualify (32 total). Group 1st vs paired group 2nd &mdash; winner advances.
+   Click any team card to view their full squad and stats.
+  </div>`;
+
+  // R32 matchup cards for each group pair
+  const pairsHtml=WC_R32_PAIRS.map(({g1,g2})=>{
+    const p1=pos[g1]||{first:{team:'TBD',pts:0,confirmed:false},second:{team:'TBD',pts:0,confirmed:false}};
+    const p2=pos[g2]||{first:{team:'TBD',pts:0,confirmed:false},second:{team:'TBD',pts:0,confirmed:false}};
+    const slotHtml=(team,label,right)=>{
+      const isTBD=team==='TBD';
+      const nameClass=isTBD?'r32-slot-name r32-tbd':'r32-slot-name';
+      const content=isTBD
+        ?`<span class="${nameClass}">TBD</span>`
+        :`<span style="font-size:20px">${flag(team)}</span>
+          <div><div class="${nameClass}" onclick="renderTeams('${esc(team)}');switchTab('teams')" style="cursor:pointer">${esc(team)}</div>
+           <div class="r32-slot-sub">${label}</div></div>`;
+      return right
+        ?`<div class="r32-slot r">${content}</div>`
+        :`<div class="r32-slot">${content}</div>`;
+    };
+    return `<div class="r32-pair">
+     <div class="r32-pair-hdr"><span>Groups ${g1} &amp; ${g2}</span><span>Round of 32</span></div>
+     <div class="r32-match">
+      ${slotHtml(p1.first.team,'1st Grp '+g1,false)}
+      <span class="r32-vs">vs</span>
+      ${slotHtml(p2.second.team,'2nd Grp '+g2,true)}
+     </div>
+     <div class="r32-match">
+      ${slotHtml(p2.first.team,'1st Grp '+g2,false)}
+      <span class="r32-vs">vs</span>
+      ${slotHtml(p1.second.team,'2nd Grp '+g1,true)}
+     </div>
+    </div>`;
+  }).join('');
+
+  // Confirmed qualifiers summary
+  const confirmed=Object.entries(pos).filter(([,p])=>p.first.confirmed);
+  const confirmedHtml=confirmed.length?`
+   <h2 class="sec-title" style="margin-top:24px">&#x2705; Confirmed Round of 32 Qualifiers</h2>
+   <div class="qp-grid">${confirmed.map(([grp,p])=>`
+    <div class="qp-team" onclick="renderTeams('${esc(p.first.team)}');switchTab('teams')">
+     <span style="font-size:24px">${flag(p.first.team)}</span>
+     <div><div style="font-weight:700;font-size:13px">${esc(p.first.team)}</div>
+      <div style="font-size:10px;color:var(--text2)">&#x1F947; Group ${grp} &middot; ${p.first.pts}pts</div>
+     </div>
+    </div>`).join('')}
+   </div>`:'' ;
+
+  // 3rd place note
+  const thirdNote=`<div class="card" style="margin-top:20px;padding:16px">
+   <div style="font-size:14px;font-weight:800;margin-bottom:8px">&#x1F3AF; 8 Best 3rd-Place Teams</div>
+   <p style="font-size:12px;color:var(--text2);margin:0">After all group games finish, the <strong>8 best third-place teams</strong> across all 12 groups also advance to the Round of 32.
+   Their bracket positions are determined by which groups they came from. These slots will be filled after Matchday 3 (June 25&ndash;28).</p>
+   <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:12px">
+    ${Array.from({length:8},(_,i)=>`<div style="text-align:center;padding:8px 4px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--text3)">3rd #${i+1}<br><span style="font-size:16px">&#x2753;</span></div>`).join('')}
+   </div>
+  </div>`;
+
+  document.getElementById('bracketContent').innerHTML=`
+   ${flowHtml}
+   ${noteHtml}
+   <div class="r32-section">
+    <h2 class="r32-title">&#x1F4CB; Round of 32 Matchups</h2>
+    <div class="r32-grid">${pairsHtml}</div>
+   </div>
+   ${confirmedHtml}
+   ${thirdNote}`;
 }
 
 // ================================================================
