@@ -1453,6 +1453,8 @@ async function buildWcCaps(events){
   // If team detail is currently shown, refresh it with updated caps
   if(window.detailTeam)renderTeamDetail(window.detailTeam);
 }
+
+function buildTopScorers(){
   const sc=[];
   // First collect from ESPN events (live)
   const ts=buildTournamentStats();
