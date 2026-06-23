@@ -335,6 +335,34 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .footer-links{display:flex;gap:14px}
 .footer-links a{color:var(--text3);text-decoration:none}
 .footer-links a:hover{color:var(--text2)}
+.gpair-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:16px;overflow:hidden}
+.gpair-hdr{background:linear-gradient(90deg,#0a1628,#1e3a5f);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.gpair-hdr-title{font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.gpair-hdr-badge{font-size:9px;color:var(--text3);font-style:italic}
+.gpair-body{display:grid;grid-template-columns:1fr 144px 1fr}
+@media(max-width:720px){.gpair-body{grid-template-columns:1fr}.gpair-arrows{border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}}
+.gpair-grp{}
+.gpair-glbl{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;padding:7px 12px 5px;border-bottom:1px solid var(--border);background:rgba(255,215,0,.03)}
+.grp-row-b{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.grp-row-b:last-child{border-bottom:none}
+.grp-row-b.qvirt{background:rgba(22,163,74,.08);border-left:3px solid var(--qual)}
+.grp-row-b.qtop{background:rgba(22,163,74,.03);border-left:3px solid rgba(22,163,74,.3)}
+.grp-row-b.qelim{opacity:.5}
+.grp-pos-n{font-size:10px;font-weight:800;color:var(--text3);width:14px;flex-shrink:0;text-align:center}
+.grp-tn{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.grp-pts-b{font-size:11px;font-weight:900;color:var(--accent2);flex-shrink:0;min-width:22px;text-align:right}
+.grp-meta-b{font-size:9px;color:var(--text3);flex-shrink:0}
+.grp-qs-b{font-size:8px;padding:1px 4px;border-radius:8px;flex-shrink:0;white-space:nowrap;font-weight:700}
+.qs-virt{background:rgba(22,163,74,.15);color:var(--qual)}.qs-cont{background:rgba(37,99,235,.12);color:var(--cont)}.qs-elim{background:rgba(239,68,68,.12);color:var(--live)}
+.gpair-arrows{border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:10px 8px;gap:6px}
+.r32-arr-title{font-size:8px;color:var(--gold);font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:center;margin-bottom:2px}
+.r32-arr-box{background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);padding:6px 8px;font-size:10px}
+.r32-arr-slot{display:flex;align-items:center;gap:4px;font-weight:600;overflow:hidden;font-size:10px;white-space:nowrap}
+.r32-arr-slot.dim{color:var(--text3);font-weight:400;font-style:italic}
+.r32-arr-lbl{font-size:8px;color:var(--text3);margin-top:1px}
+.r32-arr-divider{text-align:center;font-size:9px;color:var(--text3);padding:2px 0}
+.r32-note-sm{font-size:8px;color:var(--text3);text-align:center;font-style:italic;margin-top:4px}
+.conf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -1479,8 +1507,10 @@ const WC_R32_PAIRS=[
 ];
 
 function renderBracket(){
-  const pos=getGroupPositions();
-  // Tournament progression flow
+  const groups=applyTodayResults(WC_GROUPS);
+  const groupMap={};
+  groups.forEach(grp=>{groupMap[grp.group]=grp;});
+
   const flowHtml=`<div class="bracket-flow">
    <div class="bf-stage"><div class="bf-stage-name">Group Stage</div><div class="bf-stage-num">48</div><div class="bf-stage-lbl">Teams</div></div>
    <div class="bf-arrow">&#x2192;</div>
@@ -1495,76 +1525,118 @@ function renderBracket(){
    <div class="bf-stage"><div class="bf-stage-name" style="color:#f5d06b">&#x1F3C6; Final</div><div class="bf-stage-num" style="color:var(--gold)">2</div><div class="bf-stage-lbl">Teams</div></div>
   </div>`;
 
-  // How qualification works note
   const noteHtml=`<div class="r32-note">
-   &#x2139;&#xFE0F; <strong>How it works:</strong> The top <strong>2 teams from each of the 12 groups</strong> advance to the Round of 32 (24 teams).
-   The <strong>8 best 3rd-place teams</strong> also qualify (32 total). Group 1st vs paired group 2nd &mdash; winner advances.
-   Click any team card to view their full squad and stats.
+   &#x2139;&#xFE0F; <strong>How it works:</strong> Top <strong>2 teams from each of 12 groups</strong> advance to R32 (24 teams) + <strong>8 best 3rd-place teams</strong> (32 total).
+   In paired groups: <em>1st Group A</em> plays <em>2nd Group B</em> and vice versa.
+   <strong>&#x2705; R32</strong> = mathematically confirmed &nbsp; <strong>&#x1F535; +</strong> = in contention for top 2 &nbsp; <strong>&#x1F534; Out</strong> = eliminated.
+   Standings update live after each result.
   </div>`;
 
-  // R32 matchup cards for each group pair
+  // Row for each team in standings
+  const rowHtml=(t,idx,teams,sz)=>{
+    const status=getQualStatus(t.team,teams,sz);
+    const posLabel=idx===0?'1':idx===1?'2':idx===2?'3':'4';
+    const rowClass=status==='virtual'?'grp-row-b qvirt':
+                   idx<2?'grp-row-b qtop':
+                   status==='eliminated'?'grp-row-b qelim':'grp-row-b';
+    const qsBadge=status==='virtual'?`<span class="grp-qs-b qs-virt">&#x2705; R32</span>`:
+                  status==='eliminated'?`<span class="grp-qs-b qs-elim">&#x1F534; Out</span>`:
+                  idx<2?`<span class="grp-qs-b qs-cont">&#x1F535; +</span>`:'';
+    const gdVal=t.gd||0;
+    const gdStr=gdVal>0?`+${gdVal}`:`${gdVal}`;
+    const gdClass=gdVal>0?'gdp':gdVal<0?'gdn':'';
+    return `<div class="${rowClass}">
+      <span class="grp-pos-n">${posLabel}</span>
+      <span style="font-size:14px">${flag(t.team)}</span>
+      <span class="grp-tn">${esc(t.team)}</span>
+      ${qsBadge}
+      <span class="grp-pts-b">${t.pts||0}pts</span>
+      <span class="grp-meta-b"><span class="${gdClass}">${gdStr}</span></span>
+    </div>`;
+  };
+
+  // R32 matchup slot (team + label)
+  const slotHtml=(t,lbl)=>t
+    ?`<div class="r32-arr-slot"><span style="font-size:11px">${flag(t.team)}</span>
+       <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${esc(t.team)}</span></div>
+      <div class="r32-arr-lbl">${lbl}</div>`
+    :`<div class="r32-arr-slot dim">TBD</div><div class="r32-arr-lbl">${lbl}</div>`;
+
   const pairsHtml=WC_R32_PAIRS.map(({g1,g2})=>{
-    const p1=pos[g1]||{first:{team:'TBD',pts:0,confirmed:false},second:{team:'TBD',pts:0,confirmed:false}};
-    const p2=pos[g2]||{first:{team:'TBD',pts:0,confirmed:false},second:{team:'TBD',pts:0,confirmed:false}};
-    const slotHtml=(team,label,right)=>{
-      const isTBD=team==='TBD';
-      const nameClass=isTBD?'r32-slot-name r32-tbd':'r32-slot-name';
-      const content=isTBD
-        ?`<span class="${nameClass}">TBD</span>`
-        :`<span style="font-size:20px">${flag(team)}</span>
-          <div><div class="${nameClass}" onclick="renderTeams('${esc(team)}');switchTab('teams')" style="cursor:pointer">${esc(team)}</div>
-           <div class="r32-slot-sub">${label}</div></div>`;
-      return right
-        ?`<div class="r32-slot r">${content}</div>`
-        :`<div class="r32-slot">${content}</div>`;
-    };
-    return `<div class="r32-pair">
-     <div class="r32-pair-hdr"><span>Groups ${g1} &amp; ${g2}</span><span>Round of 32</span></div>
-     <div class="r32-match">
-      ${slotHtml(p1.first.team,'1st Grp '+g1,false)}
-      <span class="r32-vs">vs</span>
-      ${slotHtml(p2.second.team,'2nd Grp '+g2,true)}
-     </div>
-     <div class="r32-match">
-      ${slotHtml(p2.first.team,'1st Grp '+g2,false)}
-      <span class="r32-vs">vs</span>
-      ${slotHtml(p1.second.team,'2nd Grp '+g1,true)}
-     </div>
+    const grp1=groupMap[g1]||{teams:[],venue:''};
+    const grp2=groupMap[g2]||{teams:[],venue:''};
+    const t1=grp1.teams, t2=grp2.teams;
+    return `<div class="gpair-card">
+      <div class="gpair-hdr">
+        <span class="gpair-hdr-title">&#x1F4CA; Groups ${g1} &amp; ${g2}</span>
+        <span class="gpair-hdr-badge">&#x26A1; Live standings &mdash; R32 projections may change after MD3</span>
+      </div>
+      <div class="gpair-body">
+        <div class="gpair-grp">
+          <div class="gpair-glbl">Group ${g1}</div>
+          ${t1.length?t1.map((t,i)=>rowHtml(t,i,t1,t1.length)).join(''):'<div class="grp-row-b" style="color:var(--text3);font-style:italic;font-size:11px">No data</div>'}
+        </div>
+        <div class="gpair-arrows">
+          <div class="r32-arr-title">&#x1F3C6; R32 Matchups</div>
+          <div class="r32-arr-box">
+            ${slotHtml(t1[0],'1st Grp '+g1)}
+            <div class="r32-arr-divider">vs</div>
+            ${slotHtml(t2[1],'2nd Grp '+g2)}
+          </div>
+          <div class="r32-arr-box" style="margin-top:6px">
+            ${slotHtml(t2[0],'1st Grp '+g2)}
+            <div class="r32-arr-divider">vs</div>
+            ${slotHtml(t1[1],'2nd Grp '+g1)}
+          </div>
+          <div class="r32-note-sm">Based on current standings</div>
+        </div>
+        <div class="gpair-grp">
+          <div class="gpair-glbl">Group ${g2}</div>
+          ${t2.length?t2.map((t,i)=>rowHtml(t,i,t2,t2.length)).join(''):'<div class="grp-row-b" style="color:var(--text3);font-style:italic;font-size:11px">No data</div>'}
+        </div>
+      </div>
     </div>`;
   }).join('');
 
-  // Confirmed qualifiers summary
-  const confirmed=Object.entries(pos).filter(([,p])=>p.first.confirmed);
+  // All confirmed teams from all groups
+  const confirmed=[];
+  groups.forEach(grp=>{
+    grp.teams.forEach((t,i)=>{
+      if(getQualStatus(t.team,grp.teams,grp.teams.length)==='virtual')
+        confirmed.push({team:t.team,group:grp.group,pos:i+1,pts:t.pts||0});
+    });
+  });
   const confirmedHtml=confirmed.length?`
-   <h2 class="sec-title" style="margin-top:24px">&#x2705; Confirmed Round of 32 Qualifiers</h2>
-   <div class="qp-grid">${confirmed.map(([grp,p])=>`
-    <div class="qp-team" onclick="renderTeams('${esc(p.first.team)}');switchTab('teams')">
-     <span style="font-size:24px">${flag(p.first.team)}</span>
-     <div><div style="font-weight:700;font-size:13px">${esc(p.first.team)}</div>
-      <div style="font-size:10px;color:var(--text2)">&#x1F947; Group ${grp} &middot; ${p.first.pts}pts</div>
-     </div>
-    </div>`).join('')}
-   </div>`:'' ;
+    <h2 class="sec-title" style="margin-top:24px">&#x2705; Confirmed Round of 32 Qualifiers &mdash; ${confirmed.length} team${confirmed.length!==1?'s':''}</h2>
+    <div class="conf-grid">${confirmed.map(c=>`
+      <div class="qp-team" onclick="renderTeams('${esc(c.team)}');switchTab('teams')">
+        <span style="font-size:22px">${flag(c.team)}</span>
+        <div>
+          <div style="font-weight:700;font-size:12px">${esc(c.team)}</div>
+          <div style="font-size:10px;color:var(--text2)">${c.pos===1?'&#x1F947; 1st':'&#x1F948; 2nd'} &middot; Grp ${c.group} &middot; ${c.pts}pts</div>
+        </div>
+      </div>`).join('')}
+    </div>`:
+    `<div class="empty-state" style="padding:20px"><div class="empty-icon">&#x23F3;</div><p>No teams confirmed yet &mdash; standings update after each match result</p></div>`;
 
-  // 3rd place note
   const thirdNote=`<div class="card" style="margin-top:20px;padding:16px">
-   <div style="font-size:14px;font-weight:800;margin-bottom:8px">&#x1F3AF; 8 Best 3rd-Place Teams</div>
-   <p style="font-size:12px;color:var(--text2);margin:0">After all group games finish, the <strong>8 best third-place teams</strong> across all 12 groups also advance to the Round of 32.
-   Their bracket positions are determined by which groups they came from. These slots will be filled after Matchday 3 (June 25&ndash;28).</p>
-   <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:12px">
-    ${Array.from({length:8},(_,i)=>`<div style="text-align:center;padding:8px 4px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--text3)">3rd #${i+1}<br><span style="font-size:16px">&#x2753;</span></div>`).join('')}
-   </div>
+    <div style="font-size:14px;font-weight:800;margin-bottom:8px">&#x1F3AF; 8 Best 3rd-Place Teams (TBD after MD3)</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px">After all group games finish, the <strong>8 best third-place teams</strong> across all 12 groups also advance to the Round of 32.
+    Their bracket slots are determined by which groups they came from. These will be confirmed after <strong>Matchday 3 (June 25&ndash;28)</strong>.</p>
+    <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">
+      ${Array.from({length:8},(_,i)=>`<div style="text-align:center;padding:8px 4px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--text3)">3rd #${i+1}<br><span style="font-size:16px">&#x2753;</span></div>`).join('')}
+    </div>
   </div>`;
 
   document.getElementById('bracketContent').innerHTML=`
-   ${flowHtml}
-   ${noteHtml}
-   <div class="r32-section">
-    <h2 class="r32-title">&#x1F4CB; Round of 32 Matchups</h2>
-    <div class="r32-grid">${pairsHtml}</div>
-   </div>
-   ${confirmedHtml}
-   ${thirdNote}`;
+    ${flowHtml}
+    ${noteHtml}
+    <div class="r32-section">
+      <h2 class="r32-title">&#x1F4CB; Live Group Standings &amp; R32 Projections</h2>
+      ${pairsHtml}
+    </div>
+    ${confirmedHtml}
+    ${thirdNote}`;
 }
 
 // ================================================================
