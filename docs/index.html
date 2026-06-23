@@ -402,20 +402,61 @@ function posClass(p){const u=(p||'').toUpperCase();if(u==='GK')return 'pgk';if([
 function posLabel(p){return(p||'').toUpperCase()||'?';}
 
 // ================================================================
+// DATA NORMALIZATION
+// WC_GROUPS.groups is an object {A:{standings:[...]}, B:{...}, ...}
+// Normalize to array [{group:'A', teams:[{team,played,won,drawn,lost,gf,ga,gd,pts}]}]
+// ================================================================
+function normalizeGroups(gData){
+  return Object.entries(gData.groups||{}).map(([letter,g])=>({
+    group:letter,
+    venue:g.venue||'',
+    teams:(g.standings||[]).map(t=>({
+      team:t.team,
+      played:t.played||0,
+      won:t.won||0,
+      drawn:t.drawn||0,
+      lost:t.lost||0,
+      gf:t.gf||0,
+      ga:t.ga||0,
+      gd:t.gd!==undefined?t.gd:((t.gf||0)-(t.ga||0)),
+      pts:t.points||t.pts||0
+    }))
+  }));
+}
+
+// Parse a today_match entry → {home,away,home_score,away_score} or null
+function parseTodayMatch(tm){
+  if(tm.home!==undefined)
+    return{home:tm.home,away:tm.away,home_score:tm.home_score||0,away_score:tm.away_score||0};
+  if(tm.result){
+    const m=tm.result.match(/^(.+?)\s+(\d+)[–\-](\d+)\s+(.+)$/);
+    if(m)return{home:m[1].trim(),away:m[4].trim(),home_score:parseInt(m[2]),away_score:parseInt(m[3])};
+  }
+  if(tm.match){
+    const parts=tm.match.split(/\s+vs\s+/i);
+    if(parts.length===2)return{home:parts[0].trim(),away:parts[1].trim(),home_score:0,away_score:0};
+  }
+  return null;
+}
+
+// ================================================================
 // STANDINGS LOGIC
 // ================================================================
 function applyTodayResults(gData){
   const today=gData.today_matches_june22||[];
-  const groups=JSON.parse(JSON.stringify(gData.groups));
+  const groups=JSON.parse(JSON.stringify(normalizeGroups(gData)));
   today.forEach(tm=>{
-    if(tm.status!=='FINAL'&&tm.status!=='FT')return;
+    if(!/FINAL|FT/i.test(tm.status||''))return;
+    const p=parseTodayMatch(tm);
+    if(!p)return;
+    const{home,away,home_score,away_score}=p;
     groups.forEach(grp=>{
       grp.teams.forEach(t=>{
-        const isHome=t.team===tm.home,isAway=t.team===tm.away;
+        const isHome=t.team===home,isAway=t.team===away;
         if(!isHome&&!isAway)return;
         t.played=(t.played||0)+1;
-        const gs=isHome?tm.home_score:tm.away_score;
-        const ga=isHome?tm.away_score:tm.home_score;
+        const gs=isHome?home_score:away_score;
+        const ga=isHome?away_score:home_score;
         t.gf=(t.gf||0)+gs;t.ga=(t.ga||0)+ga;
         if(gs>ga){t.won=(t.won||0)+1;t.pts=(t.pts||0)+3;}
         else if(gs===ga){t.drawn=(t.drawn||0)+1;t.pts=(t.pts||0)+1;}
@@ -452,12 +493,15 @@ function qualBadgeClass(s){return{virtual:'tqb-q',contention:'tqb-c',eliminated:
 
 function getFormGuide(teamName,todayMatches){
   const form=[];
-  (todayMatches||[]).forEach(m=>{
-    if(m.home!==teamName&&m.away!==teamName)return;
-    if(m.status!=='FINAL'&&m.status!=='FT')return;
-    const isHome=m.home===teamName;
-    const gs=isHome?m.home_score:m.away_score;
-    const ga=isHome?m.away_score:m.home_score;
+  (todayMatches||[]).forEach(tm=>{
+    if(!/FINAL|FT/i.test(tm.status||''))return;
+    const p=parseTodayMatch(tm);
+    if(!p)return;
+    const{home,away,home_score,away_score}=p;
+    if(home!==teamName&&away!==teamName)return;
+    const isHome=home===teamName;
+    const gs=isHome?home_score:away_score;
+    const ga=isHome?away_score:home_score;
     form.push(gs>ga?'W':(gs===ga?'D':'L'));
   });
   return form.slice(-5);
@@ -523,14 +567,19 @@ function mergedMatches(){
     });
   }
   (WC_GROUPS.today_matches_june22||[]).forEach(tm=>{
-    const exists=out.find(m=>m.home.toLowerCase().startsWith((tm.home||'').toLowerCase().slice(0,4)));
+    const p=parseTodayMatch(tm);
+    if(!p)return;
+    const{home,away,home_score,away_score}=p;
+    const exists=out.find(m=>m.home&&m.home.toLowerCase().startsWith(home.toLowerCase().slice(0,4)));
     if(!exists){
-      out.push({id:tm.home+tm.away,home:tm.home,away:tm.away,
-        home_score:tm.home_score||0,away_score:tm.away_score||0,
-        state:tm.status==='FINAL'?'post':(tm.status==='LIVE'?'in':'pre'),
+      const isFinal=/FINAL|FT/i.test(tm.status||'');
+      const isLive=/live|in progress/i.test(tm.status||'');
+      const scorerList=(tm.scorers||[]).map(s=>typeof s==='string'?{name:s,minute:''}:s);
+      out.push({id:home+away,home,away,home_score,away_score,
+        state:isFinal?'post':(isLive?'in':'pre'),
         status:tm.status||'UPCOMING',minute:tm.minute||'',
-        date:tm.time||'',group:tm.group||'',venue:tm.venue||'',espn:false,
-        scorers:tm.scorers||[]});
+        date:tm.time_et||tm.time||'',group:tm.group?'Grp '+tm.group:'',
+        venue:tm.venue||'',espn:false,scorers:scorerList});
     }
   });
   const order=m=>{
