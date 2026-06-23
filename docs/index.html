@@ -1250,6 +1250,7 @@ function renderMatchDetailPage(eventId,evtList,summary,mInfo){
   const as_=mInfo.away_score??0;
   const isLive=mInfo.state==='in';
   const statusText=mInfo.status||(mInfo.state==='post'?'Full Time':'Upcoming');
+
   // Hero
   let html=`<button class="back-btn" onclick="closeMatchDetail()">&#x2190; Back to Matches</button>
   <div class="md-hero">
@@ -1262,30 +1263,64 @@ function renderMatchDetailPage(eventId,evtList,summary,mInfo){
    ${mInfo.group?`<div style="text-align:center;font-size:10px;color:rgba(255,255,255,.5);margin-top:4px">${esc(mInfo.group)}${mInfo.venue?' &bull; '+esc(mInfo.venue):''}</div>`:''}
   </div>`;
 
-  const evtIcon={goal:'&#x26BD;',owngoal:'&#x26BD;&#xFE0F;',yellow:'&#x1F7E8;',red:'&#x1F7E5;'};
+  const evtIcon={goal:'&#x26BD;',owngoal:'&#x26BD;',yellow:'&#x1F7E8;',red:'&#x1F7E5;'};
 
-  // Match Events (from scoreboard — goals + cards)
+  // Match Events (goals + cards from scoreboard)
   if(evtList.length){
-    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4C5; Match Events</div></div>
-    <div class="md-evt-list">`;
+    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4C5; Match Events</div></div><div class="md-evt-list">`;
     evtList.forEach(e=>{
       const icon=evtIcon[e.type]||'&#x2022;';
-      const label=e.type==='owngoal'?' <span style="color:var(--text3);font-size:10px">(OG)</span>':'';
+      const og=e.type==='owngoal'?' <span style="font-size:10px;color:var(--text3)">(OG)</span>':'';
       html+=`<div class="md-evt">
-       <span class="md-evt-min">${e.minute||''}</span>
+       <span class="md-evt-min">${esc(String(e.minute||''))}</span>
        <span class="md-evt-icon">${icon}</span>
-       <span class="md-evt-player">${esc(e.player||'')}${label}</span>
+       <span class="md-evt-player">${esc(e.player||'')}${og}</span>
        <span class="md-evt-team">${flag(e.team)} ${esc(e.team)}</span>
       </div>`;
     });
     html+='</div></div>';
   } else if(mInfo.state==='pre'){
     html+=`<div class="card mb16"><div style="padding:24px;text-align:center;color:var(--text2)">Match has not started yet.</div></div>`;
-  } else {
-    html+=`<div class="card mb16"><div style="padding:24px;text-align:center;color:var(--text2)">No events available for this match.</div></div>`;
   }
 
-  // Team Stats (from summary)
+  // Lineups (from summary rosters)
+  const hRoster=summary?.rosters?.[home]||summary?.rosters?.[Object.keys(summary?.rosters||{})[0]];
+  const aRoster=summary?.rosters?.[away]||summary?.rosters?.[Object.keys(summary?.rosters||{})[1]];
+  if(hRoster||aRoster){
+    const renderCol=(rosterData,teamName)=>{
+      if(!rosterData)return `<div class="md-lineup-col"><div style="padding:12px;color:var(--text3);font-size:11px">No lineup data</div></div>`;
+      const {formation,players}=rosterData;
+      const starters=players.filter(p=>p.starter).sort((a,b)=>a.formationPlace-b.formationPlace||0);
+      const subbedIn=players.filter(p=>p.subbedIn);
+      const bench=players.filter(p=>!p.starter&&!p.subbedIn);
+      const plRow=(p,isSub=false)=>{
+        const icons=[];
+        if(p.goals>0)icons.push(`&#x26BD;${p.goals>1?p.goals:''}`);
+        if(p.assists>0)icons.push(`&#x1F91D;`);
+        if(p.yellows>0)icons.push('&#x1F7E8;');
+        if(p.reds>0)icons.push('&#x1F7E5;');
+        if(p.subbedOut)icons.push('<span style="font-size:9px;color:#ef4444">&#x2193;</span>');
+        if(p.subbedIn)icons.push('<span style="font-size:9px;color:#22c55e">&#x2191;</span>');
+        return `<div class="md-pl">
+         <span class="md-pl-no">${esc(String(p.jersey||''))}</span>
+         <span class="ppos ${posClass(p.pos)}" style="font-size:8px;padding:1px 3px">${esc(p.pos||'?')}</span>
+         <span class="md-pl-name">${esc(p.name||'')}</span>
+         ${icons.length?`<span class="md-pl-icons">${icons.join('')}</span>`:''}
+        </div>`;
+      };
+      return `<div class="md-lineup-col">
+       <div class="md-lineup-hdr">${flag(teamName)} ${esc(teamName)} ${formation?`<span style="margin-left:auto;font-size:10px;color:var(--text3)">${esc(formation)}</span>`:''}
+       </div>
+       ${starters.map(p=>plRow(p)).join('')}
+       ${subbedIn.length?`<div class="md-lineup-sub-hdr">&#x1F504; Substitutes Used</div>${subbedIn.map(p=>plRow(p,true)).join('')}`:''}
+       ${bench.length?`<div class="md-lineup-sub-hdr">&#x1F4CB; Bench</div>${bench.map(p=>plRow(p,true)).join('')}`:''}
+      </div>`;
+    };
+    html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4CB; Lineups</div></div>
+    <div class="md-lineup-grid">${renderCol(hRoster,home)}${renderCol(aRoster,away)}</div></div>`;
+  }
+
+  // Team Stats (from summary boxscore)
   const statKeys=[
     {k:'possessionPct',l:'Possession %'},
     {k:'totalShots',l:'Total Shots'},
@@ -1299,21 +1334,18 @@ function renderMatchDetailPage(eventId,evtList,summary,mInfo){
   ];
   const hStats=summary?.teamStats?.[home]||{};
   const aStats=summary?.teamStats?.[away]||{};
-  const hasStats=Object.keys(hStats).length>0||Object.keys(aStats).length>0;
-  if(hasStats){
+  if(Object.keys(hStats).length||Object.keys(aStats).length){
     html+=`<div class="card mb16"><div class="card-hdr"><div class="card-title">&#x1F4CA; Team Stats</div></div>`;
     statKeys.forEach(({k,l})=>{
       const hv=hStats[k]!=null?hStats[k]:'—';
       const av=aStats[k]!=null?aStats[k]:'—';
       if(hv==='—'&&av==='—')return;
-      const hNum=parseFloat(hv)||0;
-      const aNum=parseFloat(av)||0;
-      const total=hNum+aNum||1;
+      const hNum=parseFloat(hv)||0,aNum=parseFloat(av)||0,total=hNum+aNum||1;
       const hPct=Math.round(hNum/total*100);
       html+=`<div class="md-stat-row">
        <div class="md-stat-home">${esc(String(hv))}</div>
        <div style="flex:1;text-align:center">
-        <div style="display:flex;align-items:center;gap:4px;height:6px;margin-bottom:3px">
+        <div style="display:flex;gap:2px;height:6px;margin-bottom:3px">
          <div class="md-bar" style="width:${hPct}%;background:var(--accent);margin-left:auto"></div>
          <div class="md-bar" style="width:${100-hPct}%;background:var(--accent2)"></div>
         </div>
@@ -1587,8 +1619,9 @@ function buildTournamentStats(){
   });
   return stats;
 }
-// ── Fetch ESPN match summary — only team stats (possession/shots/etc) ────────
-// Note: ESPN summary does NOT have cards or lineups; use scoreboard details for those.
+// ── Fetch ESPN match summary — team stats + rosters/lineups ──────────────────
+// ESPN summary: rosters[] has full 26-player lineups with per-player stats.
+// boxscore.teams[] has team-level stats (possession, shots, etc).
 async function fetchMatchSummary(eventId){
   const cacheKey='wc_sum2_'+eventId;
   try{const c=localStorage.getItem(cacheKey);if(c){const p=JSON.parse(c);if(p&&p.teamStats)return p;}}catch{}
@@ -1596,19 +1629,49 @@ async function fetchMatchSummary(eventId){
   const data=await safeFetch(url);
   if(!data)return null;
   const hComp=(data.header?.competitions||[])[0]||{};
-  const bsc=data.boxscore||{};
+
   // Team stats (possession, shots, corners, fouls, saves, etc.)
   const teamStats={};
-  (bsc.teams||[]).forEach(ts=>{
+  (data.boxscore?.teams||[]).forEach(ts=>{
     const tName=normalizeEspnName(ts.team?.displayName||'');
     if(!tName)return;
     const st={};
     (ts.statistics||[]).forEach(s=>{if(s.name&&s.displayValue!=null)st[s.name]=s.displayValue;});
     teamStats[tName]=st;
   });
+
+  // Rosters/lineups — roster[] has all 26 players with individual stats
+  const rosters={};
+  (data.rosters||[]).forEach(r=>{
+    const tName=normalizeEspnName(r.team?.displayName||'');
+    if(!tName)return;
+    const formation=r.formation||'';
+    const players=(r.roster||[]).map(p=>{
+      const st={};
+      (p.stats||[]).forEach(s=>{if(s.name)st[s.name]=s.value||0;});
+      return {
+        jersey:p.jersey||'',
+        name:p.athlete?.displayName||'',
+        pos:p.position?.abbreviation||'',
+        starter:!!p.starter,
+        subbedIn:!!p.subbedIn,
+        subbedOut:!!p.subbedOut,
+        active:!!p.active,
+        goals:st.totalGoals||0,
+        assists:st.goalAssists||0,
+        yellows:st.yellowCards||0,
+        reds:st.redCards||0,
+        shots:st.totalShots||0,
+        saves:st.saves||0,
+      };
+    });
+    rosters[tName]={formation,players};
+  });
+
   const state=hComp.status?.type?.state;
-  const result={eventId,teamStats};
-  try{if(state==='post'&&Object.keys(teamStats).length)localStorage.setItem(cacheKey,JSON.stringify(result));}catch{}
+  const result={eventId,teamStats,rosters};
+  try{if(state==='post'&&(Object.keys(teamStats).length||Object.keys(rosters).length))
+    localStorage.setItem(cacheKey,JSON.stringify(result));}catch{}
   return result;
 }
 
