@@ -97,6 +97,16 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .wdg-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer}
 .wdg-dot.active{background:var(--gold)}
 @media(max-width:600px){.live-widget{bottom:10px;right:10px;left:10px;max-width:none;min-width:0}}
+.live-banner{background:linear-gradient(90deg,rgba(239,68,68,.15) 0%,rgba(239,68,68,.08) 100%);border-bottom:1px solid rgba(239,68,68,.3);padding:0;overflow:hidden;display:none}
+.live-banner.has-live{display:block}
+.lb-inner{display:flex;align-items:center;gap:12px;max-width:1400px;margin:0 auto;padding:7px 20px;overflow-x:auto;scrollbar-width:none}
+.lb-inner::-webkit-scrollbar{display:none}
+.lb-badge{flex-shrink:0;background:var(--live);color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.06em;animation:bpulse 2s infinite}
+.lb-match{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:2px 12px;border-radius:8px;cursor:pointer;transition:background .2s;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.lb-match:hover{background:rgba(255,255,255,.1)}
+.lb-score{font-weight:900;color:#fff;font-size:14px;margin:0 4px}
+.lb-min{font-size:10px;color:var(--live);font-weight:700}
+.lb-div{color:rgba(255,255,255,.2);flex-shrink:0}
 .main-content{max-width:1400px;margin:0 auto;padding:22px 20px}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
@@ -122,11 +132,19 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .hero-bg{position:absolute;inset:0;z-index:0}
 .hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease}
 .hslide.hs-active{opacity:1}
-.hslide-ov{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,16,30,.93) 0%,rgba(6,16,30,.72) 50%,rgba(6,16,30,.38) 100%)}
+@keyframes kbZoom{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+.hslide.hs-active{opacity:1;animation:kbZoom 8s ease-in-out forwards}
+.hslide-ov{position:absolute;inset:0;background:linear-gradient(135deg,rgba(6,16,30,.85) 0%,rgba(6,16,30,.62) 50%,rgba(6,16,30,.38) 100%)}
 .hslide-mark{position:absolute;right:12%;top:50%;transform:translateY(-50%);font-size:110px;opacity:.08;pointer-events:none;filter:blur(.5px);line-height:1}
 .hero-dots{position:absolute;bottom:10px;left:30px;display:flex;gap:6px;z-index:4}
 .hsdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .35s ease;cursor:pointer;border:none;padding:0}
 .hsdot.active{background:var(--gold);width:20px;border-radius:3px}
+.hslide-content{position:absolute;bottom:28px;left:28px;z-index:3;max-width:480px}
+.hslide-tag{font-size:9px;font-weight:800;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;opacity:.9}
+.hslide-head{font-size:26px;font-weight:900;color:#fff;margin:0 0 6px;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.hslide-desc{font-size:12px;color:rgba(255,255,255,.75);margin:0 0 14px;line-height:1.5;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.hslide-btn{display:inline-flex;align-items:center;gap:5px;background:var(--gold);color:#000;font-size:11px;font-weight:800;padding:7px 18px;border-radius:20px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;text-transform:uppercase;letter-spacing:.06em}
+.hslide-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(255,215,0,.4)}
 /* Hero content */
 .hero-info{flex:1;padding:24px 28px;position:relative;z-index:2}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:3px 12px;font-size:9px;color:var(--gold);font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
@@ -164,6 +182,14 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .scard{background:var(--surface);border-radius:var(--r2);padding:18px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:transform .2s,border-color .2s}
 .scard:hover{transform:translateY(-2px);box-shadow:var(--shadow2);border-color:var(--gold)}
 .scard-icon{font-size:28px;margin-bottom:6px}
+.story-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:20px}
+.story-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:0;overflow:hidden;transition:transform .2s,border-color .2s;cursor:pointer}
+.story-card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:var(--shadow2)}
+.sc-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden}
+.sc-body{padding:12px 14px}
+.sc-tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:4px}
+.sc-title{font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px;line-height:1.35}
+.sc-desc{font-size:11px;color:var(--text2);line-height:1.4}
 .scard-num{font-size:32px;font-weight:900;margin:0 0 3px}
 .scard-lbl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .scard-hint{font-size:9px;color:var(--text3);margin-top:2px}
@@ -470,6 +496,7 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
  </div>
 </div>
 
+<div id="liveBanner" class="live-banner"></div>
 <main class="main-content">
  <div id="tab-home" class="tab-panel active"><div class="spinner"></div></div>
  <div id="tab-standings" class="tab-panel">
@@ -793,12 +820,14 @@ async function doRefresh(){
   if(built) liveGroupData=built;
   // Fetch news in background (non-blocking) — updates wcNewsData for predictions
   fetchWorldCupNews().catch(()=>{});
+  renderLiveBanner();
   const live=espnMatches.filter(e=>e.status&&e.status.type&&e.status.type.state==='in').length;
   document.getElementById('livePill').style.display=live>0?'flex':'none';
   updateWidget(espnMatches);
   document.getElementById('refreshStatus').textContent='\u2713 '+new Date().toLocaleTimeString();
   const act=document.querySelector('.tab-panel.active');
   if(act)renderTab(act.id.replace('tab-',''),false);
+  renderLiveBanner();
   scheduleRefresh();
 }
 function scheduleRefresh(){
@@ -816,7 +845,7 @@ function normalizeEspnEvent(ev){
     const st=ev.status||{},stt=st.type||{};
     const hn=h.team?(h.team.shortDisplayName||h.team.displayName||'TBD'):'TBD';
     const an=a.team?(a.team.shortDisplayName||a.team.displayName||'TBD'):'TBD';
-    return{id:ev.id,home:hn,away:an,
+    return{id:ev.id,espnId:ev.id,home:hn,away:an,
       home_score:parseInt(h.score||0),away_score:parseInt(a.score||0),
       state:stt.state||'pre',status:stt.shortDetail||stt.description||'',
       minute:st.displayClock||'',date:ev.date||'',
@@ -1070,32 +1099,76 @@ function toggleQualPanel(type){
 // HERO CAROUSEL — 6 themed gradient slides (CSS-generated, no copyright)
 // ================================================================
 const HERO_SLIDES=[
-  {grad:'linear-gradient(135deg,#08001a 0%,#1a0040 40%,#2e0070 100%)',mark:'&#x1F3C6;',cap:'World Cup Glory'},
-  {grad:'linear-gradient(135deg,#000814 0%,#001845 45%,#023e8a 100%)',mark:'&#x26BD;',cap:'The Beautiful Game'},
-  {grad:'linear-gradient(160deg,#001209 0%,#002a14 45%,#004d26 100%)',mark:'&#x1F33F;',cap:'On The Pitch'},
-  {grad:'linear-gradient(135deg,#1a0000 0%,#4a0000 45%,#7a0000 100%)',mark:'&#x1F525;',cap:'Passion & Action'},
-  {grad:'linear-gradient(135deg,#0d0a00 0%,#2e2200 45%,#524000 100%)',mark:'&#x2B50;',cap:'Moments of Greatness'},
-  {grad:'linear-gradient(120deg,#000d1a 0%,#001a33 35%,#00284d 65%,#003d6e 100%)',mark:'&#x1F30D;',cap:'48 Nations, 1 Dream'},
+  {
+    bg:`radial-gradient(ellipse at 30% 40%,rgba(255,200,50,.30) 0%,transparent 50%),radial-gradient(ellipse at 75% 65%,rgba(180,120,10,.20) 0%,transparent 40%),linear-gradient(135deg,#090500 0%,#1c1000 50%,#2e1a00 100%)`,
+    icon:'&#x1F3C6;',tag:'FIFA WORLD CUP 2026&#x2122;',
+    headline:'Glory Awaits',
+    desc:'48 nations compete for the most coveted trophy in world football. USA &middot; Canada &middot; Mexico.',
+    cta:'Group Standings',ctaFn:"switchTab('standings')"
+  },
+  {
+    bg:`radial-gradient(ellipse at 28% 55%,rgba(30,100,220,.35) 0%,transparent 52%),radial-gradient(ellipse at 72% 35%,rgba(15,70,180,.22) 0%,transparent 45%),linear-gradient(180deg,#00091a 0%,#001332 55%,#000b1e 100%)`,
+    icon:'&#x26BD;',tag:'MATCH CENTER',
+    headline:'The Beautiful Game',
+    desc:'Live scores, detailed stats and match events from every World Cup game.',
+    cta:'All Matches',ctaFn:"switchTab('matches')"
+  },
+  {
+    bg:`repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 90px),radial-gradient(ellipse at 50% 45%,rgba(20,100,35,.40) 0%,transparent 58%),linear-gradient(180deg,#000f03 0%,#002808 55%,#000f03 100%)`,
+    icon:'&#x1F947;',tag:'GROUP STAGE',
+    headline:'On The Pitch',
+    desc:'Top nations battle for qualification. Every goal, every card, every moment.',
+    cta:'Live Stats',ctaFn:"switchTab('stats')"
+  },
+  {
+    bg:`radial-gradient(ellipse at 60% 42%,rgba(220,40,20,.38) 0%,transparent 52%),radial-gradient(ellipse at 25% 65%,rgba(180,20,10,.20) 0%,transparent 42%),linear-gradient(135deg,#0d0000 0%,#220000 50%,#380000 100%)`,
+    icon:'&#x1F525;',tag:'PREDICTIONS',
+    headline:'Passion &amp; Power',
+    desc:'AI-powered predictions updated daily with live standings and injury news.',
+    cta:'AI Predictions',ctaFn:"switchTab('predictions')"
+  },
+  {
+    bg:`radial-gradient(ellipse at 45% 48%,rgba(110,20,200,.32) 0%,transparent 55%),radial-gradient(ellipse at 75% 25%,rgba(80,10,160,.20) 0%,transparent 40%),linear-gradient(135deg,#070012 0%,#130028 50%,#1e0040 100%)`,
+    icon:'&#x2B50;',tag:'WORLD CLASS TEAMS',
+    headline:'48 Nations, 1 Dream',
+    desc:'Squads, coaches, stats and every players journey to the World Cup.',
+    cta:'Teams &amp; Squads',ctaFn:"switchTab('teams')"
+  },
+  {
+    bg:`radial-gradient(ellipse at 35% 50%,rgba(255,215,0,.18) 0%,transparent 55%),radial-gradient(ellipse at 70% 30%,rgba(200,170,0,.14) 0%,transparent 40%),radial-gradient(ellipse at 55% 75%,rgba(150,110,0,.15) 0%,transparent 40%),linear-gradient(160deg,#090800 0%,#181200 50%,#0c0a00 100%)`,
+    icon:'&#x1F30D;',tag:'BRACKET &amp; KNOCKOUT',
+    headline:'Road to the Final',
+    desc:'Track the bracket as teams advance through the knockout rounds to glory.',
+    cta:'View Bracket',ctaFn:"switchTab('bracket')"
+  }
 ];
 
 function initHeroCarousel(){
   const bg=document.getElementById('heroBg');
   if(!bg)return;
   bg.innerHTML=HERO_SLIDES.map((s,i)=>`
-    <div class="hslide${i===0?' hs-active':''}" style="background:${s.grad}">
+    <div class="hslide${i===0?' hs-active':''}" style="background:${s.bg}">
       <div class="hslide-ov"></div>
-      <span class="hslide-mark">${s.mark}</span>
+      <div class="hslide-content">
+        <div class="hslide-tag">${s.icon} ${s.tag}</div>
+        <div class="hslide-head">${s.headline}</div>
+        <div class="hslide-desc">${s.desc}</div>
+        <button class="hslide-btn" onclick="event.stopPropagation();${s.ctaFn}">${s.cta} &#x2192;</button>
+      </div>
     </div>`).join('');
   const dotsEl=document.getElementById('heroDots');
   if(dotsEl)dotsEl.innerHTML=HERO_SLIDES.map((_,i)=>`<button class="hsdot${i===0?' active':''}" onclick="jumpSlide(${i})"></button>`).join('');
   let cur=0;
   window.jumpSlide=function(n){
-    document.querySelectorAll('.hslide').forEach((s,i)=>s.classList.toggle('hs-active',i===n));
+    document.querySelectorAll('.hslide').forEach((s,i)=>{
+      s.classList.toggle('hs-active',i===n);
+      if(i===n)s.style.animation='none',void s.offsetWidth,s.style.animation='';
+    });
     document.querySelectorAll('.hsdot').forEach((d,i)=>d.classList.toggle('active',i===n));
     cur=n;
   };
   clearInterval(window._heroTimer);
-  window._heroTimer=setInterval(()=>jumpSlide((cur+1)%HERO_SLIDES.length),5000);
+  window._heroTimer=setInterval(()=>jumpSlide((cur+1)%HERO_SLIDES.length),6000);
 }
 
 // Ring-style countdown unit: conic-gradient progress circle
@@ -1121,6 +1194,23 @@ function buildHighlightsHtml(){
   return [...items,...news].slice(0,10)
     .map(h=>`<div class="hl-item hl-${h.type||'gold'}"><span class="hl-icon">${h.icon}</span><span>${h.text}</span></div>`)
     .join('')||'<div class="hl-item"><span class="hl-icon">&#x23F3;</span><span>Highlights loading...</span></div>';
+}
+
+function renderLiveBanner(){
+  const banner=document.getElementById('liveBanner');
+  if(!banner)return;
+  const liveMs=mergedMatches().filter(m=>m.state==='in');
+  if(!liveMs.length){banner.classList.remove('has-live');return;}
+  banner.classList.add('has-live');
+  const matchHtml=liveMs.map((m,i)=>`
+    ${i>0?'<span class="lb-div">|</span>':''}
+    <div class="lb-match" onclick="showMatchDetail&&showMatchDetail('${m.espnId||''}')">
+      <span>${flag(m.home)}</span><span>${esc(m.home)}</span>
+      <span class="lb-score">${m.home_score}-${m.away_score}</span>
+      <span>${esc(m.away)}</span><span>${flag(m.away)}</span>
+      <span class="lb-min">${esc(m.minute||'LIVE')}</span>
+    </div>`).join('');
+  banner.innerHTML=`<div class="lb-inner"><span class="lb-badge">&#x1F534; LIVE NOW</span>${matchHtml}</div>`;
 }
 
 function renderHome(){
@@ -1183,6 +1273,52 @@ function renderHome(){
     ${buildHighlightsHtml()}
    </div>
   </div>
+  ${(()=>{
+    const merged2=mergedMatches();
+    const cards=[];
+    // Top scorer card
+    const tStats=buildTournamentStats();
+    const top=Object.values(tStats).sort((a,b)=>b.goals-a.goals)[0];
+    if(top&&top.goals>0)cards.push({
+      bg:'linear-gradient(135deg,#1a0a00,#3d1800)',icon:'&#x26BD;',tag:'TOP SCORER',
+      title:`${flag(top.team)} ${esc(top.player)} &mdash; ${top.goals} Goal${top.goals!==1?'s':''}`,
+      desc:`${esc(top.team)} &middot; ${top.yellows} yellow${top.yellows!==1?'s':''}, ${top.reds} red${top.reds!==1?'s':''}`,
+      fn:"switchTab('stats')"
+    });
+    // Latest result card
+    const last=merged2.filter(m=>m.state==='post').slice(-1)[0];
+    if(last)cards.push({
+      bg:'linear-gradient(135deg,#001a10,#003520)',icon:'&#x2705;',tag:'LATEST RESULT',
+      title:`${flag(last.home)} ${esc(last.home)} ${last.home_score}&#x2013;${last.away_score} ${esc(last.away)} ${flag(last.away)}`,
+      desc:'Full time &mdash; click for match details',
+      fn:`showMatchDetail&&showMatchDetail('${last.espnId||''}')`
+    });
+    // Qualification card
+    cards.push({
+      bg:'linear-gradient(135deg,#001a30,#003060)',icon:'&#x1F3C6;',tag:'QUALIFICATION',
+      title:`${nV} Teams Qualified for Round of 32`,
+      desc:`${nC} still in contention &middot; ${nE} eliminated`,
+      fn:"toggleQualPanel('virtual')"
+    });
+    // Next match card
+    const next=merged2.filter(m=>m.state==='pre')[0];
+    if(next)cards.push({
+      bg:'linear-gradient(135deg,#1a0030,#360060)',icon:'&#x23F0;',tag:'NEXT MATCH',
+      title:`${flag(next.home)} ${esc(next.home)} vs ${esc(next.away)} ${flag(next.away)}`,
+      desc:next.date?`Kick-off: ${fmtMatchTime(next.date)}`:'Coming up',
+      fn:"switchTab('matches')"
+    });
+    if(!cards.length)return'';
+    return`<div class="story-cards">${cards.map(c=>`
+      <div class="story-card" onclick="${c.fn}">
+        <div class="sc-img" style="background:${c.bg}">${c.icon}</div>
+        <div class="sc-body">
+          <div class="sc-tag">${c.tag}</div>
+          <div class="sc-title">${c.title}</div>
+          <div class="sc-desc">${c.desc}</div>
+        </div>
+      </div>`).join('')}</div>`;
+  })()}
   <div class="scards">
    <div class="scard q" onclick="toggleQualPanel('virtual')">
     <div class="scard-icon">&#x2705;</div><div class="scard-num">${nV}</div>
@@ -1278,6 +1414,7 @@ function goToMatchDetail(eventId){
 }
 
 async function showMatchDetail(eventId){
+  if(!eventId){switchTab('matches');return;}
   matchDetailId=eventId;
   const el=document.getElementById('matchesContent');
   if(!el)return;
