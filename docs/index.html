@@ -231,10 +231,14 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 .lb-bar-f{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .6s}
 .lb-val{font-size:18px;font-weight:900;color:var(--accent2)}
 .pred-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:9px}
-.pred-match{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pred-match{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .pred-team{display:flex;align-items:center;gap:7px;flex:1}
 .pred-team.r{justify-content:flex-end}
-.pred-meta{font-size:10px;color:var(--text3);margin-bottom:7px}
+.pred-meta{font-size:10px;color:var(--text3);margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pred-outcome{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;margin-left:auto}
+.pred-outcome.correct{background:rgba(22,163,74,.15);color:var(--qual)}
+.pred-outcome.wrong{background:rgba(239,68,68,.15);color:var(--live)}
+.pred-actual-score{font-size:22px;font-weight:900;color:var(--text);line-height:1}
 .pb-row{display:flex;gap:4px;align-items:center;margin-top:8px}
 .pb{height:7px;border-radius:4px;min-width:4px}
 .pb.h{background:var(--cont)}.pb.a{background:var(--live)}.pb.d{background:var(--draw)}
@@ -735,38 +739,31 @@ function renderHome(){
   const hours=Math.max(0,Math.floor((diff%864e5)/36e5));
   const mins=Math.max(0,Math.floor((diff%36e5)/6e4));
 
-  // Today's matches (live + upcoming + recent final)
-  const todayCards=merged.slice(0,6).map(m=>matchCardHtml(m)).join('');
+  // Today + live matches (state=in or came from today_matches)
+  const todayNow=merged.filter(m=>m.state==='in'||m.state==='pre'&&!m.espn||m.state==='pre');
+  // Show live first, then today's upcoming (hide far-future MD3 fixtures unless nothing else)
+  const liveAndToday=merged.filter(m=>m.state==='in');
+  const todayUpcoming=merged.filter(m=>m.state==='pre'&&m.espn); // ESPN pre = real scheduled
+  const staticUpcoming=merged.filter(m=>m.state==='pre'&&!m.espn).slice(0,2);
+  const currentMatches=[...liveAndToday,...todayUpcoming,...(todayUpcoming.length===0?staticUpcoming:[])].slice(0,5);
 
-  // Recent results from espnHistory
-  const recent=merged.filter(m=>m.state==='post').slice(-6).reverse();
-  const recentHtml=recent.length?recent.map(m=>`
-  <div class="match-card" style="margin-bottom:7px">
+  // Recent results: last 3 completed
+  const recentResults=merged.filter(m=>m.state==='post').slice(-3).reverse();
+
+  const todayHtml=currentMatches.length
+    ?currentMatches.map(m=>matchCardHtml(m)).join('')
+    :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No matches right now &mdash; check the <a href="#" onclick="switchTab(\'matches\');return false" style="color:var(--accent2)">Matches tab</a></div>';
+
+  const recentHtml=recentResults.length?recentResults.map(m=>`
+  <div class="match-card">
    <div class="m-hdr"><span class="mbadge mb-ft">&#x2705; FT</span><span>${esc(m.group||'')}</span></div>
    <div class="m-body">
-    <div class="m-team"><span class="m-flag">${flag(m.home)}</span><span class="m-tname">${esc(m.home)}</span></div>
+    <div class="m-team"><span class="m-flag">${flag(m.home)}</span><div class="m-tname">${esc(m.home)}</div></div>
     <div class="m-score-wrap"><div class="m-score">${m.home_score}-${m.away_score}</div></div>
-    <div class="m-team r"><span class="m-tname">${esc(m.away)}</span><span class="m-flag">${flag(m.away)}</span></div>
+    <div class="m-team r"><div class="m-tname">${esc(m.away)}</div><span class="m-flag">${flag(m.away)}</span></div>
    </div>
-  </div>`).join(''):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No results yet</div>';
-
-  // Group leaders mini-grid
-  const leadersHtml=`<div class="grp-mini-grid">`+groups.map(grp=>{
-    const t=grp.teams[0];
-    return `<div class="grp-mini-card">
-     <div class="grp-mini-lbl">Group ${esc(grp.group)}</div>
-     <div class="grp-mini-leader">
-      <span style="font-size:18px">${flag(t.team)}</span>
-      <span class="grp-mini-name">${esc(t.team)}</span>
-      <span class="grp-mini-pts">${t.pts||0}pts</span>
-     </div>
-    </div>`;
-  }).join('')+'</div>';
-
-  // Top scorers from ESPN + records
-  const topScorers=buildTopScorers().slice(0,5);
-  const topScorersHtml=topScorers.length?topScorers.map((p,i)=>lbItem(i,flag(p.team),p.name,p.team,`${p.goals} goal${p.goals!==1?'s':''}`,p.goals,(topScorers[0]?.goals||1))).join('')
-    :'<div style="text-align:center;color:var(--text2);padding:16px">Loading scorer data...</div>';
+  </div>`).join('')
+  :'<div class="card" style="padding:18px;text-align:center;color:var(--text2)">No results yet today</div>';
 
   document.getElementById('tab-home').innerHTML=`
   <div class="hero">
@@ -792,29 +789,18 @@ function renderHome(){
    <div class="scard l" onclick="switchTab('matches')"><div class="scard-icon">${nLive>0?'&#x26A1;':'&#x26BD;'}</div><div class="scard-num">${nLive>0?nLive:today.length}</div><div class="scard-lbl">${nLive>0?'Live Now':"Today's Matches"}</div></div>
   </div>
   <div class="g2">
-   <div><h2 class="sec-title">&#x26BD; Today's Matches</h2>
-    ${todayCards||'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No matches today</div>'}
-    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('matches')">View All Matches &#x2192;</button>
+   <div>
+    <h2 class="sec-title">&#x26BD; ${nLive>0?'Live &amp; Today':'Today\'s Matches'}</h2>
+    ${todayHtml}
+    <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('matches')">All Matches &amp; Schedule &#x2192;</button>
    </div>
-   <div><h2 class="sec-title">&#x1F3C6; Recent Results</h2>
+   <div>
+    <h2 class="sec-title">&#x1F3C6; Recent Results</h2>
     ${recentHtml}
-    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('standings')">View Standings &#x2192;</button>
-   </div>
-  </div>
-  <h2 class="sec-title" style="margin-top:24px">&#x1F4CA; Group Leaders</h2>
-  ${leadersHtml}
-  <div class="g2" style="margin-top:24px">
-   <div><h2 class="sec-title">&#x26BD; Top Scorers</h2>${topScorersHtml}
-    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('stats')">Full Stats &#x2192;</button>
-   </div>
-   <div><h2 class="sec-title">&#x1F52E; Tournament Favourites</h2>
-    ${(WC_PREDICTIONS.tournament_winner_prediction&&WC_PREDICTIONS.tournament_winner_prediction.favorites||[]).slice(0,5).map((f,i)=>{
-      const pct=parseFloat(f.probability||'0');
-      return lbItem(i,flag(f.team),f.team,f.reason||'',f.probability,pct,18);
-    }).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">Loading...</div>'}
-    <button class="fbtn active" style="margin-top:8px" onclick="switchTab('predictions')">Full Predictions &#x2192;</button>
+    <button class="fbtn active" style="margin-top:10px;width:100%" onclick="switchTab('standings')">Full Standings &#x2192;</button>
    </div>
   </div>`;
+}
 }
 
 // ================================================================
@@ -832,6 +818,14 @@ function matchBadge(m){
   if(st==='post'||/final|ft|full/i.test(s))return '<span class="mbadge mb-ft">&#x2705; FT</span>';
   return '<span class="mbadge mb-up">&#x1F550; UPCOMING</span>';
 }
+function fmtMatchTime(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(dateStr);
+  // If it's a valid ISO date, format it nicely
+  if(!isNaN(d.getTime()))return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  // Otherwise return the raw string (e.g. "Jun 25 3:00 PM ET")
+  return dateStr;
+}
 function matchCardHtml(m){
   const isLive=m.state==='in';
   const showScore=m.state!=='pre'&&!/(upcoming)/i.test(m.status||'');
@@ -839,7 +833,7 @@ function matchCardHtml(m){
     ?`<div class="m-score ${isLive?'lv':''}">${m.home_score}-${m.away_score}</div>`
     :`<div class="m-vs">vs</div>`;
   const min=isLive&&m.minute?`<div class="m-min">${esc(m.minute)}</div>`:'';
-  const timeStr=m.date&&m.state==='pre'?`<div class="m-min">${new Date(m.date).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`:'';
+  const timeStr=m.date&&m.state==='pre'?`<div class="m-min">${fmtMatchTime(m.date)}</div>`:'';
   const scorers=(m.scorers||[]).map(s=>`<span class="m-scorer"><span>${esc(s.name||s)}</span>${s.minute?` ${s.minute}'`:''}</span>`).join(' &middot; ');
   return `<div class="match-card ${isLive?'lv':''}">
   <div class="m-hdr">${matchBadge(m)}<span>${esc(m.group||'')}</span>${m.venue?`<span style="margin-left:auto">&#x1F4CD; ${esc(m.venue)}</span>`:''}</div>
@@ -1114,27 +1108,60 @@ function renderPredictions(){
   const vq=(qOutlook.virtually_qualified||[]);
   const sp=(qOutlook.strong_position||[]);
 
-  const predMatchHtml=(arr,showResult)=>arr.map(mp=>{
+  const predMatchHtml=(arr)=>arr.map(mp=>{
     const parts=(mp.match||'').split(/\s+vs\s+/i);
     const home=parts[0]||'',away=parts[1]||'';
     const wp=mp.win_probability||{};
-    const hpct=parseFloat(wp[home]||wp[Object.keys(wp)[0]]||0);
+    const wpKeys=Object.keys(wp);
+    const hpct=parseFloat(wp[home]||wp[wpKeys[0]]||0);
     const dpct=parseFloat(wp.Draw||wp.draw||0);
-    const apct=parseFloat(wp[away]||wp[Object.keys(wp).slice(-1)[0]]||0);
+    const apct=parseFloat(wp[away]||wp[wpKeys[wpKeys.length-1]]||0);
+    // Look up actual result from ESPN data
+    const allM=mergedMatches();
+    const actual=allM.find(m=>{
+      const mh=m.home.toLowerCase(),ma=m.away.toLowerCase();
+      const ph=home.toLowerCase().slice(0,5),pa=away.toLowerCase().slice(0,5);
+      return (mh.includes(ph)||ma.includes(ph))&&(mh.includes(pa)||ma.includes(pa));
+    });
+    const isFinished=actual&&actual.state==='post';
+    const isLive=actual&&actual.state==='in';
+    // Was prediction correct?
+    let predOutcome='';
+    if(isFinished&&mp.prediction){
+      const pw=mp.prediction.toLowerCase();
+      const actualHome=actual.home.toLowerCase(),actualAway=actual.away.toLowerCase();
+      const homeWon=actual.home_score>actual.away_score;
+      const awayWon=actual.away_score>actual.home_score;
+      const drew=actual.home_score===actual.away_score;
+      const predH=pw.includes(home.toLowerCase().slice(0,4));
+      const predA=pw.includes(away.toLowerCase().slice(0,4));
+      const predD=pw.includes('draw');
+      if((predH&&homeWon)||(predA&&awayWon)||(predD&&drew))predOutcome='correct';
+      else predOutcome='wrong';
+    }
     return `<div class="pred-card">
-     <div class="pred-meta">Group ${esc(mp.group||'?')} &middot; ${esc(mp.time_et||mp.status||'')}</div>
+     <div class="pred-meta">
+      <span>Group ${esc(mp.group||'?')} &middot; ${esc(mp.time_et||'')}</span>
+      ${isFinished?`<span class="pred-outcome ${predOutcome}">${predOutcome==='correct'?'&#x2705; Correct':'&#x274C; Incorrect'}</span>`:''}
+      ${isLive?'<span class="mbadge mb-lv" style="font-size:9px;margin-left:auto">&#x1F534; LIVE</span>':''}
+     </div>
      <div class="pred-match">
       <div class="pred-team"><span style="font-size:22px">${flag(home)}</span><span style="font-weight:700">${esc(home)}</span></div>
-      <div style="text-align:center">
-       ${showResult&&mp.status?`<div class="mbadge mb-lv" style="font-size:10px">${esc(mp.status)}</div>`:'<span style="color:var(--text3);font-size:12px">vs</span>'}
-       <div style="font-size:11px;color:var(--gold);margin-top:3px">${esc(mp.prediction||'')}</div>
+      <div style="text-align:center;min-width:90px">
+       ${isFinished&&actual
+         ?`<div class="pred-actual-score">${actual.home_score} - ${actual.away_score}</div><div style="font-size:9px;color:var(--text3)">RESULT</div>`
+         :(isLive&&actual?`<div class="m-score lv" style="font-size:18px">${actual.home_score}-${actual.away_score}</div><div style="font-size:9px;color:var(--live)">${actual.minute||'LIVE'}</div>`
+         :'<span style="color:var(--text3);font-size:12px">vs</span>')}
       </div>
       <div class="pred-team r"><span style="font-weight:700">${esc(away)}</span><span style="font-size:22px">${flag(away)}</span></div>
      </div>
+     <div style="text-align:center;font-size:11px;margin:6px 0;padding:4px 8px;background:rgba(212,175,55,.1);border-radius:6px">
+      &#x1F52E; <span style="color:var(--gold)">${esc(mp.prediction||'N/A')}</span>
+     </div>
      <div class="pb-row">
-      <div style="flex:${hpct||33}"><div class="pb h"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${home} ${hpct||0}%</div></div>
+      <div style="flex:${hpct||33}"><div class="pb h"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${esc(home)} ${hpct||0}%</div></div>
       <div style="flex:${dpct||20};text-align:center"><div class="pb d"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">Draw ${dpct||0}%</div></div>
-      <div style="flex:${apct||33};text-align:right"><div class="pb a" style="margin-left:auto"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${apct||0}% ${away}</div></div>
+      <div style="flex:${apct||33};text-align:right"><div class="pb a" style="margin-left:auto"></div><div style="font-size:10px;color:var(--text2);margin-top:3px">${apct||0}% ${esc(away)}</div></div>
      </div>
     </div>`;
   }).join('');
@@ -1158,7 +1185,7 @@ function renderPredictions(){
    </div>
    <div>
     <h2 class="sec-title">&#x1F4C5; Today's Match Predictions</h2>
-    ${todayPreds.length?predMatchHtml(todayPreds,true):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No match predictions for today</div>'}
+    ${todayPreds.length?predMatchHtml(todayPreds):'<div class="card card-body" style="padding:16px;text-align:center;color:var(--text2)">No match predictions for today</div>'}
    </div>
   </div>
   <h2 class="sec-title" style="margin-top:24px">&#x1F52E; Matchday 3 Predictions (June 25-27)</h2>
