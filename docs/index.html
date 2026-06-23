@@ -116,25 +116,33 @@ body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,san
 @media(max-width:1200px){.g6{grid-template-columns:repeat(4,1fr)}.g4{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.g6{grid-template-columns:repeat(3,1fr)}.g4,.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
 @media(max-width:560px){.g6,.g4,.g3{grid-template-columns:repeat(2,1fr)}}
-.hero{background:linear-gradient(135deg,#0a1628 0%,#1e3a5f 55%,#2d5282 100%);border-radius:var(--r2);margin-bottom:20px;border:1px solid var(--gold);position:relative;overflow:hidden;display:flex}
-.hero-info{flex:1;padding:28px;position:relative;z-index:1}
-.hero-info::before{content:"\26BD";position:absolute;right:-10px;bottom:-20px;font-size:130px;opacity:.05;transform:rotate(15deg);pointer-events:none}
-.hero-hl{width:260px;flex-shrink:0;background:rgba(0,0,0,.25);border-left:1px solid rgba(255,255,255,.08);padding:16px;display:flex;flex-direction:column;gap:0}
-@media(max-width:860px){.hero{flex-direction:column}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,255,255,.08)}}
-.hl-hdr{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.hl-item{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.8);line-height:1.4}
-.hl-item:last-child{border-bottom:none}
-.hl-icon{font-size:15px;flex-shrink:0;margin-top:1px}
-.hero-title{font-size:32px;font-weight:900;color:#fff;margin:0 0 4px}
+.hero{background:linear-gradient(135deg,#06101e 0%,#0d1f3c 50%,#162e56 100%);border-radius:var(--r2);margin-bottom:20px;border:1px solid rgba(255,215,0,.3);position:relative;overflow:hidden;display:flex;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.hero::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),rgba(255,215,0,.4) 60%,transparent)}
+.hero-info{flex:1;padding:28px 30px;position:relative;z-index:1}
+.hero-info::before{content:"\26BD";position:absolute;right:-10px;bottom:-24px;font-size:160px;opacity:.04;transform:rotate(18deg);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:3px 12px;font-size:9px;color:var(--gold);font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.hero-live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:3px 12px;font-size:9px;font-weight:800;color:#f87171;animation:bpulse 2s infinite;margin-bottom:10px;text-transform:uppercase}
+.hero-hl{width:300px;flex-shrink:0;background:rgba(0,0,0,.3);border-left:1px solid rgba(255,215,0,.12);padding:18px 16px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;max-height:300px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.3) transparent}
+@media(max-width:860px){.hero{flex-direction:column}.hero-hl{width:100%;border-left:none;border-top:1px solid rgba(255,215,0,.12);max-height:none}}
+.hl-hdr{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hl-hdr::before{content:"";width:3px;height:12px;background:var(--gold);border-radius:2px;flex-shrink:0}
+.hl-item{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;background:rgba(255,255,255,.04);border-radius:7px;border-left:3px solid var(--gold);font-size:11px;color:rgba(255,255,255,.82);line-height:1.45;transition:background .15s;flex-shrink:0}
+.hl-item:hover{background:rgba(255,255,255,.08)}
+.hl-item.hl-red{border-left-color:#f87171}.hl-item.hl-green{border-left-color:var(--qual)}.hl-item.hl-blue{border-left-color:var(--cont)}
+.hl-icon{font-size:15px;flex-shrink:0;line-height:1.4}
+.hero-title{font-size:32px;font-weight:900;color:#fff;margin:0 0 4px;line-height:1.1}
 .hero-title span{color:var(--gold)}
-.hero-sub{font-size:14px;color:rgba(255,255,255,.65);margin:0 0 20px}
-.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
-.hstat-val{font-size:28px;font-weight:900;color:var(--gold);display:block}
-.hstat-lbl{font-size:11px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.06em}
-.countdown{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-.cd-unit{background:rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;text-align:center}
-.cd-val{font-size:26px;font-weight:900;color:#fff;display:block}
-.cd-lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);margin:0 0 16px}
+.hero-stats{display:flex;gap:0;flex-wrap:nowrap;background:rgba(255,255,255,.05);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+.hstat-item{flex:1;padding:10px 12px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}
+.hstat-item:last-child{border-right:none}
+.hstat-val{font-size:22px;font-weight:900;color:var(--gold);display:block;line-height:1.1}
+.hstat-lbl{font-size:8px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.countdown{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.cd-unit{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,215,0,.03));border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:9px 16px;text-align:center;min-width:56px}
+.cd-unit.final-box{background:linear-gradient(135deg,rgba(255,215,0,.18),rgba(255,215,0,.07));border-color:rgba(255,215,0,.45)}
+.cd-val{font-size:26px;font-weight:900;color:var(--gold);display:block;line-height:1}
+.cd-lbl{font-size:8px;color:rgba(255,255,255,.48);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
 .scards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:12px}
 @media(max-width:900px){.scards{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:460px){.scards{grid-template-columns:1fr}}
@@ -891,11 +899,9 @@ function onHeaderSearch(q){
 // ================================================================
 function buildHighlights(){
   const items=[];
-  // New WC2026 records/milestones
   (WC_RECORDS.wc2026_new_records||[]).forEach(r=>{
-    if(r.record||r.detail) items.push({icon:'&#x1F3C6;',text:`<strong>${esc(r.record||'Record')}</strong>: ${esc(r.detail||'')}`});
+    if(r.record||r.detail) items.push({icon:'&#x1F3C6;',text:`<strong>${esc(r.record||'Record')}</strong>: ${esc(r.detail||'')}`,type:'gold'});
   });
-  // Today's scorers (brace/hat-trick highlights)
   const scorerCounts={};
   (WC_GROUPS.today_matches_june22||[]).forEach(tm=>{
     if(!/FINAL|FT/i.test(tm.status||''))return;
@@ -905,31 +911,43 @@ function buildHighlights(){
     });
   });
   Object.entries(scorerCounts).forEach(([name,g])=>{
-    if(g>=2)items.push({icon:g>=3?'&#x1F3A9;':'&#x26BD;',text:`<strong>${esc(name)}</strong> scored ${g} goals today!`});
+    if(g>=2)items.push({icon:g>=3?'&#x1F3A9;':'&#x26BD;',text:`<strong>${esc(name)}</strong> scored ${g} goals today!`,type:'green'});
   });
-  // ESPN today's red cards
   espnMatches.forEach(ev=>{
     try{
       const comp=(ev.competitions||[])[0];if(!comp)return;
       (comp.details||[]).filter(d=>d.type&&/red card/i.test(d.type.text||'')).forEach(d=>{
         const ath=(d.athletesInvolved||[])[0];
-        if(ath)items.push({icon:'&#x1F7E5;',text:`<strong>${esc(ath.shortName||ath.displayName||'Player')}</strong> sent off`});
+        if(ath)items.push({icon:'&#x1F7E5;',text:`<strong>${esc(ath.shortName||ath.displayName||'Player')}</strong> sent off`,type:'red'});
       });
     }catch{}
   });
-  // Notable group leaders
   const groups=getGroups();
   groups.filter(g=>g.teams[0]&&(g.teams[0].pts||0)>=6).forEach(g=>{
     const t=g.teams[0];
     if(!items.find(i=>i.text.includes(t.team)))
-      items.push({icon:'&#x1F4CA;',text:`<strong>${esc(t.team)}</strong> lead Group ${g.group} &mdash; ${t.gf||0} goals in ${t.played||0} games`});
+      items.push({icon:'&#x1F4CA;',text:`<strong>${esc(t.team)}</strong> lead Group ${g.group} &mdash; ${t.gf||0} goals in ${t.played||0} games`,type:'blue'});
   });
-  // Today's results
-  (WC_GROUPS.today_matches_june22||[]).filter(m=>/FINAL|FT/i.test(m.status||'')).forEach(m=>{
-    const p=parseTodayMatch(m);
-    if(p)items.push({icon:'&#x2705;',text:`<strong>FT:</strong> ${flag(p.home)} ${esc(p.home)} ${p.home_score}&ndash;${p.away_score} ${esc(p.away)} ${flag(p.away)}`});
+  const allEvents=[...espnHistory,...espnMatches];
+  const seenFT=new Set();
+  allEvents.forEach(ev=>{
+    try{
+      const comp=(ev.competitions||[])[0];if(!comp)return;
+      if((comp.status?.type?.state||'')!=='post')return;
+      const cs=comp.competitors||[];
+      const h=cs.find(c=>c.homeAway==='home')||cs[0];
+      const a=cs.find(c=>c.homeAway==='away')||cs[1];
+      if(!h||!a)return;
+      const key=ev.id||`${h.team?.displayName}-${a.team?.displayName}`;
+      if(seenFT.has(key))return;seenFT.add(key);
+      const hn=normalizeEspnName(h.team?.displayName||'');
+      const an=normalizeEspnName(a.team?.displayName||'');
+      const hs=parseInt(h.score)||0,as_=parseInt(a.score)||0;
+      if(hn&&an&&!items.find(i=>i.text.includes(hn)&&i.text.includes('FT')))
+        items.push({icon:'&#x2705;',text:`<strong>FT:</strong> ${flag(hn)} ${esc(hn)} ${hs}&ndash;${as_} ${esc(an)} ${flag(an)}`,type:'green'});
+    }catch{}
   });
-  return items.slice(0,8);
+  return items.slice(0,7);
 }
 
 function getGroupPositions(){
@@ -1025,25 +1043,28 @@ function renderHome(){
   document.getElementById('tab-home').innerHTML=`
   <div class="hero">
    <div class="hero-info">
+    ${nLive>0
+      ?`<div class="hero-live-badge">&#x1F534; ${nLive} Match${nLive>1?'es':''} Live Now</div>`
+      :`<div class="hero-badge">&#x1F3C6; FIFA World Cup 2026&#x2122;</div>`}
     <div class="hero-title">FIFA World Cup <span>2026&#8482;</span></div>
     <div class="hero-sub">USA &middot; Canada &middot; Mexico &nbsp;|&nbsp; June 11 &ndash; July 19, 2026</div>
     <div class="hero-stats">
-     <div><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
-     <div><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
-     <div><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
-     <div><span class="hstat-val">${nV}</span><span class="hstat-lbl">R32 Qualified</span></div>
+     <div class="hstat-item"><span class="hstat-val">48</span><span class="hstat-lbl">Teams</span></div>
+     <div class="hstat-item"><span class="hstat-val">104</span><span class="hstat-lbl">Matches</span></div>
+     <div class="hstat-item"><span class="hstat-val">12</span><span class="hstat-lbl">Groups</span></div>
+     <div class="hstat-item"><span class="hstat-val" style="color:var(--qual)">${nV}</span><span class="hstat-lbl">R32 Qualified</span></div>
     </div>
     <div class="countdown">
      <div class="cd-unit"><span class="cd-val">${days}</span><span class="cd-lbl">Days</span></div>
      <div class="cd-unit"><span class="cd-val">${hours}</span><span class="cd-lbl">Hours</span></div>
      <div class="cd-unit"><span class="cd-val">${mins}</span><span class="cd-lbl">Mins</span></div>
-     <div class="cd-unit"><span class="cd-val" style="font-size:12px;color:var(--gold)">Until<br>Final</span></div>
+     <div class="cd-unit final-box"><span class="cd-val" style="font-size:12px;line-height:1.3">Until<br>Final</span></div>
     </div>
    </div>
    <div class="hero-hl">
-    <div class="hl-hdr">&#x1F525; Today&#x27;s Highlights</div>
-    ${highlights.length?highlights.map(h=>`<div class="hl-item"><span class="hl-icon">${h.icon}</span><span>${h.text}</span></div>`).join('')
-    :'<div class="hl-item"><span class="hl-icon">&#x26BD;</span><span>Highlights loading...</span></div>'}
+    <div class="hl-hdr">&#x1F525; Highlights</div>
+    ${highlights.length?highlights.map(h=>`<div class="hl-item hl-${h.type||'gold'}"><span class="hl-icon">${h.icon}</span><span>${h.text}</span></div>`).join('')
+    :'<div class="hl-item"><span class="hl-icon">&#x23F3;</span><span>Highlights loading...</span></div>'}
    </div>
   </div>
   <div class="scards">
